@@ -1,0 +1,7 @@
+{
+  "numero": "04",
+  "nombre": "Reparación de motor",
+  "descripcion": "Diagnóstico y reparaciones mayores, incluida bajada de motor cuando el trabajo lo requiere.",
+  "orden": 4,
+  "publicado": true
+}

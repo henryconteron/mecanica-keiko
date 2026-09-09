@@ -1,0 +1,7 @@
+{
+  "numero": "07",
+  "nombre": "Nombre del servicio",
+  "descripcion": "Explica de forma breve qué trabajo se realiza y para qué tipo de vehículo.",
+  "orden": 7,
+  "publicado": false
+}

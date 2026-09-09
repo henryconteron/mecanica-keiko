@@ -1,0 +1,60 @@
+{
+  "actualizado": "2026-09-09T18:21:51.038Z",
+  "total": 6,
+  "servicios": [
+    {
+      "id": "mecanica-general",
+      "numero": "01",
+      "nombre": "Mecánica general",
+      "descripcion": "Diagnóstico, mantenimiento y reparación de sistemas mecánicos para carros y camionetas.",
+      "orden": 1,
+      "publicado": true,
+      "medios": []
+    },
+    {
+      "id": "mecanica-rapida",
+      "numero": "02",
+      "nombre": "Mecánica rápida",
+      "descripcion": "Revisiones y trabajos puntuales para resolver fallas comunes de forma ordenada.",
+      "orden": 2,
+      "publicado": true,
+      "medios": []
+    },
+    {
+      "id": "frenos",
+      "numero": "03",
+      "nombre": "Frenos",
+      "descripcion": "Revisión del sistema, ABC de frenos y cambio de pastillas según el vehículo.",
+      "orden": 3,
+      "publicado": true,
+      "medios": []
+    },
+    {
+      "id": "reparacion-motor",
+      "numero": "04",
+      "nombre": "Reparación de motor",
+      "descripcion": "Diagnóstico y reparaciones mayores, incluida bajada de motor cuando el trabajo lo requiere.",
+      "orden": 4,
+      "publicado": true,
+      "medios": []
+    },
+    {
+      "id": "alineacion-computarizada",
+      "numero": "05",
+      "nombre": "Alineación computarizada",
+      "descripcion": "Corrección de ángulos para mejorar estabilidad, dirección y desgaste de neumáticos.",
+      "orden": 5,
+      "publicado": true,
+      "medios": []
+    },
+    {
+      "id": "balanceo",
+      "numero": "06",
+      "nombre": "Balanceo",
+      "descripcion": "Balanceo de ruedas para reducir vibraciones y lograr una conducción más uniforme.",
+      "orden": 6,
+      "publicado": true,
+      "medios": []
+    }
+  ]
+}

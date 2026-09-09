@@ -77,21 +77,19 @@
       gap: 24px;
     }
     .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .brand-mark {
-      width: 46px;
+    .brand-logo {
+      width: 50px;
       aspect-ratio: 1;
+      flex: 0 0 auto;
+      overflow: hidden;
       display: grid;
       place-items: center;
-      color: var(--white);
-      background: var(--red);
-      border: 3px solid var(--gold);
-      border-radius: 50%;
-      font-family: "Oswald", sans-serif;
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -.04em;
-      transform: rotate(-6deg);
+      border: 2px solid var(--gold);
+      border-radius: 15px;
+      background: var(--white);
+      box-shadow: 0 5px 18px rgba(0, 0, 0, .2);
     }
+    .brand-logo img { width: 100%; height: 100%; display: block; object-fit: contain; }
     .brand-copy { display: grid; line-height: 1.05; }
     .brand-copy strong { font-family: "Oswald", sans-serif; font-size: 1.05rem; letter-spacing: .04em; text-transform: uppercase; }
     .brand-copy span { color: #bababa; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
@@ -121,7 +119,10 @@
       line-height: 1;
       pointer-events: none;
     }
-    .hero-inner { position: relative; z-index: 1; padding: clamp(76px, 11vw, 145px) 0 84px; }
+    .hero-inner { position: relative; z-index: 1; padding: clamp(62px, 8vw, 105px) 0 70px; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: clamp(24px, 5vw, 70px); align-items: center; }
+    .hero-copy { min-width: 0; }
+    .hero h1 { max-width: 650px; font-size: clamp(3rem, 6vw, 5.7rem); }
     .hero .eyebrow { color: var(--gold); }
     .hero-lead { max-width: 680px; margin-bottom: 30px; color: #d8d8d8; font-size: clamp(1rem, 2vw, 1.24rem); }
     .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -156,6 +157,36 @@
       font-weight: 700;
     }
     .fact strong { color: var(--gold); }
+    .hero-visual {
+      min-height: 500px;
+      position: relative;
+      align-self: stretch;
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      isolation: isolate;
+    }
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      right: 2%;
+      bottom: 8%;
+      width: min(100%, 430px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(233, 169, 39, .2);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(233, 169, 39, .15), rgba(200, 39, 44, .04) 48%, transparent 70%);
+    }
+    .hero-visual img {
+      width: 100%;
+      max-height: 570px;
+      display: block;
+      object-fit: contain;
+      object-position: center bottom;
+      filter: drop-shadow(0 24px 32px rgba(0, 0, 0, .45));
+    }
+    .hero-visual.is-empty { min-height: 420px; }
 
     .section { padding: clamp(72px, 9vw, 120px) 0; }
     .section-head { max-width: 760px; margin-bottom: 42px; }
@@ -164,14 +195,32 @@
     .services { grid-template-columns: repeat(3, 1fr); }
     .service-card {
       min-height: 230px;
-      padding: 27px;
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--white);
       box-shadow: 0 8px 30px rgba(20, 20, 20, .04);
     }
+    .service-body { min-height: 230px; padding: 27px; position: relative; z-index: 1; display: flex; flex: 1; flex-direction: column; }
+    .service-card.has-media .service-body { min-height: 245px; }
+    .service-media {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      border: 0;
+      background: #171717;
+      cursor: pointer;
+    }
+    .service-media img, .service-media video { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .35s ease; }
+    .service-card:hover .service-media img { transform: scale(1.025); }
     .service-number {
       margin-bottom: 32px;
       display: inline-grid;
@@ -186,6 +235,19 @@
       font-weight: 700;
     }
     .service-card p { margin-bottom: 0; color: var(--muted); font-size: .92rem; }
+    .service-gallery-link {
+      margin-top: auto;
+      padding: 22px 0 0;
+      color: var(--red);
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 800;
+      text-align: left;
+    }
+    .service-gallery-link:hover { color: var(--red-dark); }
     .service-card::after {
       content: "";
       position: absolute;
@@ -195,6 +257,7 @@
       aspect-ratio: 1;
       border: 18px solid rgba(200, 39, 44, .045);
       border-radius: 50%;
+      pointer-events: none;
     }
 
     .parts-section { color: var(--white); background: var(--ink); }
@@ -331,6 +394,7 @@
     .dialog-copy .eyebrow { margin-bottom: 8px; }
     .dialog-copy h2 { margin-bottom: 12px; font-size: clamp(2rem, 4vw, 3.3rem); }
     .dialog-copy p { color: var(--muted); }
+    .service-dialog-note { margin: 22px 0; padding: 14px 16px; border-left: 4px solid var(--gold); background: #faf6e9; font-size: .85rem; }
     .dialog-price { margin: 20px 0; color: var(--red); font-size: 1.65rem; font-weight: 900; }
     .dialog-list { margin: 20px 0 26px; padding-left: 20px; }
     .dialog-list li { margin-bottom: 7px; }
@@ -414,6 +478,10 @@
 
     @media (max-width: 900px) {
       .nav-links a:not(.nav-cta) { display: none; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-visual { min-height: 390px; }
+      .hero-visual.is-empty { display: none; }
+      .hero-visual img { max-height: 430px; }
       .services, .parts-grid { grid-template-columns: repeat(2, 1fr); }
       .compatibility, .contact-shell { grid-template-columns: 1fr; }
       .map, .map iframe { min-height: 380px; }
@@ -430,12 +498,15 @@
       .nav-cta { padding: 9px 13px; font-size: .78rem; }
       .hero-inner { padding-top: 72px; }
       h1 { font-size: clamp(2.85rem, 15vw, 4.5rem); }
+      .hero h1 { font-size: clamp(2.85rem, 15vw, 4.5rem); }
+      .hero-visual { min-height: 320px; }
+      .hero-visual img { max-height: 350px; }
       .hero-actions .button { width: 100%; }
       .services, .parts-grid { grid-template-columns: 1fr; }
       .catalog-grid { grid-template-columns: 1fr; }
       .catalog-toolbar { padding: 12px; }
       .dialog-copy { padding: 28px 22px; }
-      .service-card { min-height: auto; }
+      .service-card, .service-body, .service-card.has-media .service-body { min-height: auto; }
       .contact-info, .compat-copy, .checklist { padding: 27px 22px; }
       .footer-inner { flex-direction: column; }
     }
@@ -482,7 +553,7 @@
   <header class="site-header">
     <div class="wrap nav">
       <a class="brand" href="#inicio" aria-label="Ir al inicio">
-        <span class="brand-mark" aria-hidden="true">TK</span>
+        <span class="brand-logo" aria-hidden="true"><img src="assets/marca/logo/logo.png" alt=""></span>
         <span class="brand-copy">
           <strong>Tecnicentro Keiko</strong>
           <span>Mecánica automotriz · Archidona</span>
@@ -500,18 +571,25 @@
   <main>
     <section class="hero" id="inicio">
       <div class="wrap hero-inner">
-        <p class="eyebrow">Mecánica automotriz en Archidona</p>
-        <h1>Tu carro bien atendido. Sin vueltas.</h1>
-        <p class="hero-lead">Mecánica general, frenos, reparación de motor, alineación y balanceo para carros y camionetas. También contamos con repuestos en liquidación por código.</p>
-        <div class="hero-actions">
-          <a class="button button-red" href="tel:+593939876118">Llamar al mecánico: 093 987 6118</a>
-          <a class="button button-light" href="#repuestos">Ver repuestos disponibles</a>
-        </div>
-        <div class="hero-facts" aria-label="Información rápida">
-          <span class="fact"><strong>✓</strong> Carros y camionetas</span>
-          <span class="fact"><strong>✓</strong> Atención directa</span>
-          <span class="fact"><strong>✓</strong> Archidona, Napo</span>
-          <span class="fact"><strong>!</strong> No atendemos buses ni camiones</span>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Mecánica automotriz en Archidona</p>
+            <h1>Tu carro bien atendido. Sin vueltas.</h1>
+            <p class="hero-lead">Mecánica general, frenos, reparación de motor, alineación y balanceo para carros y camionetas. También contamos con repuestos en liquidación por código.</p>
+            <div class="hero-actions">
+              <a class="button button-red" href="tel:+593939876118">Llamar al mecánico: 093 987 6118</a>
+              <a class="button button-light" href="#repuestos">Ver repuestos disponibles</a>
+            </div>
+            <div class="hero-facts" aria-label="Información rápida">
+              <span class="fact"><strong>✓</strong> Carros y camionetas</span>
+              <span class="fact"><strong>✓</strong> Atención directa</span>
+              <span class="fact"><strong>✓</strong> Archidona, Napo</span>
+              <span class="fact"><strong>!</strong> No atendemos buses ni camiones</span>
+            </div>
+          </div>
+          <div class="hero-visual is-empty" aria-label="Espacio para la mascota de Tecnicentro Keiko">
+            <img src="assets/marca/mascota/mascota.png" alt="Mascota de Tecnicentro Automotriz Keiko" onload="this.parentElement.classList.remove('is-empty')" onerror="this.remove()">
+          </div>
         </div>
       </div>
     </section>
@@ -523,36 +601,48 @@
           <h2>Servicios claros para cuidar tu vehículo</h2>
           <p>Revisamos el problema, explicamos el trabajo y confirmamos antes de intervenir.</p>
         </div>
-        <div class="grid services">
-          <article class="service-card">
-            <span class="service-number">01</span>
-            <h3>Mecánica general</h3>
-            <p>Diagnóstico, mantenimiento y reparación de sistemas mecánicos para carros y camionetas.</p>
+        <div class="grid services" id="services-grid">
+          <article class="service-card" data-service-id="mecanica-general">
+            <div class="service-body">
+              <span class="service-number">01</span>
+              <h3>Mecánica general</h3>
+              <p>Diagnóstico, mantenimiento y reparación de sistemas mecánicos para carros y camionetas.</p>
+            </div>
           </article>
-          <article class="service-card">
-            <span class="service-number">02</span>
-            <h3>Mecánica rápida</h3>
-            <p>Revisiones y trabajos puntuales para resolver fallas comunes de forma ordenada.</p>
+          <article class="service-card" data-service-id="mecanica-rapida">
+            <div class="service-body">
+              <span class="service-number">02</span>
+              <h3>Mecánica rápida</h3>
+              <p>Revisiones y trabajos puntuales para resolver fallas comunes de forma ordenada.</p>
+            </div>
           </article>
-          <article class="service-card">
-            <span class="service-number">03</span>
-            <h3>Frenos</h3>
-            <p>Revisión del sistema, ABC de frenos y cambio de pastillas según el vehículo.</p>
+          <article class="service-card" data-service-id="frenos">
+            <div class="service-body">
+              <span class="service-number">03</span>
+              <h3>Frenos</h3>
+              <p>Revisión del sistema, ABC de frenos y cambio de pastillas según el vehículo.</p>
+            </div>
           </article>
-          <article class="service-card">
-            <span class="service-number">04</span>
-            <h3>Reparación de motor</h3>
-            <p>Diagnóstico y reparaciones mayores, incluida bajada de motor cuando el trabajo lo requiere.</p>
+          <article class="service-card" data-service-id="reparacion-motor">
+            <div class="service-body">
+              <span class="service-number">04</span>
+              <h3>Reparación de motor</h3>
+              <p>Diagnóstico y reparaciones mayores, incluida bajada de motor cuando el trabajo lo requiere.</p>
+            </div>
           </article>
-          <article class="service-card">
-            <span class="service-number">05</span>
-            <h3>Alineación computarizada</h3>
-            <p>Corrección de ángulos para mejorar estabilidad, dirección y desgaste de neumáticos.</p>
+          <article class="service-card" data-service-id="alineacion-computarizada">
+            <div class="service-body">
+              <span class="service-number">05</span>
+              <h3>Alineación computarizada</h3>
+              <p>Corrección de ángulos para mejorar estabilidad, dirección y desgaste de neumáticos.</p>
+            </div>
           </article>
-          <article class="service-card">
-            <span class="service-number">06</span>
-            <h3>Balanceo</h3>
-            <p>Balanceo de ruedas para reducir vibraciones y lograr una conducción más uniforme.</p>
+          <article class="service-card" data-service-id="balanceo">
+            <div class="service-body">
+              <span class="service-number">06</span>
+              <h3>Balanceo</h3>
+              <p>Balanceo de ruedas para reducir vibraciones y lograr una conducción más uniforme.</p>
+            </div>
           </article>
         </div>
       </div>
@@ -643,7 +733,12 @@
     <button class="dialog-close" id="dialog-close" type="button" aria-label="Cerrar">×</button>
     <div id="dialog-content"></div>
   </dialog>
+  <dialog class="catalog-dialog" id="service-dialog" aria-labelledby="service-dialog-title">
+    <button class="dialog-close" id="service-dialog-close" type="button" aria-label="Cerrar">×</button>
+    <div id="service-dialog-content"></div>
+  </dialog>
   <div class="toast" id="catalog-toast" role="status" aria-live="polite"></div>
+  <script src="assets/servicios.js" defer></script>
   <script src="assets/catalogo.js" defer></script>
 </body>
 </html>

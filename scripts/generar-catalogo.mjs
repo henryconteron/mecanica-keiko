@@ -5,6 +5,8 @@ const projectRoot = process.cwd();
 const catalogRoot = path.join(projectRoot, "catalogo");
 const outputFile = path.join(projectRoot, "data", "catalogo.json");
 const productPagesRoot = path.join(projectRoot, "productos");
+const servicesRoot = path.join(projectRoot, "servicios");
+const servicesOutputFile = path.join(projectRoot, "data", "servicios.json");
 const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 const videoExtensions = new Set([".mp4", ".webm"]);
 
@@ -27,6 +29,24 @@ const siteUrlFromEnvironment = () => {
 };
 
 const siteUrl = siteUrlFromEnvironment();
+
+const mediaFilesIn = async (folder, publicFolder) => {
+  const files = (await readdir(folder, { withFileTypes: true }))
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .filter((name) => imageExtensions.has(path.extname(name).toLowerCase()) || videoExtensions.has(path.extname(name).toLowerCase()))
+    .sort((a, b) => {
+      const aCover = a.toLowerCase().startsWith("portada") ? -1 : 0;
+      const bCover = b.toLowerCase().startsWith("portada") ? -1 : 0;
+      return aCover - bCover || a.localeCompare(b, undefined, { numeric: true });
+    });
+
+  return files.map((name) => ({
+    tipo: videoExtensions.has(path.extname(name).toLowerCase()) ? "video" : "imagen",
+    src: `${publicFolder}/${encodeURIComponent(name)}`,
+    nombre: name
+  }));
+};
 
 const priceText = (product) => {
   if (typeof product.precio === "number") {
@@ -84,10 +104,11 @@ const renderProductPage = (product) => {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root{--ink:#171717;--paper:#f4f1eb;--red:#c8272c;--gold:#e9a927;--green:#20a856;--muted:#68645e}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font-family:Inter,system-ui,sans-serif;line-height:1.6}a{color:inherit}.top{padding:14px 0;color:#fff;background:var(--ink)}.wrap{width:min(1120px,calc(100% - 28px));margin:auto}.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{font-family:Oswald,sans-serif;font-size:1.15rem;font-weight:700;text-decoration:none;text-transform:uppercase}.back{color:#d1d1d1;text-decoration:none;font-size:.86rem;font-weight:700}.product{padding:clamp(34px,6vw,76px) 0}.layout{display:grid;grid-template-columns:1.08fr .92fr;gap:34px;align-items:start}.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.media-item{min-height:210px;margin:0;overflow:hidden;display:grid;place-items:center;background:#121212;border-radius:16px}.media-item.main{grid-column:1/-1;min-height:470px}.media-item img,.media-item video{width:100%;height:100%;max-height:580px;display:block;object-fit:contain}.empty{grid-column:1/-1;padding:80px 20px;color:#777;text-align:center;border:1px dashed #bbb;border-radius:16px}.copy{position:sticky;top:24px;padding:34px;background:#fff;border:1px solid #ddd7cf;border-radius:22px;box-shadow:0 18px 46px rgba(0,0,0,.08)}.eyebrow{margin:0 0 8px;color:var(--red);font-size:.76rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}h1{margin:0 0 12px;font-family:Oswald,sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);line-height:1;text-transform:uppercase}.code{color:var(--muted);font-weight:700}.price{margin:20px 0;color:var(--red);font-size:2rem;font-weight:900}.description{color:var(--muted)}ul{padding-left:20px}li{margin-bottom:7px}.buttons{margin-top:28px;display:grid;gap:10px}.button{min-height:50px;padding:12px 18px;display:flex;align-items:center;justify-content:center;border:0;border-radius:999px;color:#fff;background:var(--red);cursor:pointer;text-decoration:none;font:inherit;font-weight:800}.whatsapp{background:var(--green)}.secondary{color:var(--ink);border:1px solid #d4cec5;background:#fff}.notice{margin-top:20px;padding:14px 16px;border-left:4px solid var(--gold);background:#faf6e9;font-size:.84rem}.footer{padding:26px 0;color:#aaa;background:#101010;font-size:.82rem}@media(max-width:800px){.layout{grid-template-columns:1fr}.copy{position:static;order:-1}.media-item.main{min-height:320px}}@media(max-width:520px){.gallery{grid-template-columns:1fr}.media-item,.media-item.main{grid-column:1;min-height:280px}.copy{padding:25px 20px}.top .wrap{align-items:flex-start;flex-direction:column}}
+    .brand{display:flex;align-items:center;gap:10px}.brand img{width:42px;height:42px;display:block;object-fit:contain;border:2px solid var(--gold);border-radius:12px;background:#fff}
   </style>
 </head>
 <body>
-  <header class="top"><div class="wrap"><a class="brand" href="../../">Tecnicentro Automotriz Keiko</a><a class="back" href="../../#repuestos">← Volver al catálogo</a></div></header>
+  <header class="top"><div class="wrap"><a class="brand" href="../../"><img src="../../assets/marca/logo/logo.png" alt=""><span>Tecnicentro Automotriz Keiko</span></a><a class="back" href="../../#repuestos">← Volver al catálogo</a></div></header>
   <main class="product"><div class="wrap layout">
     <section class="gallery" aria-label="Fotos y videos del producto">${renderMedia(product)}</section>
     <article class="copy">
@@ -136,21 +157,7 @@ for (const directory of directories) {
     continue;
   }
 
-  const files = (await readdir(productFolder, { withFileTypes: true }))
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name)
-    .filter((name) => imageExtensions.has(path.extname(name).toLowerCase()) || videoExtensions.has(path.extname(name).toLowerCase()))
-    .sort((a, b) => {
-      const aCover = a.toLowerCase().startsWith("portada") ? -1 : 0;
-      const bCover = b.toLowerCase().startsWith("portada") ? -1 : 0;
-      return aCover - bCover || a.localeCompare(b, undefined, { numeric: true });
-    });
-
-  const media = files.map((name) => ({
-    tipo: videoExtensions.has(path.extname(name).toLowerCase()) ? "video" : "imagen",
-    src: `catalogo/${directory.name}/${encodeURIComponent(name)}`,
-    nombre: name
-  }));
+  const media = await mediaFilesIn(productFolder, `catalogo/${directory.name}`);
 
   products.push({
     id: directory.name,
@@ -159,8 +166,39 @@ for (const directory of directories) {
   });
 }
 
+const serviceDirectories = (await readdir(servicesRoot, { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_") && !entry.name.startsWith("."))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const services = [];
+
+for (const directory of serviceDirectories) {
+  const serviceFolder = path.join(servicesRoot, directory.name);
+  const dataFile = path.join(serviceFolder, "servicio.json");
+  let data;
+
+  try {
+    data = JSON.parse(await readFile(dataFile, "utf8"));
+  } catch (error) {
+    errors.push(`${directory.name}: no se pudo leer servicio.json (${error.message})`);
+    continue;
+  }
+
+  if (!data.nombre || !data.descripcion || !data.numero) {
+    errors.push(`${directory.name}: servicio.json necesita numero, nombre y descripcion`);
+    continue;
+  }
+
+  const media = await mediaFilesIn(serviceFolder, `servicios/${directory.name}`);
+  services.push({
+    id: directory.name,
+    ...data,
+    medios: media
+  });
+}
+
 if (errors.length) {
-  console.error("No se pudo generar el catálogo:\n- " + errors.join("\n- "));
+  console.error("No se pudo generar el contenido:\n- " + errors.join("\n- "));
   process.exit(1);
 }
 
@@ -168,11 +206,21 @@ const publicProducts = products
   .filter((product) => product.publicado !== false)
   .sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99) || a.nombre.localeCompare(b.nombre));
 
+const publicServices = services
+  .filter((service) => service.publicado !== false)
+  .sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99) || a.nombre.localeCompare(b.nombre));
+
 await mkdir(path.dirname(outputFile), { recursive: true });
 await writeFile(outputFile, JSON.stringify({
   actualizado: new Date().toISOString(),
   total: publicProducts.length,
   productos: publicProducts
+}, null, 2) + "\n");
+
+await writeFile(servicesOutputFile, JSON.stringify({
+  actualizado: new Date().toISOString(),
+  total: publicServices.length,
+  servicios: publicServices
 }, null, 2) + "\n");
 
 await rm(productPagesRoot, { recursive: true, force: true });
@@ -183,4 +231,4 @@ for (const product of publicProducts) {
   await writeFile(path.join(pageFolder, "index.html"), renderProductPage(product));
 }
 
-console.log(`Catálogo generado: ${publicProducts.length} productos publicados y ${publicProducts.length} páginas individuales.`);
+console.log(`Contenido generado: ${publicProducts.length} productos, ${publicProducts.length} páginas individuales y ${publicServices.length} servicios.`);
