@@ -1,0 +1,22 @@
+{
+  "codigo": "SP1502",
+  "nombre": "Pastillas de freno delanteras Hi-Q",
+  "categoria": "Pastillas de freno",
+  "marca": "Hi-Q / Sangsin",
+  "precio": 20,
+  "moneda": "USD",
+  "estado": "Nuevo, antiguo stock",
+  "stock": 1,
+  "descripcionCorta": "Juego delantero de 4 pastillas para Toyota Corolla E12, según versión.",
+  "descripcion": "Juego completo de 4 pastillas de freno delanteras Hi-Q, fabricadas por Sangsin Brake. Se confirma compatibilidad antes de la entrega.",
+  "compatibilidad": [
+    "Toyota Corolla E12, 2001–2007, según versión"
+  ],
+  "referencias": [
+    "SDB1714",
+    "FMSI D1215-8335"
+  ],
+  "destacado": true,
+  "publicado": true,
+  "orden": 1
+}

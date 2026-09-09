@@ -1,0 +1,234 @@
+{
+  "actualizado": "2026-09-09T17:32:59.765Z",
+  "total": 7,
+  "productos": [
+    {
+      "id": "sp1502",
+      "codigo": "SP1502",
+      "nombre": "Pastillas de freno delanteras Hi-Q",
+      "categoria": "Pastillas de freno",
+      "marca": "Hi-Q / Sangsin",
+      "precio": 20,
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 1,
+      "descripcionCorta": "Juego delantero de 4 pastillas para Toyota Corolla E12, según versión.",
+      "descripcion": "Juego completo de 4 pastillas de freno delanteras Hi-Q, fabricadas por Sangsin Brake. Se confirma compatibilidad antes de la entrega.",
+      "compatibilidad": [
+        "Toyota Corolla E12, 2001–2007, según versión"
+      ],
+      "referencias": [
+        "SDB1714",
+        "FMSI D1215-8335"
+      ],
+      "destacado": true,
+      "publicado": true,
+      "orden": 1,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/sp1502/portada.png",
+          "nombre": "portada.png"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/sp1502/02-lateral.png",
+          "nombre": "02-lateral.png"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/sp1502/03-material-friccion.png",
+          "nombre": "03-material-friccion.png"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/sp1502/04-codigo.png",
+          "nombre": "04-codigo.png"
+        }
+      ]
+    },
+    {
+      "id": "31911-2e000",
+      "codigo": "31911-2E000",
+      "nombre": "Filtro de combustible Hyundai/Kia Mobis",
+      "categoria": "Filtros",
+      "marca": "Hyundai Mobis",
+      "precio": 30,
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 2,
+      "descripcionCorta": "Filtro de combustible original Mobis; consulta aplicación por año y motor.",
+      "descripcion": "Filtro de combustible Hyundai/Kia Mobis. El código se asocia a determinadas versiones Hyundai Tucson y Kia Sportage; la aplicación se confirma con modelo, año y motor.",
+      "compatibilidad": [
+        "Hyundai Tucson, según versión",
+        "Kia Sportage, según versión"
+      ],
+      "referencias": [],
+      "destacado": true,
+      "publicado": true,
+      "orden": 2,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/31911-2e000/portada.jpg",
+          "nombre": "portada.jpg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/31911-2e000/02-unidad.jpg",
+          "nombre": "02-unidad.jpg"
+        }
+      ]
+    },
+    {
+      "id": "lf-d1574",
+      "codigo": "LF-D1574",
+      "nombre": "Pastillas de freno delanteras Car Shield",
+      "categoria": "Pastillas de freno",
+      "marca": "Car Shield",
+      "precio": "Consultar",
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 1,
+      "descripcionCorta": "Pastillas delanteras para determinadas versiones Mazda BT-50 y Ford Ranger 4×4.",
+      "descripcion": "Juego de pastillas de freno delanteras Car Shield. La caja indica aplicaciones Mazda BT-50 y Ford Ranger diésel 4×4; se debe confirmar el año y la versión.",
+      "compatibilidad": [
+        "Mazda BT-50 diésel 4×4, según versión",
+        "Ford Ranger diésel 4×4, según versión"
+      ],
+      "referencias": [
+        "FMSI D1574-8784",
+        "OEM UMY1-33-23ZA"
+      ],
+      "destacado": true,
+      "publicado": true,
+      "orden": 3,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/lf-d1574/portada.jpg",
+          "nombre": "portada.jpg"
+        }
+      ]
+    },
+    {
+      "id": "37230-0k021",
+      "codigo": "37230-0K021",
+      "nombre": "Rulimán central de cardán",
+      "categoria": "Rulimanes y soportes",
+      "marca": "J&R Rubber",
+      "precio": "Consultar",
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 1,
+      "descripcionCorta": "Soporte central de cardán para Toyota Hilux, según versión.",
+      "descripcion": "Rulimán o soporte central de cardán. La anotación de inventario indica Toyota Hilux; antes de vender se confirma año, motor y tipo de tracción.",
+      "compatibilidad": [
+        "Toyota Hilux, aplicación exacta por confirmar"
+      ],
+      "referencias": [],
+      "destacado": false,
+      "publicado": true,
+      "orden": 4,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/37230-0k021/portada.jpg",
+          "nombre": "portada.jpg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/37230-0k021/02-stock.jpg",
+          "nombre": "02-stock.jpg"
+        }
+      ]
+    },
+    {
+      "id": "ngk-bpr5ey",
+      "codigo": "BPR5EY",
+      "nombre": "Bujías NGK BPR5EY",
+      "categoria": "Bujías",
+      "marca": "NGK",
+      "precio": "Consultar",
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 10,
+      "descripcionCorta": "Bujías NGK código BPR5EY, disponibles por unidad o por juego.",
+      "descripcion": "Bujías NGK BPR5EY. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+      "compatibilidad": [
+        "Aplicación por confirmar con código de la bujía anterior"
+      ],
+      "referencias": [
+        "Código regional visible: 94743"
+      ],
+      "destacado": false,
+      "publicado": true,
+      "orden": 5,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bpr5ey/portada.jpg",
+          "nombre": "portada.jpg"
+        }
+      ]
+    },
+    {
+      "id": "ngk-bkr5e-11",
+      "codigo": "BKR5E-11",
+      "nombre": "Bujías NGK BKR5E-11",
+      "categoria": "Bujías",
+      "marca": "NGK",
+      "precio": "Consultar",
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 20,
+      "descripcionCorta": "Bujías NGK código BKR5E-11, disponibles por unidad o por juego.",
+      "descripcion": "Bujías NGK BKR5E-11. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+      "compatibilidad": [
+        "Aplicación por confirmar con código de la bujía anterior"
+      ],
+      "referencias": [
+        "Código regional visible: 94100"
+      ],
+      "destacado": false,
+      "publicado": true,
+      "orden": 6,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bkr5e-11/portada.jpg",
+          "nombre": "portada.jpg"
+        }
+      ]
+    },
+    {
+      "id": "ngk-dcpr7e",
+      "codigo": "DCPR7E",
+      "nombre": "Bujías NGK DCPR7E",
+      "categoria": "Bujías",
+      "marca": "NGK",
+      "precio": "Consultar",
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 4,
+      "descripcionCorta": "Bujías NGK DCPR7E, stock visible 3932.",
+      "descripcion": "Bujías NGK DCPR7E. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+      "compatibilidad": [
+        "Aplicación por confirmar con código de la bujía anterior"
+      ],
+      "referencias": [
+        "NGK stock 3932"
+      ],
+      "destacado": false,
+      "publicado": true,
+      "orden": 7,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-dcpr7e/portada.jpg",
+          "nombre": "portada.jpg"
+        }
+      ]
+    }
+  ]
+}

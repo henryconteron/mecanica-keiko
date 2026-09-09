@@ -1,0 +1,19 @@
+{
+  "codigo": "CODIGO-DEL-REPUESTO",
+  "nombre": "Nombre claro del producto",
+  "categoria": "Filtros",
+  "marca": "Marca",
+  "precio": "Consultar",
+  "moneda": "USD",
+  "estado": "Nuevo, antiguo stock",
+  "stock": 1,
+  "descripcionCorta": "Descripción breve para la tarjeta del catálogo.",
+  "descripcion": "Descripción completa, honesta y fácil de entender.",
+  "compatibilidad": [
+    "Vehículo, año y versión por confirmar"
+  ],
+  "referencias": [],
+  "destacado": false,
+  "publicado": false,
+  "orden": 99
+}

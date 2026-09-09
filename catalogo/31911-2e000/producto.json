@@ -1,0 +1,20 @@
+{
+  "codigo": "31911-2E000",
+  "nombre": "Filtro de combustible Hyundai/Kia Mobis",
+  "categoria": "Filtros",
+  "marca": "Hyundai Mobis",
+  "precio": 30,
+  "moneda": "USD",
+  "estado": "Nuevo, antiguo stock",
+  "stock": 2,
+  "descripcionCorta": "Filtro de combustible original Mobis; consulta aplicación por año y motor.",
+  "descripcion": "Filtro de combustible Hyundai/Kia Mobis. El código se asocia a determinadas versiones Hyundai Tucson y Kia Sportage; la aplicación se confirma con modelo, año y motor.",
+  "compatibilidad": [
+    "Hyundai Tucson, según versión",
+    "Kia Sportage, según versión"
+  ],
+  "referencias": [],
+  "destacado": true,
+  "publicado": true,
+  "orden": 2
+}

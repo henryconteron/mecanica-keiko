@@ -1,0 +1,21 @@
+{
+  "codigo": "BKR5E-11",
+  "nombre": "Bujías NGK BKR5E-11",
+  "categoria": "Bujías",
+  "marca": "NGK",
+  "precio": "Consultar",
+  "moneda": "USD",
+  "estado": "Nuevo, antiguo stock",
+  "stock": 20,
+  "descripcionCorta": "Bujías NGK código BKR5E-11, disponibles por unidad o por juego.",
+  "descripcion": "Bujías NGK BKR5E-11. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+  "compatibilidad": [
+    "Aplicación por confirmar con código de la bujía anterior"
+  ],
+  "referencias": [
+    "Código regional visible: 94100"
+  ],
+  "destacado": false,
+  "publicado": true,
+  "orden": 6
+}

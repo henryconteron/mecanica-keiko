@@ -1,0 +1,23 @@
+{
+  "codigo": "LF-D1574",
+  "nombre": "Pastillas de freno delanteras Car Shield",
+  "categoria": "Pastillas de freno",
+  "marca": "Car Shield",
+  "precio": "Consultar",
+  "moneda": "USD",
+  "estado": "Nuevo, antiguo stock",
+  "stock": 1,
+  "descripcionCorta": "Pastillas delanteras para determinadas versiones Mazda BT-50 y Ford Ranger 4×4.",
+  "descripcion": "Juego de pastillas de freno delanteras Car Shield. La caja indica aplicaciones Mazda BT-50 y Ford Ranger diésel 4×4; se debe confirmar el año y la versión.",
+  "compatibilidad": [
+    "Mazda BT-50 diésel 4×4, según versión",
+    "Ford Ranger diésel 4×4, según versión"
+  ],
+  "referencias": [
+    "FMSI D1574-8784",
+    "OEM UMY1-33-23ZA"
+  ],
+  "destacado": true,
+  "publicado": true,
+  "orden": 3
+}
