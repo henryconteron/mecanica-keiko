@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-09-10T22:14:45.041Z",
+  "actualizado": "2026-09-10T22:48:02.323Z",
   "total": 8,
   "productos": [
     {
@@ -59,7 +59,7 @@
       "precio": 30,
       "moneda": "USD",
       "estado": "Nuevo, antiguo stock",
-      "stock": 2,
+      "stock": 3,
       "descripcionCorta": "Filtro de combustible original Mobis; consulta aplicación por año y motor.",
       "descripcion": "Filtro de combustible Hyundai/Kia Mobis. El código se asocia a determinadas versiones Hyundai Tucson y Kia Sportage; la aplicación se confirma con modelo, año y motor.",
       "compatibilidad": [
@@ -76,13 +76,33 @@
       "medios": [
         {
           "tipo": "imagen",
+          "src": "catalogo/31911-2e000/portada.jpeg",
+          "nombre": "portada.jpeg"
+        },
+        {
+          "tipo": "imagen",
           "src": "catalogo/31911-2e000/portada.jpg",
           "nombre": "portada.jpg"
         },
         {
           "tipo": "imagen",
+          "src": "catalogo/31911-2e000/02.jpeg",
+          "nombre": "02.jpeg"
+        },
+        {
+          "tipo": "imagen",
           "src": "catalogo/31911-2e000/02.jpg",
           "nombre": "02.jpg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/31911-2e000/03.jpeg",
+          "nombre": "03.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/31911-2e000/04.jpeg",
+          "nombre": "04.jpeg"
         }
       ]
     },
@@ -115,8 +135,28 @@
       "medios": [
         {
           "tipo": "imagen",
+          "src": "catalogo/lf-d1574/portada.jpeg",
+          "nombre": "portada.jpeg"
+        },
+        {
+          "tipo": "imagen",
           "src": "catalogo/lf-d1574/portada.jpg",
           "nombre": "portada.jpg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/lf-d1574/02.jpeg",
+          "nombre": "02.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/lf-d1574/03.jpeg",
+          "nombre": "03.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/lf-d1574/04.jpeg",
+          "nombre": "04.jpeg"
         }
       ]
     },
@@ -262,23 +302,12 @@
       "estado": "Nuevo, antiguo stock",
       "stock": 4,
       "descripcionCorta": "Filtro de aceite tipo cartucho Advance AOE-9443 para aplicaciones Peugeot y Citroën, según motor y versión.",
-      "descripcion": "Filtro de aceite Advance AOE-9443 con guía. Los catálogos consultados lo relacionan con aplicaciones Peugeot y Citroën y con las equivalencias MANN HU 612 x y Hengst E35H D102. Antes de la entrega se confirma año, motor y versión del vehículo.",
+      "descripcion": "Filtro de aceite Advance AOE-9443 con guía. Con aplicaciones Peugeot y Citroën y con las equivalencias MANN HU 612 x y Hengst E35H D102. Antes de la entrega se confirma año, motor y versión del vehículo.",
       "compatibilidad": [
-        "Peugeot 206, según motor y versión",
-        "Peugeot 307, según motor y versión",
-        "Citroën C2, según motor y versión",
-        "Citroën C3, según motor y versión",
-        "Citroën Xsara, según motor y versión"
+        "Peugeot 206, 307, Citroën C2, C3, Xsara. Según motor y versión"
       ],
       "referencias": [
-        "ML-9443",
-        "SO011",
-        "MANN HU 612 x",
-        "Hengst E35H D102",
-        "OE 1109 AN",
-        "Peugeot 1109 R6",
-        "Citroën 1109 R7",
-        "Peugeot 9463704780"
+        "ML-9443, SO011, MANN HU 612 x, Hengst E35H D102, OE 1109 AN, Peugeot 1109 R6, Citroën 1109 R7, Peugeot 9463704780"
       ],
       "fuentes": [
         "https://distriparteslm.ec/categoria-producto/advance-2/page/21/",

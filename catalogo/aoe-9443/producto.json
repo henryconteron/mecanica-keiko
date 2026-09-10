@@ -8,23 +8,12 @@
   "estado": "Nuevo, antiguo stock",
   "stock": 4,
   "descripcionCorta": "Filtro de aceite tipo cartucho Advance AOE-9443 para aplicaciones Peugeot y Citroën, según motor y versión.",
-  "descripcion": "Filtro de aceite Advance AOE-9443 con guía. Los catálogos consultados lo relacionan con aplicaciones Peugeot y Citroën y con las equivalencias MANN HU 612 x y Hengst E35H D102. Antes de la entrega se confirma año, motor y versión del vehículo.",
+  "descripcion": "Filtro de aceite Advance AOE-9443 con guía. Con aplicaciones Peugeot y Citroën y con las equivalencias MANN HU 612 x y Hengst E35H D102. Antes de la entrega se confirma año, motor y versión del vehículo.",
   "compatibilidad": [
-    "Peugeot 206, según motor y versión",
-    "Peugeot 307, según motor y versión",
-    "Citroën C2, según motor y versión",
-    "Citroën C3, según motor y versión",
-    "Citroën Xsara, según motor y versión"
+    "Peugeot 206, 307, Citroën C2, C3, Xsara. Según motor y versión"
   ],
   "referencias": [
-    "ML-9443",
-    "SO011",
-    "MANN HU 612 x",
-    "Hengst E35H D102",
-    "OE 1109 AN",
-    "Peugeot 1109 R6",
-    "Citroën 1109 R7",
-    "Peugeot 9463704780"
+    "ML-9443, SO011, MANN HU 612 x, Hengst E35H D102, OE 1109 AN, Peugeot 1109 R6, Citroën 1109 R7, Peugeot 9463704780"
   ],
   "fuentes": [
     "https://distriparteslm.ec/categoria-producto/advance-2/page/21/",
