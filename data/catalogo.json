@@ -1,6 +1,6 @@
 {
-  "actualizado": "2026-09-10T22:06:48.062Z",
-  "total": 7,
+  "actualizado": "2026-09-10T22:14:45.041Z",
+  "total": 8,
   "productos": [
     {
       "id": "sp1502",
@@ -248,6 +248,63 @@
           "tipo": "imagen",
           "src": "catalogo/ngk-dcpr7e/portada.jpg",
           "nombre": "portada.jpg"
+        }
+      ]
+    },
+    {
+      "id": "aoe-9443",
+      "codigo": "AOE-9443",
+      "nombre": "Filtro de aceite Advance AOE-9443",
+      "categoria": "Filtros",
+      "marca": "Advance Filters",
+      "precio": "Consultar",
+      "moneda": "USD",
+      "estado": "Nuevo, antiguo stock",
+      "stock": 4,
+      "descripcionCorta": "Filtro de aceite tipo cartucho Advance AOE-9443 para aplicaciones Peugeot y Citroën, según motor y versión.",
+      "descripcion": "Filtro de aceite Advance AOE-9443 con guía. Los catálogos consultados lo relacionan con aplicaciones Peugeot y Citroën y con las equivalencias MANN HU 612 x y Hengst E35H D102. Antes de la entrega se confirma año, motor y versión del vehículo.",
+      "compatibilidad": [
+        "Peugeot 206, según motor y versión",
+        "Peugeot 307, según motor y versión",
+        "Citroën C2, según motor y versión",
+        "Citroën C3, según motor y versión",
+        "Citroën Xsara, según motor y versión"
+      ],
+      "referencias": [
+        "ML-9443",
+        "SO011",
+        "MANN HU 612 x",
+        "Hengst E35H D102",
+        "OE 1109 AN",
+        "Peugeot 1109 R6",
+        "Citroën 1109 R7",
+        "Peugeot 9463704780"
+      ],
+      "fuentes": [
+        "https://distriparteslm.ec/categoria-producto/advance-2/page/21/",
+        "https://www.mann-filter.com/en/catalog/search-results/product.html/hu612x_mann-filter.html",
+        "https://catalog.hengst.com/de/online-katalog/produkt/649130000-00/my/"
+      ],
+      "confianza": "Media",
+      "ubicacionInventario": "",
+      "destacado": true,
+      "publicado": true,
+      "orden": 8,
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "catalogo/aoe-9443/portada.jpeg",
+          "nombre": "portada.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/aoe-9443/02.jpeg",
+          "nombre": "02.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/aoe-9443/03.jpeg",
+          "nombre": "03.jpeg"
         }
       ]
     }
