@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-09-09T20:51:48.110Z",
+  "actualizado": "2026-09-10T21:51:21.228Z",
   "total": 7,
   "productos": [
     {
@@ -21,6 +21,9 @@
         "SDB1714",
         "FMSI D1215-8335"
       ],
+      "fuentes": [],
+      "confianza": "",
+      "ubicacionInventario": "",
       "destacado": true,
       "publicado": true,
       "orden": 1,
@@ -32,18 +35,18 @@
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/sp1502/02-lateral.png",
-          "nombre": "02-lateral.png"
+          "src": "catalogo/sp1502/02.png",
+          "nombre": "02.png"
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/sp1502/03-material-friccion.png",
-          "nombre": "03-material-friccion.png"
+          "src": "catalogo/sp1502/03.png",
+          "nombre": "03.png"
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/sp1502/04-codigo.png",
-          "nombre": "04-codigo.png"
+          "src": "catalogo/sp1502/04.png",
+          "nombre": "04.png"
         }
       ]
     },
@@ -64,6 +67,9 @@
         "Kia Sportage, según versión"
       ],
       "referencias": [],
+      "fuentes": [],
+      "confianza": "",
+      "ubicacionInventario": "",
       "destacado": true,
       "publicado": true,
       "orden": 2,
@@ -75,8 +81,8 @@
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/31911-2e000/02-unidad.jpg",
-          "nombre": "02-unidad.jpg"
+          "src": "catalogo/31911-2e000/02.jpg",
+          "nombre": "02.jpg"
         }
       ]
     },
@@ -100,6 +106,9 @@
         "FMSI D1574-8784",
         "OEM UMY1-33-23ZA"
       ],
+      "fuentes": [],
+      "confianza": "",
+      "ubicacionInventario": "",
       "destacado": true,
       "publicado": true,
       "orden": 3,
@@ -127,6 +136,9 @@
         "Toyota Hilux, aplicación exacta por confirmar"
       ],
       "referencias": [],
+      "fuentes": [],
+      "confianza": "",
+      "ubicacionInventario": "",
       "destacado": false,
       "publicado": true,
       "orden": 4,
@@ -138,8 +150,8 @@
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/37230-0k021/02-stock.jpg",
-          "nombre": "02-stock.jpg"
+          "src": "catalogo/37230-0k021/02.jpg",
+          "nombre": "02.jpg"
         }
       ]
     },
@@ -161,6 +173,9 @@
       "referencias": [
         "Código regional visible: 94743"
       ],
+      "fuentes": [],
+      "confianza": "",
+      "ubicacionInventario": "",
       "destacado": false,
       "publicado": true,
       "orden": 5,
@@ -190,6 +205,9 @@
       "referencias": [
         "Código regional visible: 94100"
       ],
+      "fuentes": [],
+      "confianza": "",
+      "ubicacionInventario": "",
       "destacado": false,
       "publicado": true,
       "orden": 6,
@@ -219,6 +237,9 @@
       "referencias": [
         "NGK stock 3932"
       ],
+      "fuentes": [],
+      "confianza": "",
+      "ubicacionInventario": "",
       "destacado": false,
       "publicado": true,
       "orden": 7,

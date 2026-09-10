@@ -1,0 +1,14 @@
+{
+  "name": "mecanica-keiko",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "inventario:validar": "node scripts/importar-inventario.mjs --validar",
+    "inventario:importar": "node scripts/importar-inventario.mjs",
+    "catalogo:generar": "node scripts/generar-catalogo.mjs",
+    "test:inventario": "node tests/importar-inventario.test.mjs"
+  },
+  "dependencies": {
+    "xlsx": "0.18.5"
+  }
+}

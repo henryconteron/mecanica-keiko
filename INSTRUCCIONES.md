@@ -18,6 +18,8 @@ Mantén GitHub Pages publicado desde la rama `main` y la carpeta `/ (root)`.
 
 ## Trabajo habitual
 
+- Para registrar muchos repuestos, usa `inventario/Inventario_Keiko.xlsx` y coloca las fotos en `inventario/fotos`.
+- La automatización valida la hoja, crea o actualiza las fichas y luego regenera la página.
 - Para añadir fotos o videos a un repuesto existente, entra en su carpeta dentro de `catalogo` y súbelos allí.
 - Para añadir fotos o videos de un trabajo, entra en la carpeta correspondiente dentro de `servicios` y súbelos allí.
 - La foto principal debe llamarse `portada.jpg`, `portada.png` o `portada.webp`.

@@ -4,8 +4,12 @@ on:
   push:
     paths:
       - "catalogo/**"
+      - "inventario/**"
       - "servicios/**"
       - "assets/marca/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "scripts/importar-inventario.mjs"
       - "scripts/generar-catalogo.mjs"
   workflow_dispatch:
 
@@ -19,17 +23,34 @@ jobs:
       - name: Descargar archivos del sitio
         uses: actions/checkout@v4
 
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Instalar lector de Excel
+        run: pnpm install --frozen-lockfile
+
+      - name: Validar e importar inventario
+        run: node scripts/importar-inventario.mjs
+
       - name: Generar productos y galerías de servicios
         run: node scripts/generar-catalogo.mjs
 
       - name: Guardar contenido actualizado
         run: |
-          if git diff --quiet data/catalogo.json data/servicios.json productos/; then
+          if git diff --quiet catalogo/ inventario/reporte-validacion.json inventario/pendientes-investigacion.csv data/catalogo.json data/servicios.json productos/; then
             echo "No hay cambios generados"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/catalogo.json data/servicios.json productos/
+          git add catalogo/ inventario/reporte-validacion.json inventario/pendientes-investigacion.csv data/catalogo.json data/servicios.json productos/
           git commit -m "Actualizar catálogo y servicios [skip ci]"
           git push
