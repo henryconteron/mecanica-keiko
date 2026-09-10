@@ -6,7 +6,7 @@
   "precio": 30,
   "moneda": "USD",
   "estado": "Nuevo, antiguo stock",
-  "stock": 2,
+  "stock": 3,
   "descripcionCorta": "Filtro de combustible original Mobis; consulta aplicación por año y motor.",
   "descripcion": "Filtro de combustible Hyundai/Kia Mobis. El código se asocia a determinadas versiones Hyundai Tucson y Kia Sportage; la aplicación se confirma con modelo, año y motor.",
   "compatibilidad": [
