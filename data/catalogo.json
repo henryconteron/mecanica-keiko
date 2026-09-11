@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-09-10T22:48:02.323Z",
+  "actualizado": "2026-09-10T23:50:05.125Z",
   "total": 8,
   "productos": [
     {
@@ -81,18 +81,8 @@
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/31911-2e000/portada.jpg",
-          "nombre": "portada.jpg"
-        },
-        {
-          "tipo": "imagen",
           "src": "catalogo/31911-2e000/02.jpeg",
           "nombre": "02.jpeg"
-        },
-        {
-          "tipo": "imagen",
-          "src": "catalogo/31911-2e000/02.jpg",
-          "nombre": "02.jpg"
         },
         {
           "tipo": "imagen",
@@ -140,11 +130,6 @@
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/lf-d1574/portada.jpg",
-          "nombre": "portada.jpg"
-        },
-        {
-          "tipo": "imagen",
           "src": "catalogo/lf-d1574/02.jpeg",
           "nombre": "02.jpeg"
         },
@@ -185,13 +170,18 @@
       "medios": [
         {
           "tipo": "imagen",
-          "src": "catalogo/37230-0k021/portada.jpg",
-          "nombre": "portada.jpg"
+          "src": "catalogo/37230-0k021/portada.jpeg",
+          "nombre": "portada.jpeg"
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/37230-0k021/02.jpg",
-          "nombre": "02.jpg"
+          "src": "catalogo/37230-0k021/02.jpeg",
+          "nombre": "02.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/37230-0k021/03.jpeg",
+          "nombre": "03.jpeg"
         }
       ]
     },
@@ -222,8 +212,28 @@
       "medios": [
         {
           "tipo": "imagen",
+          "src": "catalogo/ngk-bpr5ey/portada.jpeg",
+          "nombre": "portada.jpeg"
+        },
+        {
+          "tipo": "imagen",
           "src": "catalogo/ngk-bpr5ey/portada.jpg",
           "nombre": "portada.jpg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bpr5ey/02.jpeg",
+          "nombre": "02.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bpr5ey/03.jpeg",
+          "nombre": "03.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bpr5ey/04.jpeg",
+          "nombre": "04.jpeg"
         }
       ]
     },
@@ -236,7 +246,7 @@
       "precio": "Consultar",
       "moneda": "USD",
       "estado": "Nuevo, antiguo stock",
-      "stock": 20,
+      "stock": 10,
       "descripcionCorta": "Bujías NGK código BKR5E-11, disponibles por unidad o por juego.",
       "descripcion": "Bujías NGK BKR5E-11. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
       "compatibilidad": [
