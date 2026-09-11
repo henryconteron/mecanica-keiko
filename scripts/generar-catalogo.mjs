@@ -63,6 +63,19 @@ const productLabel = (product) => product.nombre.toLocaleLowerCase("es").include
   ? product.nombre
   : `${product.nombre} ${product.codigo}`;
 
+const promotionText = (product) => {
+  const compatibility = (product.compatibilidad || []).slice(0, 2).join(" · ");
+  return [
+    "🔧 ¡Repuesto disponible en Mecánica Keiko!",
+    product.nombre,
+    `Código: ${product.codigo}`,
+    `Precio: ${priceText(product)}`,
+    compatibility ? `Compatible con: ${compatibility}` : "",
+    "📍 Archidona, Napo",
+    "Confirma compatibilidad y disponibilidad por WhatsApp."
+  ].filter(Boolean).join("\n");
+};
+
 const renderMedia = (product) => {
   if (!product.medios.length) return `<div class="empty">Foto disponible próximamente</div>`;
   return product.medios.map((medium, index) => {
@@ -124,14 +137,14 @@ const renderProductPage = (product) => {
       ${details.length ? `<ul>${details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}
       <div class="buttons">
         <a class="button whatsapp" href="https://wa.me/593989381059?text=${whatsappMessage}" target="_blank" rel="noopener">Consultar por WhatsApp</a>
-        <button class="button" id="share" type="button">Compartir producto</button>
+        <button class="button" id="share" type="button">Compartir promoción</button>
         <a class="button secondary" href="${escapeHtml(facebookShare)}" target="_blank" rel="noopener">Compartir en Facebook</a>
       </div>
       <p class="notice"><strong>Antes de comprar:</strong> confirmamos código, año, motor y versión del vehículo.</p>
     </article>
   </div></main>
   <footer class="footer"><div class="wrap">Tecnicentro Automotriz Keiko · Archidona, Napo · WhatsApp 098 938 1059</div></footer>
-  <script>document.querySelector('#share').addEventListener('click',async()=>{const data={title:${JSON.stringify(productLabel(product))},text:${JSON.stringify(`${product.nombre} — ${priceText(product)}`)},url:location.href};try{if(navigator.share){await navigator.share(data)}else{await navigator.clipboard.writeText(location.href);alert('Enlace copiado')}}catch(error){if(error.name!=='AbortError')alert('No se pudo compartir')}});</script>
+  <script>document.querySelector('#share').addEventListener('click',async()=>{const data={title:${JSON.stringify(productLabel(product))},text:${JSON.stringify(promotionText(product))},url:location.href};try{if(navigator.share){await navigator.share(data)}else{await navigator.clipboard.writeText(data.text+'\\n'+location.href);alert('Texto promocional y enlace copiados')}}catch(error){if(error.name!=='AbortError')alert('No se pudo compartir')}});</script>
 </body>
 </html>
 `;

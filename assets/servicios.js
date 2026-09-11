@@ -8,6 +8,29 @@
   if (!grid || !dialog || !dialogContent) return;
 
   let services = [];
+  let savedScrollY = 0;
+  let pageScrollLocked = false;
+
+  const lockPageScroll = () => {
+    if (pageScrollLocked) return;
+    savedScrollY = window.scrollY;
+    pageScrollLocked = true;
+    document.body.style.position = "fixed";
+    document.body.style.inset = `-${savedScrollY}px 0 auto`;
+    document.body.style.width = "100%";
+  };
+
+  const unlockPageScroll = () => {
+    if (!pageScrollLocked) return;
+    document.body.style.position = "";
+    document.body.style.inset = "";
+    document.body.style.width = "";
+    const previousBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
+    window.scrollTo(0, savedScrollY);
+    document.documentElement.style.scrollBehavior = previousBehavior;
+    pageScrollLocked = false;
+  };
 
   const escapeHtml = (value = "") => String(value)
     .replaceAll("&", "&amp;")
@@ -89,6 +112,7 @@
     dialogContent.querySelectorAll("[data-service-media-index]").forEach((button) => {
       button.addEventListener("click", () => setMainMedia(service, Number(button.dataset.serviceMediaIndex)));
     });
+    lockPageScroll();
     dialog.showModal();
   };
 
@@ -102,6 +126,7 @@
   });
 
   closeDialog?.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", unlockPageScroll);
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });
