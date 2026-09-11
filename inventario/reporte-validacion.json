@@ -1,9 +1,9 @@
 {
-  "fecha": "2026-09-10T23:50:05.060Z",
+  "fecha": "2026-09-11T00:39:35.144Z",
   "modo": "importación",
-  "filasConCodigo": 8,
-  "fichasPreparadas": 8,
-  "pendientesInvestigacion": 0,
+  "filasConCodigo": 10,
+  "fichasPreparadas": 10,
+  "pendientesInvestigacion": 2,
   "errores": [],
   "advertencias": []
 }

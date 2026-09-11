@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-09-10T23:50:05.125Z",
+  "actualizado": "2026-09-11T00:39:35.211Z",
   "total": 8,
   "productos": [
     {
@@ -264,8 +264,28 @@
       "medios": [
         {
           "tipo": "imagen",
+          "src": "catalogo/ngk-bkr5e-11/portada.jpeg",
+          "nombre": "portada.jpeg"
+        },
+        {
+          "tipo": "imagen",
           "src": "catalogo/ngk-bkr5e-11/portada.jpg",
           "nombre": "portada.jpg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bkr5e-11/02.jpeg",
+          "nombre": "02.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bkr5e-11/03.jpeg",
+          "nombre": "03.jpeg"
+        },
+        {
+          "tipo": "imagen",
+          "src": "catalogo/ngk-bkr5e-11/04.jpeg",
+          "nombre": "04.jpeg"
         }
       ]
     },
@@ -278,7 +298,7 @@
       "precio": "Consultar",
       "moneda": "USD",
       "estado": "Nuevo, antiguo stock",
-      "stock": 4,
+      "stock": 5,
       "descripcionCorta": "Bujías NGK DCPR7E, stock visible 3932.",
       "descripcion": "Bujías NGK DCPR7E. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
       "compatibilidad": [
@@ -310,7 +330,7 @@
       "precio": "Consultar",
       "moneda": "USD",
       "estado": "Nuevo, antiguo stock",
-      "stock": 4,
+      "stock": 5,
       "descripcionCorta": "Filtro de aceite tipo cartucho Advance AOE-9443 para aplicaciones Peugeot y Citroën, según motor y versión.",
       "descripcion": "Filtro de aceite Advance AOE-9443 con guía. Con aplicaciones Peugeot y Citroën y con las equivalencias MANN HU 612 x y Hengst E35H D102. Antes de la entrega se confirma año, motor y versión del vehículo.",
       "compatibilidad": [
