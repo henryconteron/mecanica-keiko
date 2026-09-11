@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-09-11T00:39:35.211Z",
+  "actualizado": "2026-09-11T15:30:27.274Z",
   "total": 8,
   "productos": [
     {
@@ -217,11 +217,6 @@
         },
         {
           "tipo": "imagen",
-          "src": "catalogo/ngk-bpr5ey/portada.jpg",
-          "nombre": "portada.jpg"
-        },
-        {
-          "tipo": "imagen",
           "src": "catalogo/ngk-bpr5ey/02.jpeg",
           "nombre": "02.jpeg"
         },
@@ -266,11 +261,6 @@
           "tipo": "imagen",
           "src": "catalogo/ngk-bkr5e-11/portada.jpeg",
           "nombre": "portada.jpeg"
-        },
-        {
-          "tipo": "imagen",
-          "src": "catalogo/ngk-bkr5e-11/portada.jpg",
-          "nombre": "portada.jpg"
         },
         {
           "tipo": "imagen",

@@ -13,6 +13,9 @@
 
   let products = [];
   let activeCategory = "Todos";
+  let activeProduct = null;
+  let activeMediaIndex = 0;
+  let touchStartX = null;
   let toastTimer;
 
   const escapeHtml = (value = "") => String(value)
@@ -45,7 +48,16 @@
     return `<img src="${escapeHtml(medium.src)}" alt="${escapeHtml(alt)}" loading="lazy">`;
   };
 
-  const searchableText = (product) => [
+  const normalizeSearch = (value = "") => String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("es");
+
+  const productLabel = (product) => normalizeSearch(product.nombre).includes(normalizeSearch(product.codigo))
+    ? product.nombre
+    : `${product.nombre} ${product.codigo}`;
+
+  const searchableText = (product) => normalizeSearch([
     product.codigo,
     product.nombre,
     product.categoria,
@@ -53,13 +65,14 @@
     product.descripcion,
     ...(product.compatibilidad || []),
     ...(product.referencias || [])
-  ].filter(Boolean).join(" ").toLocaleLowerCase("es");
+  ].filter(Boolean).join(" "));
 
   const visibleProducts = () => {
-    const query = search.value.trim().toLocaleLowerCase("es");
+    const terms = normalizeSearch(search.value).trim().split(/\s+/).filter(Boolean);
     return products.filter((product) => {
       const categoryMatches = activeCategory === "Todos" || product.categoria === activeCategory;
-      const searchMatches = !query || searchableText(product).includes(query);
+      const haystack = searchableText(product);
+      const searchMatches = terms.every((term) => haystack.includes(term));
       return categoryMatches && searchMatches;
     });
   };
@@ -83,7 +96,7 @@
 
   const shareProduct = async (product) => {
     const shareData = {
-      title: `${product.nombre} ${product.codigo}`,
+      title: productLabel(product),
       text: `${product.nombre} — código ${product.codigo} — ${priceText(product)}`,
       url: productUrl(product)
     };
@@ -102,7 +115,7 @@
   const renderFilters = () => {
     const categories = ["Todos", ...new Set(products.map((product) => product.categoria).filter(Boolean))];
     filters.innerHTML = categories.map((category) => `
-      <button class="filter-button${category === activeCategory ? " is-active" : ""}" type="button" data-category="${escapeHtml(category)}">
+      <button class="filter-button${category === activeCategory ? " is-active" : ""}" type="button" data-category="${escapeHtml(category)}" aria-pressed="${category === activeCategory}">
         ${escapeHtml(category)}
       </button>
     `).join("");
@@ -114,10 +127,10 @@
     const tags = [product.categoria, ...(product.compatibilidad || []).slice(0, 2)].filter(Boolean);
     return `
       <article class="product-card" id="producto-${escapeHtml(product.id)}" data-product-id="${escapeHtml(product.id)}">
-        <div class="product-media" role="button" tabindex="0" data-open-product="${escapeHtml(product.id)}" aria-label="Ver detalles de ${escapeHtml(product.nombre)}">
-          ${mediaElement(media, `${product.nombre} ${product.codigo}`)}
+        <button class="product-media" type="button" data-open-product="${escapeHtml(product.id)}" aria-label="Ver detalles de ${escapeHtml(product.nombre)}">
+          ${mediaElement(media, productLabel(product))}
           ${mediaCount > 1 ? `<span class="media-count">${mediaCount} fotos/videos</span>` : ""}
-        </div>
+        </button>
         <div class="product-body">
           <div class="product-meta">
             <span class="product-code">${escapeHtml(product.codigo)}</span>
@@ -150,14 +163,27 @@
   const setMainMedia = (product, index) => {
     const target = dialogContent.querySelector("#dialog-main-media");
     if (!target) return;
-    const medium = product.medios[index];
-    target.innerHTML = mediaElement(medium, `${product.nombre} ${product.codigo}`, { controls: true });
+    const total = product.medios.length;
+    activeMediaIndex = ((index % total) + total) % total;
+    const medium = product.medios[activeMediaIndex];
+    target.innerHTML = mediaElement(medium, productLabel(product), { controls: true });
     dialogContent.querySelectorAll(".dialog-thumb").forEach((thumb, thumbIndex) => {
-      thumb.classList.toggle("is-active", thumbIndex === index);
+      const selected = thumbIndex === activeMediaIndex;
+      thumb.classList.toggle("is-active", selected);
+      thumb.setAttribute("aria-pressed", String(selected));
     });
+    const counter = dialogContent.querySelector("[data-media-counter]");
+    if (counter) counter.textContent = `${activeMediaIndex + 1} / ${total}`;
+  };
+
+  const stepMedia = (step) => {
+    if (!activeProduct?.medios?.length) return;
+    setMainMedia(activeProduct, activeMediaIndex + step);
   };
 
   const openProduct = (product) => {
+    activeProduct = product;
+    activeMediaIndex = 0;
     const compatibility = product.compatibilidad || [];
     const references = product.referencias || [];
     const details = [
@@ -172,24 +198,31 @@
     dialogContent.innerHTML = `
       <div class="dialog-layout">
         <div class="dialog-gallery">
-          <div class="dialog-main-media" id="dialog-main-media">${mediaElement(media[0], `${product.nombre} ${product.codigo}`, { controls: true })}</div>
+          <div class="dialog-main-media" id="dialog-main-media">${mediaElement(media[0], productLabel(product), { controls: true })}</div>
+          ${media.length > 1 ? `
+            <button class="dialog-nav dialog-nav-prev" type="button" data-media-step="-1" aria-label="Ver imagen anterior">‹</button>
+            <button class="dialog-nav dialog-nav-next" type="button" data-media-step="1" aria-label="Ver imagen siguiente">›</button>
+            <span class="dialog-counter" data-media-counter aria-live="polite">1 / ${media.length}</span>
+          ` : ""}
           ${media.length > 1 ? `<div class="dialog-thumbs">${media.map((medium, index) => `
-            <button class="dialog-thumb${index === 0 ? " is-active" : ""}" type="button" data-media-index="${index}" aria-label="Ver archivo ${index + 1}">
+            <button class="dialog-thumb${index === 0 ? " is-active" : ""}" type="button" data-media-index="${index}" aria-label="Ver archivo ${index + 1}" aria-pressed="${index === 0}">
               ${mediaElement(medium, "", { controls: false })}
             </button>`).join("")}</div>` : ""}
         </div>
         <div class="dialog-copy">
-          <p class="eyebrow">${escapeHtml(product.categoria || "Repuesto disponible")}</p>
-          <h2 id="dialog-title">${escapeHtml(product.nombre)}</h2>
-          <p><strong>Código:</strong> ${escapeHtml(product.codigo)}</p>
-          <div class="dialog-price">${escapeHtml(priceText(product))}</div>
-          <p>${escapeHtml(product.descripcion || "Consulta el estado y la compatibilidad antes de comprar.")}</p>
-          ${details.length ? `<ul class="dialog-list">${details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}
-          <div class="dialog-buttons">
-            <a class="button button-whatsapp" href="${whatsappUrl(product)}" target="_blank" rel="noopener">Consultar este repuesto</a>
+          <div class="dialog-copy-scroll">
+            <p class="eyebrow">${escapeHtml(product.categoria || "Repuesto disponible")}</p>
+            <h2 id="dialog-title">${escapeHtml(product.nombre)}</h2>
+            <p><strong>Código:</strong> ${escapeHtml(product.codigo)}</p>
+            <div class="dialog-price">${escapeHtml(priceText(product))}</div>
+            <p>${escapeHtml(product.descripcion || "Consulta el estado y la compatibilidad antes de comprar.")}</p>
+            ${details.length ? `<ul class="dialog-list">${details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}
+            <div class="dialog-buttons">
             <button class="button button-red" type="button" data-share-current>Compartir enlace</button>
             <a class="button" href="${facebookUrl}" target="_blank" rel="noopener">Compartir en Facebook</a>
+            </div>
           </div>
+          <div class="dialog-primary-action"><a class="button button-whatsapp" href="${whatsappUrl(product)}" target="_blank" rel="noopener">Consultar este repuesto</a></div>
         </div>
       </div>
     `;
@@ -197,6 +230,19 @@
     dialogContent.querySelectorAll("[data-media-index]").forEach((button) => {
       button.addEventListener("click", () => setMainMedia(product, Number(button.dataset.mediaIndex)));
     });
+    dialogContent.querySelectorAll("[data-media-step]").forEach((button) => {
+      button.addEventListener("click", () => stepMedia(Number(button.dataset.mediaStep)));
+    });
+    const mainMedia = dialogContent.querySelector("#dialog-main-media");
+    mainMedia?.addEventListener("touchstart", (event) => {
+      touchStartX = event.changedTouches[0]?.clientX ?? null;
+    }, { passive: true });
+    mainMedia?.addEventListener("touchend", (event) => {
+      if (touchStartX === null) return;
+      const distance = (event.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
+      touchStartX = null;
+      if (Math.abs(distance) >= 45) stepMedia(distance < 0 ? 1 : -1);
+    }, { passive: true });
     dialogContent.querySelector("[data-share-current]")?.addEventListener("click", () => shareProduct(product));
     dialog.showModal();
   };
@@ -237,6 +283,15 @@
   });
 
   closeDialog?.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") stepMedia(-1);
+    if (event.key === "ArrowRight") stepMedia(1);
+  });
+  dialog.addEventListener("close", () => {
+    activeProduct = null;
+    activeMediaIndex = 0;
+    touchStartX = null;
+  });
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });

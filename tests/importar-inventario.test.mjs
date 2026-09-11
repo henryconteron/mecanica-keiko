@@ -28,6 +28,11 @@ try {
   assert.equal(created.codigo, "TEST-001");
   assert.equal(created.stock, 3);
   assert.equal(created.publicado, true);
+  await writeFile(path.join(tempRoot, "catalogo", "test-001", "foto-anterior.png"), "imagen-obsoleta");
+  const refreshed = spawnSync(process.execPath, [importer], { cwd: tempRoot, encoding: "utf8" });
+  assert.equal(refreshed.status, 0, refreshed.stderr);
+  await assert.rejects(readFile(path.join(tempRoot, "catalogo", "test-001", "foto-anterior.png")), { code: "ENOENT" });
+  assert.equal(await readFile(path.join(tempRoot, "catalogo", "test-001", "portada.jpg"), "utf8"), "imagen-de-prueba");
   const basic = JSON.parse(await readFile(path.join(tempRoot, "catalogo", "basic-001", "producto.json"), "utf8"));
   assert.equal(basic.categoria, "Por clasificar");
   assert.equal(basic.publicado, false);
@@ -38,7 +43,7 @@ try {
   assert.notEqual(duplicate.status, 0, "El código duplicado debió detener la validación.");
   assert.match(duplicate.stderr, /código duplicado/i);
 
-  console.log("Pruebas del importador correctas: alta válida y bloqueo de duplicado.");
+  console.log("Pruebas del importador correctas: alta válida, limpieza de fotos y bloqueo de duplicado.");
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

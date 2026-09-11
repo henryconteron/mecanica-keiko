@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import XLSX from "xlsx";
@@ -181,6 +181,11 @@ if (!validateOnly) {
     const folder = path.join(catalogDir, item.id);
     await mkdir(folder, { recursive: true });
     await writeFile(path.join(folder, "producto.json"), JSON.stringify(item.product, null, 2) + "\n");
+    if (item.incomingPhotos.length) {
+      const oldMedia = (await readdir(folder, { withFileTypes: true }))
+        .filter((entry) => entry.isFile() && mediaExtensions.has(path.extname(entry.name).toLowerCase()));
+      for (const entry of oldMedia) await rm(path.join(folder, entry.name));
+    }
     for (let index = 0; index < item.incomingPhotos.length; index += 1) {
       const photo = item.incomingPhotos[index];
       const ext = path.extname(photo.name).toLowerCase();

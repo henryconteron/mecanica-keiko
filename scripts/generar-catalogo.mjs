@@ -59,6 +59,10 @@ const priceText = (product) => {
   return product.precio || "Consultar";
 };
 
+const productLabel = (product) => product.nombre.toLocaleLowerCase("es").includes(product.codigo.toLocaleLowerCase("es"))
+  ? product.nombre
+  : `${product.nombre} ${product.codigo}`;
+
 const renderMedia = (product) => {
   if (!product.medios.length) return `<div class="empty">Foto disponible próximamente</div>`;
   return product.medios.map((medium, index) => {
@@ -66,7 +70,7 @@ const renderMedia = (product) => {
     if (medium.tipo === "video") {
       return `<figure class="media-item${index === 0 ? " main" : ""}"><video src="${escapeHtml(src)}" controls preload="metadata" playsinline></video></figure>`;
     }
-    return `<figure class="media-item${index === 0 ? " main" : ""}"><img src="${escapeHtml(src)}" alt="${escapeHtml(`${product.nombre} ${product.codigo} — imagen ${index + 1}`)}" ${index === 0 ? "" : "loading=\"lazy\""}></figure>`;
+    return `<figure class="media-item${index === 0 ? " main" : ""}"><img src="${escapeHtml(src)}" alt="${escapeHtml(`${productLabel(product)} — imagen ${index + 1}`)}" ${index === 0 ? "" : "loading=\"lazy\""}></figure>`;
   }).join("");
 };
 
@@ -89,15 +93,15 @@ const renderProductPage = (product) => {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(product.nombre)} ${escapeHtml(product.codigo)} | Tecnicentro Keiko</title>
+  <title>${escapeHtml(productLabel(product))} | Tecnicentro Keiko</title>
   <meta name="description" content="${escapeHtml(product.descripcionCorta || product.descripcion)}">
   <meta name="theme-color" content="#171717">
   <meta property="og:type" content="product">
   <meta property="og:site_name" content="Tecnicentro Automotriz Keiko">
-  <meta property="og:title" content="${escapeHtml(`${product.nombre} — ${product.codigo}`)}">
+  <meta property="og:title" content="${escapeHtml(productLabel(product))}">
   <meta property="og:description" content="${escapeHtml(`${priceText(product)}. ${product.descripcionCorta || product.descripcion}`)}">
   ${productUrl ? `<meta property="og:url" content="${escapeHtml(productUrl)}">` : ""}
-  ${imageUrl ? `<meta property="og:image" content="${escapeHtml(imageUrl)}"><meta property="og:image:alt" content="${escapeHtml(`${product.nombre} ${product.codigo}`)}">` : ""}
+  ${imageUrl ? `<meta property="og:image" content="${escapeHtml(imageUrl)}"><meta property="og:image:alt" content="${escapeHtml(productLabel(product))}">` : ""}
   ${productUrl ? `<link rel="canonical" href="${escapeHtml(productUrl)}">` : ""}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,7 +131,7 @@ const renderProductPage = (product) => {
     </article>
   </div></main>
   <footer class="footer"><div class="wrap">Tecnicentro Automotriz Keiko · Archidona, Napo · WhatsApp 098 938 1059</div></footer>
-  <script>document.querySelector('#share').addEventListener('click',async()=>{const data={title:${JSON.stringify(`${product.nombre} ${product.codigo}`)},text:${JSON.stringify(`${product.nombre} — ${priceText(product)}`)},url:location.href};try{if(navigator.share){await navigator.share(data)}else{await navigator.clipboard.writeText(location.href);alert('Enlace copiado')}}catch(error){if(error.name!=='AbortError')alert('No se pudo compartir')}});</script>
+  <script>document.querySelector('#share').addEventListener('click',async()=>{const data={title:${JSON.stringify(productLabel(product))},text:${JSON.stringify(`${product.nombre} — ${priceText(product)}`)},url:location.href};try{if(navigator.share){await navigator.share(data)}else{await navigator.clipboard.writeText(location.href);alert('Enlace copiado')}}catch(error){if(error.name!=='AbortError')alert('No se pudo compartir')}});</script>
 </body>
 </html>
 `;
