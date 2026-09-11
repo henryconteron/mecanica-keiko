@@ -236,27 +236,19 @@
     const shareData = { title: productLabel(product), text: promotionText(product), url: productUrl(product) };
     try {
       const promotionFile = await createPromotionFile(product);
-      if (promotionFile && navigator.canShare?.({ files: [promotionFile] })) shareData.files = [promotionFile];
-      if (navigator.share) {
+      const canSharePromotion = Boolean(promotionFile && navigator.share && navigator.canShare?.({ files: [promotionFile] }));
+      if (canSharePromotion) {
+        shareData.files = [promotionFile];
+        await navigator.share(shareData);
+      } else if (navigator.share) {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
         if (promotionFile) downloadFile(promotionFile);
-        showToast("Texto copiado e imagen promocional descargada");
+        showToast("Promoción lista: imagen descargada y texto copiado");
       }
     } catch (error) {
       if (error?.name !== "AbortError") showToast("No se pudo preparar la promoción");
-    }
-  };
-
-  const downloadPromotion = async (product) => {
-    try {
-      const file = await createPromotionFile(product);
-      if (!file) throw new Error("Producto sin imagen");
-      downloadFile(file);
-      showToast("Imagen promocional lista");
-    } catch {
-      showToast("No se pudo crear la imagen promocional");
     }
   };
 
@@ -341,7 +333,6 @@
       typeof product.stock === "number" ? `Stock registrado: ${product.stock}` : ""
     ].filter(Boolean);
     const media = product.medios || [];
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl(product))}`;
 
     dialogContent.innerHTML = `
       <div class="dialog-layout">
@@ -366,9 +357,7 @@
             <p>${escapeHtml(product.descripcion || "Consulta el estado y la compatibilidad antes de comprar.")}</p>
             ${details.length ? `<ul class="dialog-list">${details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}
             <div class="dialog-buttons">
-            <button class="button button-red" type="button" data-share-current>Compartir promoción</button>
-            <button class="button" type="button" data-download-promotion>Descargar imagen promocional</button>
-            <a class="button" href="${facebookUrl}" target="_blank" rel="noopener" data-facebook-share>Facebook · copiar texto y abrir</a>
+              <button class="button button-red" type="button" data-share-current>Compartir promoción</button>
             </div>
           </div>
           <div class="dialog-primary-action"><a class="button button-whatsapp" href="${whatsappUrl(product)}" target="_blank" rel="noopener">Consultar este repuesto</a></div>
@@ -393,11 +382,6 @@
       if (Math.abs(distance) >= 45) stepMedia(distance < 0 ? 1 : -1);
     }, { passive: true });
     dialogContent.querySelector("[data-share-current]")?.addEventListener("click", () => shareProduct(product));
-    dialogContent.querySelector("[data-download-promotion]")?.addEventListener("click", () => downloadPromotion(product));
-    dialogContent.querySelector("[data-facebook-share]")?.addEventListener("click", () => {
-      navigator.clipboard?.writeText(`${promotionText(product)}\n${productUrl(product)}`);
-      showToast("Texto promocional copiado; pégalo en Facebook");
-    });
     lockPageScroll();
     dialog.showModal();
   };

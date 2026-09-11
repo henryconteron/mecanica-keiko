@@ -20,7 +20,7 @@ const escapeHtml = (value = "") => String(value)
 const siteUrlFromEnvironment = () => {
   if (process.env.SITE_URL) return process.env.SITE_URL.endsWith("/") ? process.env.SITE_URL : `${process.env.SITE_URL}/`;
   const repository = process.env.GITHUB_REPOSITORY;
-  if (!repository?.includes("/")) return "";
+  if (!repository?.includes("/")) return "https://henryconteron.github.io/mecanica-keiko/";
   const [owner, repositoryName] = repository.split("/");
   const userSite = repositoryName.toLowerCase() === `${owner}.github.io`.toLowerCase();
   return userSite
@@ -93,7 +93,6 @@ const renderProductPage = (product) => {
     ? new URL(product.medios[0].src, siteUrl).href
     : "";
   const whatsappMessage = encodeURIComponent(`Hola, consulto por ${product.nombre}. Código: ${product.codigo}. ${productUrl ? `Enlace: ${productUrl}. ` : ""}Mi vehículo es:`);
-  const facebookShare = productUrl ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}` : "../../#repuestos";
   const details = [
     ...(product.compatibilidad || []).map((item) => `Compatible con: ${item}`),
     ...(product.referencias || []).map((item) => `Referencia: ${item}`),
@@ -138,7 +137,6 @@ const renderProductPage = (product) => {
       <div class="buttons">
         <a class="button whatsapp" href="https://wa.me/593989381059?text=${whatsappMessage}" target="_blank" rel="noopener">Consultar por WhatsApp</a>
         <button class="button" id="share" type="button">Compartir promoción</button>
-        <a class="button secondary" href="${escapeHtml(facebookShare)}" target="_blank" rel="noopener">Compartir en Facebook</a>
       </div>
       <p class="notice"><strong>Antes de comprar:</strong> confirmamos código, año, motor y versión del vehículo.</p>
     </article>
