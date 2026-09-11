@@ -166,7 +166,18 @@ const report = {
   advertencias: warnings
 };
 
-await writeFile(path.join(inventoryDir, "reporte-validacion.json"), JSON.stringify(report, null, 2) + "\n");
+const reportFile = path.join(inventoryDir, "reporte-validacion.json");
+try {
+  const currentReport = JSON.parse(await readFile(reportFile, "utf8"));
+  const { fecha: currentDate, ...currentResult } = currentReport;
+  const { fecha: nextDate, ...nextResult } = report;
+  if (JSON.stringify(currentResult) === JSON.stringify(nextResult) && currentDate) {
+    report.fecha = currentDate;
+  }
+} catch {
+  // El reporte se crea por primera vez o se reemplaza si no es JSON válido.
+}
+await writeFile(reportFile, JSON.stringify(report, null, 2) + "\n");
 const pendingHeaders = ["Fila", "Código", "Nombre", "Marca", "Estado", "Observaciones"];
 const pendingCsv = [pendingHeaders.map(csvCell).join(","), ...pending.map((item) => [item.fila, item.codigo, item.nombre, item.marca, item.estado, item.observaciones].map(csvCell).join(","))].join("\n") + "\n";
 await writeFile(path.join(inventoryDir, "pendientes-investigacion.csv"), pendingCsv);

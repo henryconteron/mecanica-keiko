@@ -30,6 +30,21 @@ const siteUrlFromEnvironment = () => {
 
 const siteUrl = siteUrlFromEnvironment();
 
+const writeCollection = async (file, collectionName, items) => {
+  const content = { total: items.length, [collectionName]: items };
+  let updatedAt = new Date().toISOString();
+  try {
+    const current = JSON.parse(await readFile(file, "utf8"));
+    const currentContent = { total: current.total, [collectionName]: current[collectionName] };
+    if (JSON.stringify(currentContent) === JSON.stringify(content) && current.actualizado) {
+      updatedAt = current.actualizado;
+    }
+  } catch {
+    // El archivo se crea por primera vez o se reemplaza si no es JSON válido.
+  }
+  await writeFile(file, JSON.stringify({ actualizado: updatedAt, ...content }, null, 2) + "\n");
+};
+
 const mediaFilesIn = async (folder, publicFolder) => {
   const files = (await readdir(folder, { withFileTypes: true }))
     .filter((entry) => entry.isFile())
@@ -226,17 +241,8 @@ const publicServices = services
   .sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99) || a.nombre.localeCompare(b.nombre));
 
 await mkdir(path.dirname(outputFile), { recursive: true });
-await writeFile(outputFile, JSON.stringify({
-  actualizado: new Date().toISOString(),
-  total: publicProducts.length,
-  productos: publicProducts
-}, null, 2) + "\n");
-
-await writeFile(servicesOutputFile, JSON.stringify({
-  actualizado: new Date().toISOString(),
-  total: publicServices.length,
-  servicios: publicServices
-}, null, 2) + "\n");
+await writeCollection(outputFile, "productos", publicProducts);
+await writeCollection(servicesOutputFile, "servicios", publicServices);
 
 await rm(productPagesRoot, { recursive: true, force: true });
 await mkdir(productPagesRoot, { recursive: true });
