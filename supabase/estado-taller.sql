@@ -17,8 +17,8 @@ drop policy if exists "Solo usuarios autenticados actualizan" on public.estado_t
 create policy "Solo usuarios autenticados actualizan"
 on public.estado_taller for update
 to authenticated
-using (true)
-with check (true);
+using (auth.uid() = '60712cc3-ee1b-4ad5-9226-4f97d80a13d8'::uuid)
+with check (auth.uid() = '60712cc3-ee1b-4ad5-9226-4f97d80a13d8'::uuid);
 
 revoke insert, delete on public.estado_taller from anon, authenticated;
 grant select on public.estado_taller to anon, authenticated;
@@ -46,7 +46,8 @@ alter table public.productos_admin enable row level security;
 drop policy if exists "Administradores gestionan productos" on public.productos_admin;
 create policy "Administradores gestionan productos"
 on public.productos_admin for all to authenticated
-using (true) with check (true);
+using (auth.uid() = '60712cc3-ee1b-4ad5-9226-4f97d80a13d8'::uuid)
+with check (auth.uid() = '60712cc3-ee1b-4ad5-9226-4f97d80a13d8'::uuid);
 revoke all on public.productos_admin from anon;
 grant select, insert, update, delete on public.productos_admin to authenticated;
 
@@ -57,5 +58,5 @@ on conflict (id) do update set public = false, file_size_limit = 10485760;
 drop policy if exists "Administradores gestionan fotos" on storage.objects;
 create policy "Administradores gestionan fotos"
 on storage.objects for all to authenticated
-using (bucket_id = 'inventario')
-with check (bucket_id = 'inventario');
+using (bucket_id = 'inventario' and auth.uid() = '60712cc3-ee1b-4ad5-9226-4f97d80a13d8'::uuid)
+with check (bucket_id = 'inventario' and auth.uid() = '60712cc3-ee1b-4ad5-9226-4f97d80a13d8'::uuid);
