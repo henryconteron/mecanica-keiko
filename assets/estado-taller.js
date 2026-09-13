@@ -8,6 +8,7 @@
   const updated = card.querySelector("#workshop-status-updated");
   const action = card.querySelector("#workshop-status-action");
   const timeZone = "America/Guayaquil";
+  const remote = window.KEIKO_CONFIG || {};
   const stateAliases = { disponible: "available", limitado: "limited", ocupado: "busy", cerrado: "closed", automatico: "automatico" };
   let configuration = { estado: "automatico", mensaje: "", actualizado: "" };
 
@@ -78,12 +79,26 @@
     updated.textContent = configured === "automatico" ? "Actualización automática según horario" : formatUpdate(configuration.actualizado);
   };
 
-  fetch(`data/estado-taller.json?v=${Date.now()}`, { cache: "no-store" })
-    .then((response) => response.ok ? response.json() : Promise.reject(new Error("Estado no disponible")))
-    .then((data) => { configuration = data; })
-    .catch(() => {})
-    .finally(render);
+  const loadConfiguration = async () => {
+    try {
+      if (/^https:\/\//.test(remote.supabaseUrl || "") && remote.supabaseAnonKey) {
+        const response = await fetch(`${remote.supabaseUrl}/rest/v1/estado_taller?id=eq.1&select=estado,mensaje,actualizado`, {
+          cache: "no-store",
+          headers: { apikey: remote.supabaseAnonKey, Authorization: `Bearer ${remote.supabaseAnonKey}` }
+        });
+        if (!response.ok) throw new Error("Estado remoto no disponible");
+        const rows = await response.json();
+        if (rows[0]) configuration = rows[0];
+      } else {
+        const response = await fetch(`data/estado-taller.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error("Estado local no disponible");
+        configuration = await response.json();
+      }
+    } catch {}
+    render();
+  };
 
   render();
-  window.setInterval(render, 60000);
+  loadConfiguration();
+  window.setInterval(loadConfiguration, 45000);
 })();

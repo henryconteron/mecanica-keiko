@@ -1,0 +1,13 @@
+{
+  "name": "Panel Mecánica Keiko",
+  "short_name": "Keiko",
+  "description": "Control del taller e inventario de Mecánica Keiko",
+  "start_url": "./admin-estado.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "icons": [
+    { "src": "assets/marca/logo/logo.png", "sizes": "2048x1567", "type": "image/png", "purpose": "any" }
+  ]
+}

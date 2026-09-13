@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#171717">
+  <title>Panel privado | Mecánica Keiko</title>
+  <link rel="manifest" href="app.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --red:#c8272c; --gold:#e9a927; --green:#20a856; --ink:#181818; --muted:#777; }
+    * { box-sizing:border-box; }
+    body { min-height:100dvh; margin:0; display:grid; place-items:center; padding:20px; color:var(--ink); background:radial-gradient(circle at 80% 10%,#40361e,#171717 45%); font-family:Inter,sans-serif; }
+    main { width:min(100%,760px); overflow:hidden; border-radius:26px; background:#fff; box-shadow:0 25px 70px #0008; }
+    header { padding:26px 26px 22px; display:flex; gap:15px; align-items:center; color:#fff; background:#202020; }
+    header img { width:58px; height:58px; object-fit:contain; border:2px solid var(--gold); border-radius:16px; background:#fff; }
+    h1,h2 { margin:0; font-family:Oswald,sans-serif; text-transform:uppercase; }
+    header p { margin:3px 0 0; color:#bbb; font-size:.82rem; }
+    form,.panel { padding:26px; }
+    label { display:grid; gap:7px; margin-bottom:16px; font-size:.82rem; font-weight:800; }
+    input,textarea { width:100%; padding:14px; border:1px solid #d8d4cf; border-radius:13px; font:inherit; }
+    textarea { min-height:90px; resize:vertical; }
+    button { min-height:50px; padding:12px 16px; border:0; border-radius:14px; font:800 .92rem Inter,sans-serif; cursor:pointer; }
+    .login-button { width:100%; color:#fff; background:var(--red); }
+    .current { margin:0 0 18px; color:var(--muted); font-size:.85rem; }
+    .current strong { color:var(--ink); text-transform:capitalize; }
+    .states { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .states button { color:#fff; background:#333; }
+    .states button[data-state="disponible"] { background:var(--green); }
+    .states button[data-state="limitado"] { color:#181818; background:var(--gold); }
+    .states button[data-state="ocupado"] { background:var(--red); }
+    .states button[data-state="cerrado"] { background:#656565; }
+    .states button.is-current { outline:4px solid #111; outline-offset:2px; }
+    .automatic { grid-column:1/-1; }
+    .notice { margin:0 26px 22px; padding:12px 14px; border-radius:12px; color:#564006; background:#fff0bd; font-size:.82rem; }
+    .notice[data-type="success"] { color:#075d2a; background:#d9f5e4; }
+    .notice[data-type="error"] { color:#7e181c; background:#ffe0e1; }
+    .panel-footer { margin-top:20px; display:flex; justify-content:space-between; gap:15px; align-items:center; }
+    .panel-footer a,.panel-footer button { padding:0; min-height:auto; border:0; color:var(--muted); background:none; font-size:.78rem; }
+    .app-nav { padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#eeeae4; }
+    .app-nav button { min-height:44px; background:transparent; }
+    .app-nav button.is-current { color:#fff; background:#202020; }
+    .screen { padding:26px; }
+    .screen-head { margin-bottom:20px; display:flex; justify-content:space-between; gap:16px; align-items:center; }
+    .screen-head p { margin:4px 0 0; color:var(--muted); font-size:.82rem; }
+    .primary { color:#fff; background:var(--red); }
+    .secondary { color:#181818; background:#ece9e4; }
+    .product-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .product-grid .wide { grid-column:1/-1; }
+    .photo-box { padding:18px; border:2px dashed #ccc6bd; border-radius:16px; background:#faf9f7; text-align:center; }
+    .photo-box input { margin-top:10px; padding:8px; background:#fff; }
+    .help { margin:-8px 0 18px; color:var(--muted); font-size:.76rem; }
+    .form-actions { display:flex; gap:10px; }
+    .form-actions button { flex:1; }
+    .inventory-list { display:grid; gap:10px; }
+    .product-row { padding:15px; display:flex; justify-content:space-between; gap:12px; border:1px solid #ded9d1; border-radius:15px; }
+    .product-row strong,.product-row span { display:block; }
+    .product-row small { color:var(--muted); }
+    .badge { align-self:center; padding:6px 9px; border-radius:99px; color:#6a4b00; background:#fff0bd; font-size:.7rem; font-weight:800; text-transform:capitalize; }
+    .empty { padding:28px; border-radius:16px; color:var(--muted); background:#f5f3ef; text-align:center; }
+    [hidden] { display:none!important; }
+    @media(max-width:430px) { body{padding:0;background:#fff} main{min-height:100dvh;border-radius:0}.states{grid-template-columns:1fr} .automatic{grid-column:auto} }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <img src="assets/marca/logo/logo.png" alt="">
+      <div><h1>Panel Keiko</h1><p>Taller e inventario desde un solo lugar</p></div>
+    </header>
+    <form id="admin-login">
+      <label>Correo electrónico<input name="email" type="email" autocomplete="username" required></label>
+      <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="login-button" type="submit">Ingresar</button>
+    </form>
+    <div id="admin-panel" hidden>
+      <nav class="app-nav"><button class="is-current" data-screen="workshop" type="button">Estado del taller</button><button data-screen="inventory" type="button">Productos</button></nav>
+      <section class="screen" id="screen-workshop">
+        <p class="current">Estado publicado: <strong id="admin-current">cargando…</strong></p>
+        <label>Mensaje opcional<textarea id="admin-message" maxlength="180" placeholder="Ej.: Tenemos espacio desde las 15:30"></textarea></label>
+        <div class="states">
+          <button data-state="disponible" type="button">🟢 Disponible</button><button data-state="limitado" type="button">🟡 Poco espacio</button>
+          <button data-state="ocupado" type="button">🔴 Ocupado</button><button data-state="cerrado" type="button">⚫ Cerrado</button>
+          <button class="automatic" data-state="automatico" type="button">🕒 Automático por horario</button>
+        </div>
+      </section>
+      <section class="screen" id="screen-inventory" hidden>
+        <div class="screen-head"><div><h2>Productos</h2><p>Captura lo básico; el bot completará lo técnico.</p></div><button class="primary" id="new-product" type="button">+ Nuevo</button></div>
+        <form id="product-form" hidden>
+          <input id="product-id" type="hidden">
+          <div class="product-grid">
+            <label>Código *<input id="product-code" required autocomplete="off" placeholder="Ej.: AFE-1507"></label>
+            <label>Nombre *<input id="product-name" required placeholder="Ej.: Filtro de combustible"></label>
+            <label>Cantidad *<input id="product-quantity" type="number" min="0" value="1" required inputmode="numeric"></label>
+            <label>Precio opcional<input id="product-price" type="number" min="0" step="0.01" inputmode="decimal"></label>
+            <label class="wide">Marca opcional<input id="product-brand" placeholder="Si aparece en el empaque"></label>
+            <label class="wide">Observaciones<textarea id="product-notes" maxlength="500" placeholder="Cualquier detalle visible o duda"></textarea></label>
+            <label class="wide photo-box">📷 Fotos del artículo<input id="product-photos" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple></label>
+          </div>
+          <p class="help">Toma primero la etiqueta con el código y luego el producto desde varios ángulos. Máximo 10 MB por foto.</p>
+          <div class="form-actions"><button class="secondary" id="cancel-product" type="button">Cancelar</button><button class="primary" type="submit">Guardar para investigar</button></div>
+        </form>
+        <div class="inventory-list" id="inventory-list"><p class="empty">Cargando productos…</p></div>
+      </section>
+      <div class="panel-footer" style="padding:0 26px 24px"><a href="./" target="_blank">Ver página pública</a><button id="admin-logout" type="button">Cerrar sesión</button></div>
+    </div>
+    <p class="notice" id="admin-notice" hidden></p>
+  </main>
+  <script src="assets/config.js"></script>
+  <script src="assets/admin-estado.js"></script>
+  <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js");</script>
+</body>
+</html>
