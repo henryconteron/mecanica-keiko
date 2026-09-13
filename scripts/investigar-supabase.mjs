@@ -6,10 +6,10 @@ for (const name of required) if (!process.env[name]) throw new Error(`Falta el s
 const supabase = process.env.SUPABASE_URL.trim().replace(/\/$/, "");
 // Los portapapeles pueden insertar saltos de línea invisibles al copiar la clave.
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/\s+/g, "");
-const isModernSecret = serviceKey.startsWith("sb_secret_");
 const serviceHeaders = (headers = {}) => ({
   apikey: serviceKey,
-  ...(isModernSecret ? {} : { Authorization: `Bearer ${serviceKey}` }),
+  // PostgREST toma el rol de la cabecera Authorization; apikey identifica la clave en el gateway.
+  Authorization: `Bearer ${serviceKey}`,
   ...headers
 });
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
