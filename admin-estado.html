@@ -60,6 +60,13 @@
     .product-row strong,.product-row span { display:block; }
     .product-row small { color:var(--muted); }
     .badge { align-self:center; padding:6px 9px; border-radius:99px; color:#6a4b00; background:#fff0bd; font-size:.7rem; font-weight:800; text-transform:capitalize; }
+    .product-row button { min-height:34px; margin-top:7px; padding:7px 10px; font-size:.72rem; }
+    .review { padding:18px; border:1px solid #ded9d1; border-radius:17px; background:#faf9f7; }
+    .review h3 { margin:0 0 8px; }
+    .review p,.review li { font-size:.82rem; }
+    .review ul { padding-left:20px; }
+    .review-error { padding:10px; border-radius:10px; color:#7e181c; background:#ffe0e1; }
+    .review-actions { display:flex; gap:9px; margin-top:15px; }
     .empty { padding:28px; border-radius:16px; color:var(--muted); background:#f5f3ef; text-align:center; }
     [hidden] { display:none!important; }
     @media(max-width:430px) { body{padding:0;background:#fff} main{min-height:100dvh;border-radius:0}.states{grid-template-columns:1fr} .automatic{grid-column:auto} }
@@ -104,6 +111,7 @@
           <div class="form-actions"><button class="secondary" id="cancel-product" type="button">Cancelar</button><button class="primary" type="submit">Guardar para investigar</button></div>
         </form>
         <div class="inventory-list" id="inventory-list"><p class="empty">Cargando productos…</p></div>
+        <article class="review" id="product-review" hidden></article>
       </section>
       <div class="panel-footer" style="padding:0 26px 24px"><a href="./" target="_blank">Ver página pública</a><button id="admin-logout" type="button">Cerrar sesión</button></div>
     </div>

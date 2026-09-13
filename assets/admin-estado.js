@@ -8,6 +8,8 @@
   const current = document.querySelector("#admin-current");
   const productForm = document.querySelector("#product-form");
   const productList = document.querySelector("#inventory-list");
+  const productReview = document.querySelector("#product-review");
+  let productsCache = [];
   let token = sessionStorage.getItem("keikoAdminToken") || "";
 
   const showNotice = (text, type = "") => {
@@ -43,22 +45,59 @@
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 
   const loadProducts = async () => {
-    const products = await request("/rest/v1/productos_admin?select=id,codigo,nombre,cantidad,revision,fotos,actualizado&order=actualizado.desc");
+    const products = await request("/rest/v1/productos_admin?select=*&order=actualizado.desc");
+    productsCache = products;
     productList.innerHTML = products.length ? products.map((product) => `
       <article class="product-row">
-        <div><strong>${escapeHtml(product.nombre)}</strong><span>${escapeHtml(product.codigo)} · ${product.cantidad} unidad${product.cantidad === 1 ? "" : "es"}</span><small>${product.fotos?.length || 0} foto${product.fotos?.length === 1 ? "" : "s"}</small></div>
+        <div><strong>${escapeHtml(product.nombre)}</strong><span>${escapeHtml(product.codigo)} · ${product.cantidad} unidad${product.cantidad === 1 ? "" : "es"}</span><small>${product.fotos?.length || 0} foto${product.fotos?.length === 1 ? "" : "s"}</small><button class="secondary" data-product="${product.id}" type="button">Ver detalles</button></div>
         <span class="badge">${escapeHtml(product.revision)}</span>
       </article>`).join("") : '<p class="empty">Todavía no hay productos. Pulsa “Nuevo” para comenzar.</p>';
   };
 
+  const showProduct = (product) => {
+    const sources = (product.fuentes || []).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
+    productReview.innerHTML = `
+      <h3>${escapeHtml(product.nombre)}</h3><p><strong>Código:</strong> ${escapeHtml(product.codigo)} · <strong>Confianza:</strong> ${escapeHtml(product.confianza || "Pendiente")}</p>
+      ${product.descripcion ? `<p>${escapeHtml(product.descripcion)}</p>` : ""}
+      ${product.compatibilidad?.length ? `<p><strong>Compatibilidad</strong></p><ul>${product.compatibilidad.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+      ${sources ? `<p><strong>Fuentes para comprobar</strong></p><ul>${sources}</ul>` : ""}
+      ${product.error_investigacion ? `<p class="review-error"><strong>Requiere atención:</strong> ${escapeHtml(product.error_investigacion)}</p>` : ""}
+      <div class="review-actions">
+        ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
+        ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
+        <button class="secondary" data-review-action="cerrar" type="button">Cerrar</button>
+      </div>`;
+    productReview.dataset.productId = product.id;
+    productReview.hidden = false;
+    productList.hidden = true;
+  };
+
+  const preparePhoto = async (file) => {
+    if (!file.type.startsWith("image/")) throw new Error(`${file.name} no es una imagen compatible.`);
+    try {
+      const image = await createImageBitmap(file);
+      const scale = Math.min(1, 1800 / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      canvas.getContext("2d", { alpha: false }).drawImage(image, 0, 0, canvas.width, canvas.height);
+      image.close();
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.84));
+      if (!blob) throw new Error("No se pudo optimizar la fotografía.");
+      return { blob, extension: "jpg", type: "image/jpeg" };
+    } catch {
+      return { blob: file, extension: file.name.split(".").pop()?.toLowerCase() || "jpg", type: file.type || "image/jpeg" };
+    }
+  };
+
   const uploadPhoto = async (file, code, index) => {
-    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const prepared = await preparePhoto(file);
     const safeCode = code.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
-    const filePath = `${safeCode}/${Date.now()}-${String(index + 1).padStart(2, "0")}.${extension}`;
+    const filePath = `${safeCode}/${Date.now()}-${String(index + 1).padStart(2, "0")}.${prepared.extension}`;
     const response = await fetch(`${config.supabaseUrl}/storage/v1/object/inventario/${filePath}`, {
       method: "POST",
-      headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${token}`, "Content-Type": file.type, "x-upsert": "false" },
-      body: file
+      headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${token}`, "Content-Type": prepared.type, "x-upsert": "false" },
+      body: prepared.blob
     });
     if (!response.ok) throw new Error(`No se pudo subir ${file.name}.`);
     return filePath;
@@ -90,6 +129,24 @@
   document.querySelector("#cancel-product").addEventListener("click", () => {
     productForm.hidden = true;
     productList.hidden = false;
+  });
+
+  productList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-product]");
+    if (button) showProduct(productsCache.find((product) => product.id === button.dataset.product));
+  });
+
+  productReview.addEventListener("click", async (event) => {
+    const action = event.target.closest("[data-review-action]")?.dataset.reviewAction;
+    if (!action) return;
+    if (action === "cerrar") { productReview.hidden = true; productList.hidden = false; return; }
+    if (action === "publicar" && !window.confirm("¿Confirmas que revisaste código, compatibilidad, precio y fotografías? El producto será visible para clientes.")) return;
+    const revision = action === "aprobar" ? "aprobado" : "publicado";
+    try {
+      await request(`/rest/v1/productos_admin?id=eq.${productReview.dataset.productId}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ revision, actualizado: new Date().toISOString() }) });
+      productReview.hidden = true; productList.hidden = false; await loadProducts();
+      showNotice(revision === "publicado" ? "Producto publicado correctamente." : "Información aprobada. Ya puedes publicarlo.", "success");
+    } catch (error) { showNotice(error.message, "error"); }
   });
 
   productForm.addEventListener("submit", async (event) => {
