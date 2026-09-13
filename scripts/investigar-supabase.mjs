@@ -13,7 +13,11 @@ const serviceHeaders = (headers = {}) => ({
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
 const text = (value) => String(value ?? "").trim();
 const codeKey = (value) => text(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const unique = (items) => [...new Set((items || []).map(text).filter(Boolean))];
+const textValue = (value) => {
+  if (value && typeof value === "object") return text(value.referencia || value.codigo || value.numero || value.valor || value.nombre || "");
+  return text(value);
+};
+const unique = (items) => [...new Set((items || []).map(textValue).filter(Boolean))];
 
 const parseJson = (value) => {
   const raw = text(value).replace(/^```json\s*/i, "").replace(/\s*```$/, "");

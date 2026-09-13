@@ -28,6 +28,12 @@
     .replaceAll("'", "&#039;");
 
   const productUrl = (product) => {
+    if (product.origen === "panel") {
+      const url = new URL("./", document.baseURI);
+      url.searchParams.set("producto", product.id);
+      url.hash = "repuestos";
+      return url.toString();
+    }
     return new URL(`productos/${product.id}/`, document.baseURI).toString();
   };
 
@@ -388,6 +394,54 @@
 
   const productById = (id) => products.find((product) => product.id === id);
 
+  const remoteMedia = async (paths = []) => {
+    const config = window.KEIKO_CONFIG || {};
+    if (!config.supabaseUrl || !config.supabaseAnonKey || !paths.length) return [];
+    const headers = { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}`, "Content-Type": "application/json" };
+    return Promise.all(paths.map(async (path) => {
+      try {
+        const response = await fetch(`${config.supabaseUrl}/storage/v1/object/sign/inventario/${encodeURIComponent(path).replaceAll("%2F", "/")}`, {
+          method: "POST", headers, body: JSON.stringify({ expiresIn: 604800 })
+        });
+        const body = await response.json().catch(() => null);
+        if (!response.ok || !body?.signedURL) return null;
+        return { tipo: "imagen", src: `${config.supabaseUrl}/storage/v1${body.signedURL}`, nombre: path.split("/").at(-1) || "foto" };
+      } catch { return null; }
+    })).then((items) => items.filter(Boolean));
+  };
+
+  const loadPanelProducts = async () => {
+    const config = window.KEIKO_CONFIG || {};
+    if (!/^https:\/\//.test(config.supabaseUrl || "") || !config.supabaseAnonKey) return [];
+    const response = await fetch(`${config.supabaseUrl}/rest/v1/productos_admin?revision=eq.publicado&select=id,codigo,nombre,cantidad,precio,marca,categoria,descripcion_corta,descripcion,compatibilidad,referencias,fotos&order=actualizado.desc`, {
+      headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}` }
+    });
+    if (!response.ok) throw new Error("No se pudo cargar los productos publicados del panel.");
+    const rows = await response.json();
+    const cleanTextList = (values = []) => values
+      .map((value) => String(value ?? "").trim())
+      .filter((value) => value && value !== "[object Object]");
+    return Promise.all(rows.map(async (row) => ({
+      id: row.id,
+      codigo: row.codigo,
+      nombre: row.nombre,
+      categoria: row.categoria || "Repuesto disponible",
+      marca: row.marca || "",
+      precio: row.precio === null ? "Consultar" : Number(row.precio),
+      moneda: "USD",
+      estado: "Disponible — confirmar antes de comprar",
+      stock: Number(row.cantidad || 0),
+      descripcionCorta: row.descripcion_corta || row.descripcion || "Consulta disponibilidad y compatibilidad.",
+      descripcion: row.descripcion || "Consulta disponibilidad y compatibilidad antes de comprar.",
+      compatibilidad: cleanTextList(row.compatibilidad),
+      referencias: cleanTextList(row.referencias),
+      destacado: false,
+      publicado: true,
+      origen: "panel",
+      medios: await remoteMedia(row.fotos)
+    })));
+  };
+
   filters.addEventListener("click", (event) => {
     const button = event.target.closest("[data-category]");
     if (!button) return;
@@ -436,15 +490,18 @@
     if (event.target === dialog) dialog.close();
   });
 
-  fetch(`data/catalogo.json?v=${Date.now()}`)
-    .then((response) => {
+  Promise.all([
+    fetch(`data/catalogo.json?v=${Date.now()}`).then((response) => {
       if (!response.ok) throw new Error("No se pudo cargar el catálogo");
       return response.json();
-    })
-    .then((data) => {
-      products = (data.productos || [])
+    }),
+    loadPanelProducts().catch(() => [])
+  ])
+    .then(([data, panelProducts]) => {
+      const staticProducts = (data.productos || [])
         .filter((product) => product.publicado !== false)
         .sort((a, b) => Number(Boolean(b.destacado)) - Number(Boolean(a.destacado)) || (a.orden || 99) - (b.orden || 99));
+      products = [...panelProducts, ...staticProducts];
       renderFilters();
       renderProducts();
 
