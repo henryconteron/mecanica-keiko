@@ -3,8 +3,9 @@ import process from "node:process";
 const required = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GROQ_API_KEY"];
 for (const name of required) if (!process.env[name]) throw new Error(`Falta el secreto ${name}.`);
 
-const supabase = process.env.SUPABASE_URL.replace(/\/$/, "");
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = process.env.SUPABASE_URL.trim().replace(/\/$/, "");
+// Los portapapeles pueden insertar saltos de línea invisibles al copiar la clave.
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/\s+/g, "");
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
 const text = (value) => String(value ?? "").trim();
 const codeKey = (value) => text(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
