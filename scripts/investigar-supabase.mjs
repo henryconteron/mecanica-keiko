@@ -6,6 +6,12 @@ for (const name of required) if (!process.env[name]) throw new Error(`Falta el s
 const supabase = process.env.SUPABASE_URL.trim().replace(/\/$/, "");
 // Los portapapeles pueden insertar saltos de línea invisibles al copiar la clave.
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/\s+/g, "");
+const isModernSecret = serviceKey.startsWith("sb_secret_");
+const serviceHeaders = (headers = {}) => ({
+  apikey: serviceKey,
+  ...(isModernSecret ? {} : { Authorization: `Bearer ${serviceKey}` }),
+  ...headers
+});
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
 const text = (value) => String(value ?? "").trim();
 const codeKey = (value) => text(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -24,7 +30,7 @@ const parseJson = (value) => {
 const api = async (path, options = {}) => {
   const response = await fetch(`${supabase}${path}`, {
     ...options,
-    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", ...options.headers }
+    headers: serviceHeaders({ "Content-Type": "application/json", ...options.headers })
   });
   const body = response.status === 204 ? null : await response.json().catch(() => null);
   if (!response.ok) throw new Error(body?.message || `Supabase respondió ${response.status}.`);
@@ -54,7 +60,7 @@ const groq = async (payload, attempts = 3) => {
 
 const inspectPhoto = async (product) => {
   if (!product.fotos?.[0]) return { codigo_visible: "", confianza: "Baja", error: "No hay fotografía." };
-  const response = await fetch(`${supabase}/storage/v1/object/inventario/${product.fotos[0]}`, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } });
+  const response = await fetch(`${supabase}/storage/v1/object/inventario/${product.fotos[0]}`, { headers: serviceHeaders() });
   if (!response.ok) throw new Error("No se pudo descargar la fotografía principal.");
   const mime = response.headers.get("content-type") || "image/jpeg";
   const base64 = Buffer.from(await response.arrayBuffer()).toString("base64");
