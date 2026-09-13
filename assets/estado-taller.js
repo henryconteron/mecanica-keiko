@@ -1,6 +1,7 @@
 (() => {
   const card = document.querySelector("#workshop-status");
   if (!card) return;
+  const heroVisual = card.closest(".hero-visual");
 
   const label = card.querySelector("#workshop-status-label");
   const message = card.querySelector("#workshop-status-message");
@@ -66,11 +67,13 @@
 
   const render = () => {
     const configured = stateAliases[configuration.estado] || "automatico";
-    const state = isOpen() ? configured : "closed";
+    const state = configured === "automatico" ? (isOpen() ? "automatico" : "closed") : configured;
     const view = states[state];
-    card.dataset.state = state === "automatico" ? "limited" : state;
+    const visualState = state === "automatico" ? "limited" : state;
+    card.dataset.state = visualState;
+    if (heroVisual) heroVisual.dataset.workshopState = visualState;
     label.textContent = view.label;
-    message.textContent = configuration.mensaje && state !== "closed" ? configuration.mensaje : view.message;
+    message.textContent = configuration.mensaje && configured !== "automatico" ? configuration.mensaje : view.message;
     action.textContent = view.action;
     updated.textContent = configured === "automatico" ? "Actualización automática según horario" : formatUpdate(configuration.actualizado);
   };
