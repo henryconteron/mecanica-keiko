@@ -8,8 +8,6 @@ const supabase = process.env.SUPABASE_URL.trim().replace(/\/$/, "");
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/\s+/g, "");
 const serviceHeaders = (headers = {}) => ({
   apikey: serviceKey,
-  // PostgREST toma el rol de la cabecera Authorization; apikey identifica la clave en el gateway.
-  Authorization: `Bearer ${serviceKey}`,
   ...headers
 });
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
