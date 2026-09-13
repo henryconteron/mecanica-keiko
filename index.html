@@ -200,6 +200,58 @@
     }
     .hero-visual.is-empty { min-height: 420px; }
 
+    .workshop-status-section { position: relative; z-index: 3; margin-top: -34px; padding-bottom: 28px; }
+    .workshop-status {
+      --status-color: var(--green);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(230px, .72fr) minmax(0, 1.28fr);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 26px;
+      background: #202020;
+      color: var(--white);
+      box-shadow: 0 22px 55px rgba(20, 20, 20, .2);
+    }
+    .workshop-status[data-state="limited"] { --status-color: var(--gold); }
+    .workshop-status[data-state="busy"] { --status-color: #ef5b5f; }
+    .workshop-status[data-state="closed"] { --status-color: #9b9b9b; }
+    .workshop-scene {
+      min-height: 210px;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: end center;
+      background: radial-gradient(circle at 50% 65%, color-mix(in srgb, var(--status-color) 24%, transparent), transparent 45%), linear-gradient(145deg, #111, #292929);
+      isolation: isolate;
+    }
+    .workshop-scene::after { content: ""; position: absolute; z-index: -1; left: 10%; right: 10%; bottom: 16px; height: 8px; border-radius: 50%; background: rgba(0, 0, 0, .45); filter: blur(5px); }
+    .status-mascot { width: min(72%, 210px); max-height: 200px; object-fit: contain; object-position: center bottom; transform-origin: center bottom; filter: drop-shadow(0 12px 15px rgba(0, 0, 0, .42)); animation: mascot-chill 3.2s ease-in-out infinite; }
+    .workshop-status[data-state="busy"] .status-mascot { animation: mascot-work 1.15s ease-in-out infinite; }
+    .scene-car { position: absolute; left: 18px; bottom: 31px; width: 105px; height: 42px; display: none; border: 3px solid #e7e7e7; border-radius: 18px 24px 9px 9px; background: var(--red); box-shadow: inset 0 -8px rgba(0, 0, 0, .18); }
+    .scene-car::before { content: ""; position: absolute; left: 20px; top: -25px; width: 58px; height: 30px; border: 3px solid #e7e7e7; border-bottom: 0; border-radius: 24px 28px 0 0; background: #38434b; transform: skewX(-10deg); }
+    .scene-car::after { content: "●   ●"; position: absolute; left: 12px; right: 8px; bottom: -17px; color: #090909; font-size: 1.35rem; letter-spacing: 30px; white-space: nowrap; }
+    .workshop-status[data-state="busy"] .scene-car { display: block; animation: car-service 1.4s ease-in-out infinite; }
+    .workshop-status[data-state="busy"] .status-mascot { width: 150px; transform: translateX(45px); }
+    .scene-tool { position: absolute; top: 24px; right: 25px; color: var(--status-color); font-size: 2.2rem; line-height: 1; animation: tool-turn 2.4s ease-in-out infinite; }
+    .scene-motion { position: absolute; inset: 0; pointer-events: none; }
+    .scene-motion::before, .scene-motion::after { content: ""; position: absolute; width: 38px; height: 3px; border-radius: 99px; background: var(--status-color); opacity: .55; animation: motion-line 1.8s ease-in-out infinite; }
+    .scene-motion::before { left: 22px; top: 70px; }
+    .scene-motion::after { right: 30px; bottom: 58px; animation-delay: -.7s; }
+    .status-content { padding: clamp(24px, 4vw, 42px); display: flex; flex-direction: column; justify-content: center; }
+    .status-kicker { margin: 0 0 9px; color: #bdbdbd; font-size: .76rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .status-heading { margin-bottom: 13px; display: flex; align-items: center; gap: 12px; font-size: clamp(2rem, 4vw, 3.4rem); }
+    .status-dot { width: 15px; height: 15px; flex: 0 0 auto; border-radius: 50%; background: var(--status-color); box-shadow: 0 0 0 7px color-mix(in srgb, var(--status-color) 17%, transparent); animation: status-pulse 2s ease-out infinite; }
+    .status-message { max-width: 650px; margin-bottom: 22px; color: #d9d9d9; font-size: 1.02rem; }
+    .status-meta { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px 18px; color: #aaa; font-size: .79rem; }
+    .status-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .status-note { color: #aaa; font-size: .76rem; }
+    @keyframes mascot-chill { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
+    @keyframes mascot-work { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-3px) rotate(1.5deg); } }
+    @keyframes tool-turn { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(18deg); } }
+    @keyframes motion-line { 0%, 100% { transform: translateX(-6px); opacity: .15; } 50% { transform: translateX(7px); opacity: .7; } }
+    @keyframes car-service { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+    @keyframes status-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--status-color) 48%, transparent); } 75%, 100% { box-shadow: 0 0 0 10px transparent; } }
+
     .section { padding: clamp(72px, 9vw, 120px) 0; }
     .section-head { max-width: 760px; margin-bottom: 42px; }
     .section-head > p:last-child { color: var(--muted); font-size: 1.04rem; }
@@ -504,6 +556,8 @@
     }
 
     @media (max-width: 900px) {
+      .workshop-status { grid-template-columns: 190px minmax(0, 1fr); }
+      .workshop-scene { min-height: 230px; }
       .nav-links a:not(.nav-cta) { display: none; }
       .hero-grid { grid-template-columns: 1fr; }
       .hero-visual { min-height: 390px; }
@@ -519,6 +573,13 @@
       .dialog-gallery, .dialog-main-media { min-height: 0; }
     }
     @media (max-width: 610px) {
+      .workshop-status-section { margin-top: -18px; }
+      .workshop-status { grid-template-columns: 1fr; }
+      .workshop-scene { min-height: 170px; }
+      .status-mascot { width: 155px; max-height: 165px; }
+      .status-content { padding: 25px 22px 28px; }
+      .status-heading { font-size: 2rem; }
+      .status-actions .button { width: 100%; }
       .wrap { width: min(100% - 24px, 1120px); }
       .brand-copy span { display: none; }
       .nav-cta { padding: 9px 13px; font-size: .78rem; }
@@ -539,6 +600,9 @@
       .service-card, .service-body, .service-card.has-media .service-body { min-height: auto; }
       .contact-info, .compat-copy, .checklist { padding: 27px 22px; }
       .footer-inner { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .status-mascot, .scene-car, .scene-tool, .scene-motion::before, .scene-motion::after, .status-dot { animation: none; }
     }
   </style>
   <script type="application/ld+json">
@@ -621,6 +685,32 @@
             <img src="assets/marca/mascota/mascota.png" alt="Mascota de Mecánica Automotriz Keiko" onload="this.parentElement.classList.remove('is-empty')" onerror="this.remove()">
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="workshop-status-section" aria-labelledby="workshop-status-title">
+      <div class="wrap">
+        <article class="workshop-status" id="workshop-status" data-state="closed" aria-live="polite">
+          <div class="workshop-scene" aria-hidden="true">
+            <span class="scene-tool">⚙</span>
+            <span class="scene-motion"></span>
+            <span class="scene-car"></span>
+            <img class="status-mascot" src="assets/marca/mascota/mascota.png" alt="">
+          </div>
+          <div class="status-content">
+            <p class="status-kicker">Disponibilidad del taller</p>
+            <h2 class="status-heading" id="workshop-status-title"><span class="status-dot"></span><span id="workshop-status-label">Consultando estado…</span></h2>
+            <p class="status-message" id="workshop-status-message">Estamos comprobando el horario y la disponibilidad.</p>
+            <div class="status-meta">
+              <span id="workshop-status-schedule">Horario: lunes a viernes 08:00–17:00 · sábado 08:00–13:00</span>
+              <span id="workshop-status-updated"></span>
+            </div>
+            <div class="status-actions">
+              <a class="button button-whatsapp" id="workshop-status-action" href="https://wa.me/593989381059?text=Hola%2C%20quisiera%20confirmar%20si%20pueden%20recibir%20mi%20veh%C3%ADculo%20ahora." target="_blank" rel="noopener">Confirmar por WhatsApp</a>
+              <span class="status-note">La disponibilidad puede cambiar mientras te trasladas.</span>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -770,5 +860,6 @@
   <div class="toast" id="catalog-toast" role="status" aria-live="polite"></div>
   <script src="assets/servicios.js" defer></script>
   <script src="assets/catalogo.js" defer></script>
+  <script src="assets/estado-taller.js" defer></script>
 </body>
 </html>
