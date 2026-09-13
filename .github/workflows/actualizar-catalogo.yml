@@ -11,6 +11,7 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - "scripts/importar-inventario.mjs"
+      - "scripts/investigar-inventario.mjs"
       - "scripts/generar-catalogo.mjs"
   workflow_dispatch:
 

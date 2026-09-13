@@ -5,10 +5,12 @@
   "scripts": {
     "inventario:validar": "node scripts/importar-inventario.mjs --validar",
     "inventario:importar": "node scripts/importar-inventario.mjs",
+    "inventario:investigar": "node scripts/investigar-inventario.mjs",
     "catalogo:generar": "node scripts/generar-catalogo.mjs",
     "test:inventario": "node tests/importar-inventario.test.mjs"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "xlsx": "0.18.5"
   }
 }

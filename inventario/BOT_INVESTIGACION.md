@@ -1,6 +1,6 @@
 # Protocolo del bot de investigación
 
-El bot trabaja únicamente con las filas incluidas en `pendientes-investigacion.csv` y con las fotografías correspondientes de `inventario/fotos`. La captura inicial puede contener solo ID interno, código, nombre y cantidad.
+El bot trabaja únicamente con las filas del Excel cuyo estado sea `Investigar` y con las fotografías correspondientes de `inventario/fotos`. La captura inicial puede contener solo ID interno, código, nombre y cantidad. El resultado se entrega como un Pull Request llamado `Investigación lista para revisar`; no se publica directamente.
 
 ## Objetivo
 

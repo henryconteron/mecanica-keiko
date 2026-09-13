@@ -1,0 +1,19 @@
+{
+  "actualizado": "2026-09-13T01:59:24.261Z",
+  "modeloVision": "qwen/qwen3.8-27b",
+  "modeloInvestigacion": "groq/compound-mini",
+  "pendientesProcesados": 1,
+  "resultados": [
+    {
+      "codigo": "AFE-15017",
+      "estado": "Bloqueado",
+      "codigoVisible": "",
+      "observaciones": "Las fotos se encontraron por código parecido, no exacto. No se pudieron leer las fotografías con el modelo visual. El código AFE-15017 coincide con el nombre del producto Filtro de Combustible Hino y Mitsubishi de la marca Advance Filters. Se encontraron referencias en distribuidores ecuatorianos, pero no se confirmó directamente con el fabricante. Fuentes consultadas: 3.",
+      "fuentes": [
+        "https://www.fullenergy.com.ec/productos/advance/filtro-advance-combustible-hino-fuel-gd-gh-ak-junto-con-afs-1307-mf-68211-sam-080afe-1802-prem-flp410-xtrag-23304ev030-hard-23304-ev030-hm/",
+        "https://distriparteslm.ec/producto/otr-afe-13111/filtro-de-combustible-hino-ff/",
+        "https://www.maxcarsumegacentro.com/products/filtro-combustible-advance-afk004-hino-serie-300-2022-dutro-city-514-dutro-616-dutro-716-dutro-816-afe068-afe069-fafk004"
+      ]
+    }
+  ]
+}

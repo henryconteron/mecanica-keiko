@@ -1,0 +1,75 @@
+name: Investigar repuestos pendientes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "inventario/Inventario_Keiko.xlsx"
+      - "inventario/fotos/**"
+      - "scripts/investigar-inventario.mjs"
+      - ".github/workflows/investigar-inventario.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: investigar-inventario
+  cancel-in-progress: false
+
+jobs:
+  investigar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar inventario
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.1
+
+      - name: Preparar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Investigar pendientes con Groq
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MAX_PRODUCTS: "10"
+        run: node scripts/investigar-inventario.mjs
+
+      - name: Preparar propuesta para revisión
+        id: propuesta
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- inventario/Inventario_Keiko.xlsx inventario/investigacion/)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No hubo propuestas nuevas para guardar." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="bot/investigacion-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add inventario/Inventario_Keiko.xlsx inventario/investigacion/
+          git commit -m "Preparar investigación de repuestos"
+          git push origin "$branch"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+      - name: Abrir propuesta de investigación
+        if: steps.propuesta.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh pr create
+          --base main
+          --head "${{ steps.propuesta.outputs.branch }}"
+          --title "Investigación lista para revisar"
+          --body-file inventario/investigacion/resumen.md
