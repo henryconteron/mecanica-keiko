@@ -49,6 +49,8 @@
   const editDraft = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
     ? product.resultado_bot.edicion_pendiente || null
     : null;
+  const verificationRequested = (product) => Boolean(product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
+    && product.resultado_bot.verificacion_solicitada);
   const displayedProduct = (product) => editDraft(product) ? { ...product, ...editDraft(product) } : product;
 
   const publicProductUrl = (product) => {
@@ -224,7 +226,7 @@
     productList.innerHTML = products.length ? products.map((product) => `
       <article class="product-row">
         <div><strong>${escapeHtml(displayedProduct(product).nombre)}</strong><span>${escapeHtml(displayedProduct(product).codigo)} · ${displayedProduct(product).cantidad} unidad${displayedProduct(product).cantidad === 1 ? "" : "es"}</span><small>${displayedProduct(product).fotos?.length || 0} foto${displayedProduct(product).fotos?.length === 1 ? "" : "s"}</small><button class="secondary" data-product="${product.id}" type="button">Ver detalles</button></div>
-        <span class="badge">${editDraft(product) ? "cambios pendientes" : escapeHtml(product.revision)}</span>
+        <span class="badge">${verificationRequested(product) ? "verificando" : (editDraft(product) ? "cambios pendientes" : escapeHtml(product.revision))}</span>
       </article>`).join("") : '<p class="empty">Todavía no hay productos. Pulsa “Nuevo” para comenzar.</p>';
   };
 
@@ -235,6 +237,7 @@
     productReview.innerHTML = `
       <h3>${escapeHtml(view.nombre)}</h3>
       ${hasDraft ? '<p class="review-error"><strong>Cambios pendientes:</strong> esta es la versión que revisarás. La página pública conserva la versión anterior hasta que pulses “Publicar cambios”.</p>' : ""}
+      ${verificationRequested(product) ? '<p class="review-error"><strong>Verificación solicitada:</strong> el bot revisará este código de nuevo; la ficha pública seguirá visible mientras tanto.</p>' : ""}
       <p><strong>Código:</strong> ${escapeHtml(view.codigo)} · <strong>Marca:</strong> ${escapeHtml(view.marca || "No indicada")} · <strong>Confianza:</strong> ${escapeHtml(view.confianza || "Pendiente")}</p>
       <p><strong>Cantidad:</strong> ${escapeHtml(view.cantidad)} · <strong>Precio:</strong> ${escapeHtml(priceText(view))} · <strong>Categoría:</strong> ${escapeHtml(view.categoria || "Sin categoría")} · <strong>Fotos:</strong> ${view.fotos?.length || 0}</p>
       ${view.descripcion_corta ? `<p><strong>Resumen para clientes:</strong> ${escapeHtml(view.descripcion_corta)}</p>` : ""}
@@ -248,6 +251,7 @@
         ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
         ${product.revision === "publicado" && hasDraft ? '<button class="primary" data-review-action="publicar-cambios" type="button">Publicar cambios</button>' : ""}
+        ${product.revision === "publicado" && !hasDraft && !verificationRequested(product) ? '<button class="secondary" data-review-action="verificar" type="button">Verificar información de nuevo</button>' : ""}
         ${product.revision === "publicado" && !hasDraft ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
         <button class="secondary" data-review-action="cerrar" type="button">Cerrar</button>
       </div>`;
@@ -440,6 +444,22 @@
     if (action === "compartir") {
       const product = productsCache.find((item) => item.id === productReview.dataset.productId);
       if (product) await sharePromotion(product);
+      return;
+    }
+    if (action === "verificar") {
+      const product = productsCache.find((item) => item.id === productReview.dataset.productId);
+      if (!product || !window.confirm("¿Enviar este producto a una nueva verificación? Seguirá visible para los clientes hasta que revises y publiques una propuesta nueva.")) return;
+      const result = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
+      result.verificacion_solicitada = true;
+      result.verificacion_solicitada_en = new Date().toISOString();
+      try {
+        await request(`/rest/v1/productos_admin?id=eq.${product.id}`, {
+          method: "PATCH", headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ resultado_bot: result, error_investigacion: null, actualizado: new Date().toISOString() })
+        });
+        productReview.hidden = true; productList.hidden = false; await loadProducts();
+        showNotice(`${product.codigo} quedó enviado a una verificación nueva.`, "success");
+      } catch (error) { showNotice(error.message, "error"); }
       return;
     }
     if (action === "publicar-cambios") {

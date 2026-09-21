@@ -156,12 +156,17 @@ const verifySource = async (source, product) => {
   }
 };
 
-const pending = await api("/rest/v1/productos_admin?revision=eq.investigar&select=*&order=creado.asc&limit=5");
+const candidates = await api("/rest/v1/productos_admin?select=*&order=actualizado.asc&limit=500");
+const verificationRequested = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
+  && product.resultado_bot.verificacion_solicitada === true;
+const pending = candidates.filter((product) => product.revision === "investigar" || verificationRequested(product)).slice(0, 5);
 console.log(`Productos pendientes: ${pending.length}`);
 
 for (const product of pending) {
   console.log(`Investigando ${product.codigo}…`);
+  let isRecheck = false;
   try {
+    isRecheck = product.revision === "publicado" && verificationRequested(product);
     let vision;
     try { vision = await inspectPhoto(product); } catch (error) { vision = { codigo_visible: "", confianza: "Baja", error: error.message }; }
     const result = await research(product, vision);
@@ -178,27 +183,47 @@ for (const product of pending) {
     if (!result.compatibilidad?.length) reasons.push("No se obtuvo compatibilidad verificable.");
     if (text(result.confianza).toLowerCase() === "alta" && independentDomains < 2) reasons.push("La confianza Alta exige dos fuentes verificadas de dominios distintos.");
     const ready = !reasons.length && result.listo_para_revisar === true;
-    // Una propuesta bloqueada se conserva solo como evidencia del bot: nunca reemplaza la ficha del producto.
-    const safeDetails = ready ? {
+    const proposal = {
       nombre: text(result.nombre_sugerido) || product.nombre, marca: text(result.marca) || product.marca,
       categoria: text(result.categoria), descripcion_corta: text(result.descripcion_corta), descripcion: text(result.descripcion),
       compatibilidad: unique(result.compatibilidad), referencias: unique(result.referencias), fuentes: sources,
       confianza: text(result.confianza)
-    } : {
+    };
+    // Una propuesta bloqueada se conserva solo como evidencia del bot: nunca reemplaza la ficha del producto.
+    const safeDetails = ready ? proposal : {
       nombre: product.nombre, marca: product.marca, categoria: product.categoria,
       descripcion_corta: product.descripcion_corta, descripcion: product.descripcion,
       compatibilidad: product.compatibilidad || [], referencias: product.referencias || [], fuentes: product.fuentes || [],
       confianza: product.confianza || "Baja"
     };
+    const previousResult = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
+    delete previousResult.verificacion_solicitada;
+    delete previousResult.verificacion_solicitada_en;
+    const resultData = { ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks, ultima_verificacion: new Date().toISOString() };
+    if (isRecheck && ready) resultData.edicion_pendiente = proposal;
+    const update = isRecheck ? {
+      resultado_bot: resultData,
+      error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "),
+      revision: "publicado", actualizado: new Date().toISOString()
+    } : {
+      ...safeDetails, resultado_bot: resultData,
+      error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "),
+      revision: ready ? "revisar" : "investigar", actualizado: new Date().toISOString()
+    };
     await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
-      method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({
-        ...safeDetails, resultado_bot: { vision, investigacion: result, verificacion_fuentes: sourceChecks },
-        error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "), revision: ready ? "revisar" : "investigar", actualizado: new Date().toISOString()
-      })
+      method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(update)
     });
-    console.log(`${product.codigo}: ${ready ? "listo para revisar" : "bloqueado"}.`);
+    console.log(`${product.codigo}: ${ready ? "listo para revisar" : "bloqueado"}${isRecheck ? " sin ocultar la ficha pública" : ""}.`);
   } catch (error) {
-    await api(`/rest/v1/productos_admin?id=eq.${product.id}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ error_investigacion: error.message, actualizado: new Date().toISOString() }) });
+    const previousResult = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
+    delete previousResult.verificacion_solicitada;
+    delete previousResult.verificacion_solicitada_en;
+    await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
+      method: "PATCH", headers: { Prefer: "return=minimal" },
+      body: JSON.stringify(isRecheck
+        ? { resultado_bot: previousResult, error_investigacion: error.message, revision: "publicado", actualizado: new Date().toISOString() }
+        : { error_investigacion: error.message, actualizado: new Date().toISOString() })
+    });
     console.error(`${product.codigo}: ${error.message}`);
   }
 }
