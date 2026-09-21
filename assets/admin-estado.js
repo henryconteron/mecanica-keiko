@@ -264,7 +264,7 @@
         ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
         ${product.revision === "publicado" && hasDraft ? '<button class="primary" data-review-action="publicar-cambios" type="button">Publicar cambios</button>' : ""}
-        ${product.revision === "publicado" && !hasDraft && !verificationRequested(product) ? '<button class="secondary" data-review-action="verificar" type="button">Verificar información de nuevo</button>' : ""}
+        ${product.revision === "publicado" && !verificationRequested(product) ? '<button class="secondary" data-review-action="verificar" type="button">Verificar información de nuevo</button>' : ""}
         ${product.revision === "publicado" && !hasDraft ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
         <button class="secondary" data-review-action="cerrar" type="button">Cerrar</button>
       </div>`;

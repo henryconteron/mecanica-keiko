@@ -243,13 +243,16 @@ for (const product of pending) {
     const previousResult = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
     delete previousResult.verificacion_solicitada;
     delete previousResult.verificacion_solicitada_en;
+    const pendingDraft = previousResult.edicion_pendiente;
     const resultData = {
       ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks,
       codigo_consultado: sourceCode,
       variante_ceramica_verificada_por_empaque: usesCeramicBaseCode,
       ultima_verificacion: new Date().toISOString()
     };
-    if (isRecheck && (ready || visualProposal)) resultData.edicion_pendiente = ready ? proposal : visualProposal;
+    // Si el usuario ya estaba revisando cambios, una verificación que no alcanza el umbral
+    // nunca debe borrar su borrador. Una propuesta completa sí lo reemplaza para revisarla.
+    if (isRecheck && (ready || visualProposal || pendingDraft)) resultData.edicion_pendiente = ready ? proposal : (pendingDraft || visualProposal);
     const update = isRecheck ? {
       resultado_bot: resultData,
       error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "),
