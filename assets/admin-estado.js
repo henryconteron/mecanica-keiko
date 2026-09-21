@@ -11,6 +11,8 @@
   const productReview = document.querySelector("#product-review");
   const importLegacy = document.querySelector("#import-legacy");
   const photosInput = document.querySelector("#product-photos");
+  const galleryPhotosInput = document.querySelector("#product-photos-gallery");
+  const photoQueue = document.querySelector("#product-photo-queue");
   const removeBackgroundInput = document.querySelector("#product-remove-background");
   const backgroundStatus = document.querySelector("#product-background-status");
   const backgroundPreview = document.querySelector("#product-background-preview");
@@ -21,6 +23,8 @@
   let backgroundPreparedSignature = "";
   let backgroundPreviewUrls = [];
   let backgroundPreparationId = 0;
+  let queuedPhotoFiles = [];
+  let queuePreviewUrls = [];
 
   const showNotice = (text, type = "") => {
     notice.textContent = text;
@@ -307,6 +311,28 @@
 
   const photosSignature = (files) => files.map((file) => `${file.name}:${file.size}:${file.lastModified}`).join("|");
 
+  const clearPhotoQueue = () => {
+    queuePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+    queuePreviewUrls = [];
+    queuedPhotoFiles = [];
+    photoQueue.innerHTML = "";
+    photoQueue.hidden = true;
+    photosInput.value = "";
+    galleryPhotosInput.value = "";
+  };
+
+  const renderPhotoQueue = () => {
+    queuePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+    queuePreviewUrls = [];
+    photoQueue.innerHTML = queuedPhotoFiles.map((file, index) => {
+      const url = URL.createObjectURL(file);
+      queuePreviewUrls.push(url);
+      const name = index === 0 && queuedPhotoFiles.length > 1 ? "Etiqueta / código" : `Foto ${index + 1}`;
+      return `<article class="photo-queue-card"><img src="${url}" alt="${name}"><p>${name}</p><button data-remove-photo="${index}" type="button">Quitar</button></article>`;
+    }).join("");
+    photoQueue.hidden = !queuedPhotoFiles.length;
+  };
+
   const clearBackgroundPreview = () => {
     backgroundPreparationId += 1;
     backgroundPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
@@ -343,7 +369,7 @@
   };
 
   const prepareBackgroundPhotos = async () => {
-    const files = [...photosInput.files];
+    const files = queuedPhotoFiles;
     const signature = photosSignature(files);
     if (!removeBackgroundInput.checked || !files.length) {
       return files.map((file) => ({ originalFile: file, cleanedFile: null, useClean: false, protected: false }));
@@ -402,7 +428,7 @@
   };
 
   const filesForUpload = async () => {
-    const files = [...photosInput.files];
+    const files = queuedPhotoFiles;
     if (!removeBackgroundInput.checked || !files.length) return files.map((file) => ({ file, preserveTransparency: false }));
     const prepared = await prepareBackgroundPhotos();
     if (prepared.length !== files.length) throw new Error("Espera a que termine la preparación de las fotos.");
@@ -429,11 +455,12 @@
 
   const openNewProduct = () => {
     clearBackgroundPreview();
+    clearPhotoQueue();
     productForm.reset();
     document.querySelector("#product-quantity").value = 1;
     document.querySelector("#product-form-title").textContent = "Nuevo producto";
     document.querySelector("#product-form-intro").textContent = "Guarda lo básico y el bot completará la información técnica.";
-    document.querySelector("#product-photo-help").textContent = "Toma primero la etiqueta con el código y luego el producto desde varios ángulos. Máximo 10 MB por foto.";
+    document.querySelector("#product-photo-help").textContent = "Toma primero la etiqueta con el código y luego el producto desde varios ángulos. Puedes agregar hasta 8 fotos, de máximo 10 MB cada una.";
     document.querySelector("#product-save").textContent = "Guardar para investigar";
     productForm.hidden = false;
     productReview.hidden = true;
@@ -444,6 +471,7 @@
   const openEditProduct = (product) => {
     const view = displayedProduct(product);
     clearBackgroundPreview();
+    clearPhotoQueue();
     productForm.reset();
     setFormValue("#product-id", product.id);
     setFormValue("#product-code", view.codigo);
@@ -460,7 +488,7 @@
     setFormValue("#product-notes", view.observaciones);
     document.querySelector("#product-form-title").textContent = `Editar: ${view.codigo}`;
     document.querySelector("#product-form-intro").textContent = product.revision === "publicado" ? "Revisa la información. Al guardar quedará como borrador hasta que pulses “Publicar cambios”." : "Al guardar, el producto volverá a revisión antes de publicarse.";
-    document.querySelector("#product-photo-help").textContent = `${view.fotos?.length || 0} fotos actuales. Las fotos nuevas se añadirán a las existentes. Máximo 10 MB por foto.`;
+    document.querySelector("#product-photo-help").textContent = `${view.fotos?.length || 0} fotos actuales. Las fotos nuevas se añadirán a las existentes. Máximo 8 fotos nuevas, de 10 MB cada una.`;
     document.querySelector("#product-save").textContent = product.revision === "publicado" ? "Guardar cambios para revisar" : "Guardar cambios";
     productForm.hidden = false;
     productReview.hidden = true;
@@ -470,20 +498,43 @@
 
   document.querySelector("#new-product").addEventListener("click", openNewProduct);
 
-  photosInput.addEventListener("change", async () => {
+  const enqueueSelectedPhotos = async (added) => {
+    if (!added.length) return;
+    const known = new Set(queuedPhotoFiles.map((file) => `${file.name}:${file.size}:${file.lastModified}`));
+    const available = Math.max(0, 8 - queuedPhotoFiles.length);
+    const accepted = added.filter((file) => {
+      const fingerprint = `${file.name}:${file.size}:${file.lastModified}`;
+      if (known.has(fingerprint)) return false;
+      known.add(fingerprint);
+      return true;
+    }).slice(0, available);
+    queuedPhotoFiles.push(...accepted);
     clearBackgroundPreview();
-    if (!photosInput.files.length) return;
+    renderPhotoQueue();
     if (removeBackgroundInput.checked) {
       try { await prepareBackgroundPhotos(); } catch (error) { showNotice(error.message, "error"); }
     } else {
-      backgroundStatus.textContent = `${photosInput.files.length} foto${photosInput.files.length === 1 ? "" : "s"} lista${photosInput.files.length === 1 ? "" : "s"}.`;
+      const limitMessage = accepted.length < added.length ? " Se admite un máximo de 8 fotos." : "";
+      backgroundStatus.textContent = `${queuedPhotoFiles.length} foto${queuedPhotoFiles.length === 1 ? "" : "s"} lista${queuedPhotoFiles.length === 1 ? "" : "s"}. Puedes tocar Fotos del artículo para agregar otra.${limitMessage}`;
     }
+  };
+
+  photosInput.addEventListener("change", async () => {
+    const added = [...photosInput.files];
+    photosInput.value = "";
+    await enqueueSelectedPhotos(added);
+  });
+
+  galleryPhotosInput.addEventListener("change", async () => {
+    const added = [...galleryPhotosInput.files];
+    galleryPhotosInput.value = "";
+    await enqueueSelectedPhotos(added);
   });
 
   removeBackgroundInput.addEventListener("change", async () => {
     clearBackgroundPreview();
     if (!removeBackgroundInput.checked) return;
-    if (!photosInput.files.length) {
+    if (!queuedPhotoFiles.length) {
       backgroundStatus.textContent = "Selecciona las fotos para preparar la versión sin fondo.";
       return;
     }
@@ -496,6 +547,15 @@
     backgroundPreparedPhotos[index].useClean = !backgroundPreparedPhotos[index].useClean;
     renderBackgroundPreview();
     backgroundStatus.textContent = "La selección de fotos está lista para guardarse.";
+  });
+
+  photoQueue.addEventListener("click", (event) => {
+    const index = Number(event.target.closest("[data-remove-photo]")?.dataset.removePhoto);
+    if (!Number.isInteger(index) || !queuedPhotoFiles[index]) return;
+    clearBackgroundPreview();
+    queuedPhotoFiles.splice(index, 1);
+    renderPhotoQueue();
+    backgroundStatus.textContent = queuedPhotoFiles.length ? `${queuedPhotoFiles.length} foto${queuedPhotoFiles.length === 1 ? "" : "s"} lista${queuedPhotoFiles.length === 1 ? "" : "s"}.` : "";
   });
 
   const legacyPhotoFile = async (medium) => {
@@ -572,6 +632,7 @@
 
   document.querySelector("#cancel-product").addEventListener("click", () => {
     clearBackgroundPreview();
+    clearPhotoQueue();
     productForm.hidden = true;
     productList.hidden = false;
   });
@@ -643,7 +704,7 @@
     const productId = formValue("#product-id");
     const existing = productId ? productsCache.find((product) => product.id === productId) : null;
     const code = normalizedCode(formValue("#product-code"));
-    let files = [...document.querySelector("#product-photos").files];
+    let files = queuedPhotoFiles;
     if (!productId && !files.length) return showNotice("Añade al menos una foto donde se vea el código.", "error");
     if (files.some((file) => file.size > 10 * 1024 * 1024)) return showNotice("Cada fotografía debe pesar menos de 10 MB.", "error");
     showNotice(`${productId ? "Guardando cambios de" : "Guardando"} ${code}${files.length ? ` y preparando ${files.length} foto${files.length === 1 ? "" : "s"}` : ""}…`);

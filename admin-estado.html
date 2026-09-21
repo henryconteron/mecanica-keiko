@@ -55,6 +55,13 @@
     .form-intro { margin:0 0 18px; color:var(--muted); font-size:.8rem; }
     .photo-box { padding:18px; border:2px dashed #ccc6bd; border-radius:16px; background:#faf9f7; text-align:center; }
     .photo-box input { margin-top:10px; padding:8px; background:#fff; }
+    .gallery-picker { grid-column:1/-1; display:inline-flex; justify-content:center; align-items:center; min-height:42px; margin:-8px 0 4px; color:#49443e; font-size:.76rem; text-decoration:underline; cursor:pointer; }
+    .gallery-picker input { position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; }
+    .photo-queue { grid-column:1/-1; display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:10px; margin:-5px 0 5px; }
+    .photo-queue-card { overflow:hidden; border:1px solid #ddd6cc; border-radius:12px; background:#fff; }
+    .photo-queue-card img { display:block; width:100%; height:92px; object-fit:cover; background:#f1efeb; }
+    .photo-queue-card p { min-height:32px; margin:0; padding:7px 8px 0; color:#444; font-size:.67rem; font-weight:800; line-height:1.15; }
+    .photo-queue-card button { width:calc(100% - 16px); min-height:32px; margin:7px 8px; padding:5px; color:#7e181c; background:#ffe0e1; font-size:.66rem; }
     .help { margin:-8px 0 18px; color:var(--muted); font-size:.76rem; }
     .background-removal { grid-column:1/-1; display:grid; gap:10px; margin:-4px 0 6px; padding:15px; border:1px solid #d9d2c8; border-radius:16px; background:#f8f6f2; }
     .background-toggle { display:flex; align-items:flex-start; gap:10px; margin:0; font-size:.84rem; }
@@ -130,6 +137,8 @@
             <label class="wide">Referencias o equivalencias (una por línea)<textarea id="product-references" maxlength="1200" placeholder="Ej.: SDB1714"></textarea></label>
             <label class="wide">Observaciones<textarea id="product-notes" maxlength="500" placeholder="Cualquier detalle visible o duda"></textarea></label>
             <label class="wide photo-box">📷 Fotos del artículo<input id="product-photos" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple></label>
+            <label class="gallery-picker">O elegir fotos desde la galería<input id="product-photos-gallery" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+            <div class="photo-queue" id="product-photo-queue" hidden></div>
             <section class="background-removal" aria-live="polite">
               <label class="background-toggle"><input id="product-remove-background" type="checkbox"><span>Quitar el fondo de las fotos del producto</span></label>
               <p>Opcional. Con dos o más fotos, la primera (etiqueta/código) queda original para que el bot la compruebe. Si subes una sola, también puede limpiarse porque el código se guarda en el formulario. Todo se procesa en este dispositivo, sin enviar la imagen a otro servicio. La primera vez se descargará el modelo de edición y puede tardar unos minutos.</p>
@@ -137,7 +146,7 @@
               <div class="background-preview" id="product-background-preview" hidden></div>
             </section>
           </div>
-          <p class="help" id="product-photo-help">Toma primero la etiqueta con el código y luego el producto desde varios ángulos. Máximo 10 MB por foto.</p>
+          <p class="help" id="product-photo-help">Toma primero la etiqueta con el código y luego el producto desde varios ángulos. Puedes agregar hasta 8 fotos, de máximo 10 MB cada una.</p>
           <div class="form-actions"><button class="secondary" id="cancel-product" type="button">Cancelar</button><button class="primary" id="product-save" type="submit">Guardar para investigar</button></div>
         </form>
         <div class="inventory-list" id="inventory-list"><p class="empty">Cargando productos…</p></div>
