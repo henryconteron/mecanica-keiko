@@ -455,7 +455,7 @@
       try {
         await request(`/rest/v1/productos_admin?id=eq.${product.id}`, {
           method: "PATCH", headers: { Prefer: "return=minimal" },
-          body: JSON.stringify({ resultado_bot: result, error_investigacion: null, actualizado: new Date().toISOString() })
+          body: JSON.stringify({ resultado_bot: result, error_investigacion: "", actualizado: new Date().toISOString() })
         });
         productReview.hidden = true; productList.hidden = false; await loadProducts();
         showNotice(`${product.codigo} quedó enviado a una verificación nueva.`, "success");
