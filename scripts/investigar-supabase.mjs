@@ -13,6 +13,14 @@ const serviceHeaders = (headers = {}) => ({
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
 const text = (value) => String(value ?? "").trim();
 const codeKey = (value) => text(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const codeAppearsExactly = (page, code) => {
+  const parts = text(code).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean);
+  if (!parts.length) return false;
+  const escaped = parts.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  // Permite guiones, espacios y puntos entre bloques del mismo código, pero nunca letras o números extra.
+  const pattern = new RegExp(`(^|[^A-Z0-9])${escaped.join("[\\s._-]*")}(?=$|[^A-Z0-9])`, "i");
+  return pattern.test(String(page || "").normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+};
 const textValue = (value) => {
   if (value && typeof value === "object") return text(value.referencia || value.codigo || value.numero || value.valor || value.nombre || "");
   return text(value);
@@ -109,7 +117,7 @@ Reglas obligatorias:
 - La ficha debe describir el mismo tipo de pieza que el nombre capturado y, si existe, que la etiqueta leída. Si hay duda, responde producto_coincide:false.
 - No inventes compatibilidades, medidas, equivalencias ni marca. Omite los datos que no estén sustentados.
 - Usa solamente enlaces HTTPS directos de fabricante, catálogo técnico o distribuidor automotriz reconocido. Nunca uses redes sociales, PDFs compartidos, Scribd, PDFCoffee, marketplaces ni páginas genéricas de resultados.
-- Para confianza Alta usa dos fuentes de dominios distintos; para Media basta una fuente directa. Devuelve únicamente JSON válido, sin explicación antes o después:
+- Para confianza Alta usa dos fuentes directas de dominios distintos. No repitas la misma URL ni el mismo dominio. Para Media basta una fuente directa. Devuelve únicamente JSON válido, sin explicación antes o después:
 {"codigo_coincide":true,"producto_coincide":true,"nombre_sugerido":"","marca":"","categoria":"","descripcion_corta":"máximo 180 caracteres","descripcion":"máximo 500 caracteres","compatibilidad":[""],"referencias":[""],"fuentes":[{"titulo":"","url":"https://...","tipo":"Fabricante|Catálogo técnico|Distribuidor"}],"confianza":"Alta|Media|Baja","observaciones":"","listo_para_revisar":true}`;
   const result = await groq({
     model: "openai/gpt-oss-20b", messages: [{ role: "user", content: prompt }],
@@ -137,7 +145,7 @@ const verifySource = async (source, product) => {
       return { source, ok: false, reason: "La fuente no es una página técnica legible que permita comprobar el código." };
     }
     const page = (await response.text()).slice(0, 1_500_000);
-    if (!codeKey(page).includes(codeKey(product.codigo))) {
+    if (!codeAppearsExactly(page, product.codigo)) {
       return { source, ok: false, reason: `La fuente no muestra el código exacto ${product.codigo}.` };
     }
     return {
@@ -171,7 +179,7 @@ for (const product of pending) {
     try { vision = await inspectPhoto(product); } catch (error) { vision = { codigo_visible: "", confianza: "Baja", error: error.message }; }
     const result = await research(product, vision);
     const sourceChecks = await Promise.all((result.fuentes || []).slice(0, 5).map((source) => verifySource(source, product)));
-    const sources = sourceChecks.filter((check) => check.ok).map((check) => check.source);
+    const sources = [...new Map(sourceChecks.filter((check) => check.ok).map((check) => [check.source.dominio, check.source])).values()];
     const sourceProblems = sourceChecks.filter((check) => !check.ok).map((check) => check.reason);
     const independentDomains = new Set(sources.map((source) => source.dominio)).size;
     const reasons = [];
