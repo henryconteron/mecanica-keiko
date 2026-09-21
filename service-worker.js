@@ -1,4 +1,4 @@
-const CACHE = "keiko-panel-v1";
+const CACHE = "keiko-panel-v2";
 const SHELL = ["./admin-estado.html", "./assets/admin-estado.js", "./assets/config.js", "./assets/marca/logo/logo.png"];
 
 self.addEventListener("install", (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL))));
