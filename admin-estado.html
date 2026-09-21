@@ -56,6 +56,17 @@
     .photo-box { padding:18px; border:2px dashed #ccc6bd; border-radius:16px; background:#faf9f7; text-align:center; }
     .photo-box input { margin-top:10px; padding:8px; background:#fff; }
     .help { margin:-8px 0 18px; color:var(--muted); font-size:.76rem; }
+    .background-removal { grid-column:1/-1; display:grid; gap:10px; margin:-4px 0 6px; padding:15px; border:1px solid #d9d2c8; border-radius:16px; background:#f8f6f2; }
+    .background-toggle { display:flex; align-items:flex-start; gap:10px; margin:0; font-size:.84rem; }
+    .background-toggle input { width:20px; min-width:20px; margin-top:1px; padding:0; accent-color:var(--green); }
+    .background-removal p { margin:0; color:var(--muted); font-size:.75rem; line-height:1.45; }
+    .background-status { min-height:18px; color:#075d2a; font-size:.76rem; font-weight:700; }
+    .background-preview { display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:10px; }
+    .background-preview-card { overflow:hidden; border:1px solid #ddd6cc; border-radius:12px; background:#fff; }
+    .background-preview-card img { display:block; width:100%; height:110px; object-fit:contain; background:linear-gradient(45deg,#eee 25%,transparent 25%) 0 0/16px 16px,linear-gradient(-45deg,#eee 25%,transparent 25%) 0 8px/16px 16px,linear-gradient(45deg,transparent 75%,#eee 75%) 8px -8px/16px 16px,linear-gradient(-45deg,transparent 75%,#eee 75%) -8px 0/16px 16px,#fff; }
+    .background-preview-card p { padding:8px 8px 0; color:#333; font-size:.69rem; font-weight:800; }
+    .background-preview-card button { width:calc(100% - 16px); min-height:34px; margin:8px; padding:6px; color:#181818; background:#ece9e4; font-size:.67rem; }
+    .background-preview-card button.is-clean { color:#075d2a; background:#d9f5e4; }
     .form-actions { display:flex; gap:10px; }
     .form-actions button { flex:1; }
     .inventory-list { display:grid; gap:10px; }
@@ -119,6 +130,12 @@
             <label class="wide">Referencias o equivalencias (una por línea)<textarea id="product-references" maxlength="1200" placeholder="Ej.: SDB1714"></textarea></label>
             <label class="wide">Observaciones<textarea id="product-notes" maxlength="500" placeholder="Cualquier detalle visible o duda"></textarea></label>
             <label class="wide photo-box">📷 Fotos del artículo<input id="product-photos" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple></label>
+            <section class="background-removal" aria-live="polite">
+              <label class="background-toggle"><input id="product-remove-background" type="checkbox"><span>Quitar el fondo de las fotos del producto</span></label>
+              <p>Opcional. Con dos o más fotos, la primera (etiqueta/código) queda original para que el bot la compruebe. Si subes una sola, también puede limpiarse porque el código se guarda en el formulario. Todo se procesa en este dispositivo, sin enviar la imagen a otro servicio. La primera vez se descargará el modelo de edición y puede tardar unos minutos.</p>
+              <div class="background-status" id="product-background-status"></div>
+              <div class="background-preview" id="product-background-preview" hidden></div>
+            </section>
           </div>
           <p class="help" id="product-photo-help">Toma primero la etiqueta con el código y luego el producto desde varios ángulos. Máximo 10 MB por foto.</p>
           <div class="form-actions"><button class="secondary" id="cancel-product" type="button">Cancelar</button><button class="primary" id="product-save" type="submit">Guardar para investigar</button></div>

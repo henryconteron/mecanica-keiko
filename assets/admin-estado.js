@@ -10,8 +10,17 @@
   const productList = document.querySelector("#inventory-list");
   const productReview = document.querySelector("#product-review");
   const importLegacy = document.querySelector("#import-legacy");
+  const photosInput = document.querySelector("#product-photos");
+  const removeBackgroundInput = document.querySelector("#product-remove-background");
+  const backgroundStatus = document.querySelector("#product-background-status");
+  const backgroundPreview = document.querySelector("#product-background-preview");
   let productsCache = [];
   let token = sessionStorage.getItem("keikoAdminToken") || "";
+  let backgroundRemovalModule;
+  let backgroundPreparedPhotos = [];
+  let backgroundPreparedSignature = "";
+  let backgroundPreviewUrls = [];
+  let backgroundPreparationId = 0;
 
   const showNotice = (text, type = "") => {
     notice.textContent = text;
@@ -260,7 +269,7 @@
     productList.hidden = true;
   };
 
-  const preparePhoto = async (file) => {
+  const preparePhoto = async (file, { preserveTransparency = false } = {}) => {
     if (!file.type.startsWith("image/")) throw new Error(`${file.name} no es una imagen compatible.`);
     try {
       const image = await createImageBitmap(file);
@@ -268,8 +277,13 @@
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.round(image.width * scale));
       canvas.height = Math.max(1, Math.round(image.height * scale));
-      canvas.getContext("2d", { alpha: false }).drawImage(image, 0, 0, canvas.width, canvas.height);
+      canvas.getContext("2d", { alpha: preserveTransparency }).drawImage(image, 0, 0, canvas.width, canvas.height);
       image.close();
+      if (preserveTransparency) {
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!blob) throw new Error("No se pudo optimizar la fotografía.");
+        return { blob, extension: "png", type: "image/png" };
+      }
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.84));
       if (!blob) throw new Error("No se pudo optimizar la fotografía.");
       return { blob, extension: "jpg", type: "image/jpeg" };
@@ -278,8 +292,8 @@
     }
   };
 
-  const uploadPhoto = async (file, code, index) => {
-    const prepared = await preparePhoto(file);
+  const uploadPhoto = async (file, code, index, options) => {
+    const prepared = await preparePhoto(file, options);
     const safeCode = code.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
     const filePath = `${safeCode}/${Date.now()}-${String(index + 1).padStart(2, "0")}.${prepared.extension}`;
     const response = await fetch(`${config.supabaseUrl}/storage/v1/object/inventario/${filePath}`, {
@@ -289,6 +303,110 @@
     });
     if (!response.ok) throw new Error(`No se pudo subir ${file.name}.`);
     return filePath;
+  };
+
+  const photosSignature = (files) => files.map((file) => `${file.name}:${file.size}:${file.lastModified}`).join("|");
+
+  const clearBackgroundPreview = () => {
+    backgroundPreparationId += 1;
+    backgroundPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+    backgroundPreviewUrls = [];
+    backgroundPreparedPhotos = [];
+    backgroundPreparedSignature = "";
+    backgroundPreview.innerHTML = "";
+    backgroundPreview.hidden = true;
+    backgroundStatus.textContent = "";
+  };
+
+  const renderBackgroundPreview = () => {
+    backgroundPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+    backgroundPreviewUrls = [];
+    backgroundPreview.innerHTML = backgroundPreparedPhotos.map((entry, index) => {
+      const file = entry.useClean ? entry.cleanedFile : entry.originalFile;
+      const url = URL.createObjectURL(file);
+      backgroundPreviewUrls.push(url);
+      const label = entry.protected ? "Etiqueta original" : entry.useClean ? "Fondo eliminado" : "Foto original";
+      const button = entry.protected ? "" : `<button class="${entry.useClean ? "is-clean" : ""}" data-photo-version="${index}" type="button">${entry.useClean ? "Usar fondo limpio" : "Usar original"}</button>`;
+      return `<article class="background-preview-card"><img src="${url}" alt="Vista previa: ${escapeHtml(file.name)}"><p>${label}</p>${button}</article>`;
+    }).join("");
+    backgroundPreview.hidden = !backgroundPreparedPhotos.length;
+  };
+
+  const loadBackgroundRemoval = async () => {
+    if (!backgroundRemovalModule) {
+      backgroundRemovalModule = import("https://esm.sh/@bg0/browser@0.1.1?bundle").then((module) => {
+        if (typeof module.removeBackground !== "function") throw new Error("La herramienta de edición no se pudo iniciar.");
+        return module;
+      });
+    }
+    return backgroundRemovalModule;
+  };
+
+  const prepareBackgroundPhotos = async () => {
+    const files = [...photosInput.files];
+    const signature = photosSignature(files);
+    if (!removeBackgroundInput.checked || !files.length) {
+      return files.map((file) => ({ originalFile: file, cleanedFile: null, useClean: false, protected: false }));
+    }
+    if (backgroundPreparedSignature === signature && backgroundPreparedPhotos.length === files.length) return backgroundPreparedPhotos;
+    const preparationId = ++backgroundPreparationId;
+    const saveButton = document.querySelector("#product-save");
+    saveButton.disabled = true;
+    photosInput.disabled = true;
+    removeBackgroundInput.disabled = true;
+    backgroundPreview.hidden = true;
+    backgroundStatus.textContent = "Preparando la edición local…";
+    try {
+      const { removeBackground } = await loadBackgroundRemoval();
+      if (preparationId !== backgroundPreparationId) return [];
+      const prepared = [];
+      for (const [index, file] of files.entries()) {
+        if (preparationId !== backgroundPreparationId) return [];
+        if (index === 0 && files.length > 1) {
+          prepared.push({ originalFile: file, cleanedFile: null, useClean: false, protected: true });
+          continue;
+        }
+        backgroundStatus.textContent = `Quitando fondo de la foto ${index + 1} de ${files.length}…`;
+        const result = await removeBackground(file, {
+          quality: "fast",
+          onProgress: (progress) => {
+            if (preparationId !== backgroundPreparationId) return;
+            const percent = typeof progress === "number" ? Math.round(progress * 100) : Math.round(Number(progress?.progress || 0) * 100);
+            backgroundStatus.textContent = percent > 0 ? `Quitando fondo de la foto ${index + 1} de ${files.length}: ${percent}%…` : `Quitando fondo de la foto ${index + 1} de ${files.length}…`;
+          }
+        });
+        const blob = result?.blob || result;
+        if (!(blob instanceof Blob)) throw new Error("La edición no produjo una imagen válida.");
+        const cleanName = `${file.name.replace(/\.[^.]+$/, "") || "producto"}-sin-fondo.png`;
+        prepared.push({ originalFile: file, cleanedFile: new File([blob], cleanName, { type: "image/png" }), useClean: true, protected: false });
+      }
+      if (preparationId !== backgroundPreparationId) return [];
+      backgroundPreparedPhotos = prepared;
+      backgroundPreparedSignature = signature;
+      renderBackgroundPreview();
+      backgroundStatus.textContent = "Listo. Puedes usar la versión limpia o volver a la original en cada foto.";
+      return prepared;
+    } catch (error) {
+      backgroundPreparedPhotos = [];
+      backgroundPreparedSignature = "";
+      backgroundPreview.hidden = true;
+      backgroundStatus.textContent = "No se pudo quitar el fondo. Las fotos originales se conservarán.";
+      throw new Error(error.message || "No se pudo preparar la edición local.");
+    } finally {
+      if (preparationId === backgroundPreparationId) {
+        saveButton.disabled = false;
+        photosInput.disabled = false;
+        removeBackgroundInput.disabled = false;
+      }
+    }
+  };
+
+  const filesForUpload = async () => {
+    const files = [...photosInput.files];
+    if (!removeBackgroundInput.checked || !files.length) return files.map((file) => ({ file, preserveTransparency: false }));
+    const prepared = await prepareBackgroundPhotos();
+    if (prepared.length !== files.length) throw new Error("Espera a que termine la preparación de las fotos.");
+    return prepared.map((entry) => ({ file: entry.useClean ? entry.cleanedFile : entry.originalFile, preserveTransparency: Boolean(entry.useClean) }));
   };
 
   const showPanel = async () => {
@@ -310,6 +428,7 @@
   const setFormValue = (selector, value) => { document.querySelector(selector).value = value ?? ""; };
 
   const openNewProduct = () => {
+    clearBackgroundPreview();
     productForm.reset();
     document.querySelector("#product-quantity").value = 1;
     document.querySelector("#product-form-title").textContent = "Nuevo producto";
@@ -324,6 +443,7 @@
 
   const openEditProduct = (product) => {
     const view = displayedProduct(product);
+    clearBackgroundPreview();
     productForm.reset();
     setFormValue("#product-id", product.id);
     setFormValue("#product-code", view.codigo);
@@ -349,6 +469,34 @@
   };
 
   document.querySelector("#new-product").addEventListener("click", openNewProduct);
+
+  photosInput.addEventListener("change", async () => {
+    clearBackgroundPreview();
+    if (!photosInput.files.length) return;
+    if (removeBackgroundInput.checked) {
+      try { await prepareBackgroundPhotos(); } catch (error) { showNotice(error.message, "error"); }
+    } else {
+      backgroundStatus.textContent = `${photosInput.files.length} foto${photosInput.files.length === 1 ? "" : "s"} lista${photosInput.files.length === 1 ? "" : "s"}.`;
+    }
+  });
+
+  removeBackgroundInput.addEventListener("change", async () => {
+    clearBackgroundPreview();
+    if (!removeBackgroundInput.checked) return;
+    if (!photosInput.files.length) {
+      backgroundStatus.textContent = "Selecciona las fotos para preparar la versión sin fondo.";
+      return;
+    }
+    try { await prepareBackgroundPhotos(); } catch (error) { showNotice(error.message, "error"); }
+  });
+
+  backgroundPreview.addEventListener("click", (event) => {
+    const index = Number(event.target.closest("[data-photo-version]")?.dataset.photoVersion);
+    if (!Number.isInteger(index) || !backgroundPreparedPhotos[index] || backgroundPreparedPhotos[index].protected) return;
+    backgroundPreparedPhotos[index].useClean = !backgroundPreparedPhotos[index].useClean;
+    renderBackgroundPreview();
+    backgroundStatus.textContent = "La selección de fotos está lista para guardarse.";
+  });
 
   const legacyPhotoFile = async (medium) => {
     const response = await fetch(new URL(medium.src, document.baseURI));
@@ -423,6 +571,7 @@
   importLegacy.addEventListener("click", importLegacyCatalog);
 
   document.querySelector("#cancel-product").addEventListener("click", () => {
+    clearBackgroundPreview();
     productForm.hidden = true;
     productList.hidden = false;
   });
@@ -494,11 +643,12 @@
     const productId = formValue("#product-id");
     const existing = productId ? productsCache.find((product) => product.id === productId) : null;
     const code = normalizedCode(formValue("#product-code"));
-    const files = [...document.querySelector("#product-photos").files];
+    let files = [...document.querySelector("#product-photos").files];
     if (!productId && !files.length) return showNotice("Añade al menos una foto donde se vea el código.", "error");
     if (files.some((file) => file.size > 10 * 1024 * 1024)) return showNotice("Cada fotografía debe pesar menos de 10 MB.", "error");
-    showNotice(`${productId ? "Guardando cambios de" : "Guardando"} ${code}${files.length ? ` y subiendo ${files.length} foto${files.length === 1 ? "" : "s"}` : ""}…`);
+    showNotice(`${productId ? "Guardando cambios de" : "Guardando"} ${code}${files.length ? ` y preparando ${files.length} foto${files.length === 1 ? "" : "s"}` : ""}…`);
     try {
+      files = await filesForUpload();
       const payload = {
         codigo: code,
         nombre: formValue("#product-name").trim(),
@@ -517,7 +667,7 @@
       if (!payload.nombre) throw new Error("Escribe el nombre del producto.");
       if (existing) {
         const photoPaths = [...(displayedProduct(existing).fotos || [])];
-        for (const [index, file] of files.entries()) photoPaths.push(await uploadPhoto(file, code, photoPaths.length + index));
+        for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, photoPaths.length + index, { preserveTransparency: photo.preserveTransparency }));
         const update = { ...payload, fotos: photoPaths };
         if (existing.revision === "publicado") {
           await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(existing.id)}`, {
@@ -537,7 +687,7 @@
       } else {
         const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, revision: "investigar" }) });
         const photoPaths = [];
-        for (const [index, file] of files.entries()) photoPaths.push(await uploadPhoto(file, code, index));
+        for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, index, { preserveTransparency: photo.preserveTransparency }));
         await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ fotos: photoPaths }) });
         showNotice(`${code} quedó guardado para investigación.`, "success");
       }
