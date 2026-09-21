@@ -47,6 +47,24 @@
     return body;
   };
 
+  // La clave de GitHub vive únicamente en Supabase; el navegador solo usa la sesión de la administradora.
+  const triggerInvestigation = async () => {
+    if (!token) return false;
+    try {
+      const response = await fetch(`${config.supabaseUrl}/functions/v1/activar-investigacion`, {
+        method: "POST",
+        headers: {
+          apikey: config.supabaseAnonKey,
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: "{}"
+      });
+      if (!response.ok) return false;
+      return Boolean((await response.json().catch(() => null))?.iniciado);
+    } catch { return false; }
+  };
+
   const loadState = async () => {
     const rows = await request("/rest/v1/estado_taller?id=eq.1&select=estado,mensaje,actualizado");
     const state = rows?.[0];
@@ -685,7 +703,8 @@
           body: JSON.stringify({ resultado_bot: result, error_investigacion: "", actualizado: new Date().toISOString() })
         });
         productReview.hidden = true; productList.hidden = false; await loadProducts();
-        showNotice(`${product.codigo} quedó enviado a una verificación nueva.`, "success");
+        const started = await triggerInvestigation();
+        showNotice(started ? `${product.codigo}: el bot se inició automáticamente.` : `${product.codigo} quedó en cola; se iniciará en el siguiente ciclo automático.`, "success");
       } catch (error) { showNotice(error.message, "error"); }
       return;
     }
@@ -768,7 +787,8 @@
         const photoPaths = [];
         for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, index, { preserveTransparency: photo.preserveTransparency }));
         await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ fotos: photoPaths }) });
-        showNotice(`${code} quedó guardado para investigación.`, "success");
+        const started = await triggerInvestigation();
+        showNotice(started ? `${code} se guardó y el bot se inició automáticamente.` : `${code} quedó guardado para investigación.`, "success");
       }
       productForm.hidden = true;
       productList.hidden = false;
