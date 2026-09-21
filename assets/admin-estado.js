@@ -10,6 +10,7 @@
   const productList = document.querySelector("#inventory-list");
   const productReview = document.querySelector("#product-review");
   const importLegacy = document.querySelector("#import-legacy");
+  const cleanPublishedPhotosButton = document.querySelector("#clean-published-photos");
   const photosInput = document.querySelector("#product-photos");
   const galleryPhotosInput = document.querySelector("#product-photos-gallery");
   const photoQueue = document.querySelector("#product-photo-queue");
@@ -389,6 +390,59 @@
     return filePath;
   };
 
+  const localFileFromStoredPhoto = async (path, fallbackName) => {
+    const url = await signedPhotoUrl(path);
+    if (!url) throw new Error("No se pudo abrir una foto almacenada.");
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("No se pudo descargar una foto almacenada.");
+    const blob = await response.blob();
+    return new File([blob], fallbackName, { type: blob.type || "image/jpeg" });
+  };
+
+  const cleanPublishedPhotos = async () => {
+    const products = productsCache.filter((product) => product.revision === "publicado" && product.fotos?.length);
+    if (!products.length) return showNotice("No hay fotos publicadas para limpiar.", "error");
+    const totalPhotos = products.reduce((total, product) => total + product.fotos.length, 0);
+    if (!window.confirm(`Se limpiarán ${totalPhotos} fotos de ${products.length} productos en este dispositivo. Puede tardar varios minutos; mantén el panel abierto. ¿Continuar?`)) return;
+    cleanPublishedPhotosButton.disabled = true;
+    importLegacy.disabled = true;
+    let done = 0;
+    let updated = 0;
+    const errors = [];
+    try {
+      const { removeBackground } = await loadBackgroundRemoval();
+      for (const product of products) {
+        const cleanedPaths = [];
+        try {
+          for (const [index, path] of product.fotos.entries()) {
+            done += 1;
+            showNotice(`Limpiando foto ${done} de ${totalPhotos}: ${product.codigo}…`);
+            const original = await localFileFromStoredPhoto(path, `${product.codigo}-${index + 1}.jpg`);
+            const result = await removeBackground(original, { quality: "fast" });
+            const blob = result?.blob || result;
+            if (!(blob instanceof Blob)) throw new Error("La edición no produjo una imagen válida.");
+            const cleaned = new File([blob], `${product.codigo}-${index + 1}-sin-fondo.png`, { type: "image/png" });
+            cleanedPaths.push(await uploadPhoto(cleaned, product.codigo, index, { preserveTransparency: true }));
+          }
+          await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(product.id)}`, {
+            method: "PATCH", headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ fotos: cleanedPaths, actualizado: new Date().toISOString() })
+          });
+          updated += 1;
+        } catch (error) {
+          errors.push(`${product.codigo}: ${error.message || "no se pudo limpiar"}`);
+        }
+      }
+      await loadProducts();
+      showNotice(errors.length ? `Se actualizaron ${updated} productos. Revisa: ${errors.join(" · ")}` : `Listo: se limpiaron las fotos de ${updated} productos publicados.`, errors.length ? "error" : "success");
+    } catch (error) {
+      showNotice(error.message || "No se pudo iniciar la limpieza local.", "error");
+    } finally {
+      cleanPublishedPhotosButton.disabled = false;
+      importLegacy.disabled = false;
+    }
+  };
+
   const photosSignature = (files) => files.map((file) => `${file.name}:${file.size}:${file.lastModified}`).join("|");
 
   const clearPhotoQueue = () => {
@@ -578,6 +632,7 @@
 
   document.querySelector("#new-product").addEventListener("click", openNewProduct);
   document.querySelector("#organize-manual-research").addEventListener("click", organizeManualResearch);
+  cleanPublishedPhotosButton.addEventListener("click", cleanPublishedPhotos);
 
   const enqueueSelectedPhotos = async (added) => {
     if (!added.length) return;
