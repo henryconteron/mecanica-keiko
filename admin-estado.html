@@ -139,14 +139,15 @@
             <label class="wide">Compatibilidad (una por línea)<textarea id="product-compatibility" maxlength="1200" placeholder="Ej.: Toyota Corolla E12, 2001–2007"></textarea></label>
             <label class="wide">Referencias o equivalencias (una por línea)<textarea id="product-references" maxlength="1200" placeholder="Ej.: SDB1714"></textarea></label>
             <label class="wide">Fuentes que verificaste (un enlace por línea)<textarea id="product-sources" maxlength="2000" placeholder="Pega aquí las páginas que comprobaste antes de usar los datos"></textarea></label>
-            <label class="wide">Resultado que verificaste personalmente (solo respaldo privado)<textarea id="product-manual-research" maxlength="5000" placeholder="Opcional: pega aquí el resultado de Google y luego completa arriba solo los datos que confirmaste. Esto no se muestra a los clientes."></textarea></label>
+            <label class="wide">Resultado que verificaste personalmente (solo respaldo privado)<textarea id="product-manual-research" maxlength="5000" placeholder="Pega aquí la respuesta completa de Google. El panel organizará una propuesta que podrás revisar antes de publicar."></textarea></label>
+            <button class="secondary wide" id="organize-manual-research" type="button">Organizar información encontrada</button>
             <label class="wide">Observaciones<textarea id="product-notes" maxlength="500" placeholder="Cualquier detalle visible o duda"></textarea></label>
             <label class="wide photo-box">📷 Fotos del artículo<input id="product-photos" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple></label>
             <label class="gallery-picker">O elegir fotos desde la galería<input id="product-photos-gallery" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
             <div class="photo-queue" id="product-photo-queue" hidden></div>
             <section class="background-removal" aria-live="polite">
               <label class="background-toggle"><input id="product-remove-background" type="checkbox"><span>Quitar el fondo de las fotos del producto</span></label>
-              <p>Opcional. Con dos o más fotos, la primera (etiqueta/código) queda original para que el bot la compruebe. Si subes una sola, también puede limpiarse porque el código se guarda en el formulario. Todo se procesa en este dispositivo, sin enviar la imagen a otro servicio. La primera vez se descargará el modelo de edición y puede tardar unos minutos.</p>
+              <p>Opcional. Se puede limpiar incluso la foto de etiqueta/código: ya comprobaste que conserva la lectura. Todo se procesa en este dispositivo, sin enviar la imagen a otro servicio. La primera vez se descargará el modelo de edición y puede tardar unos minutos.</p>
               <div class="background-status" id="product-background-status"></div>
               <div class="background-preview" id="product-background-preview" hidden></div>
             </section>

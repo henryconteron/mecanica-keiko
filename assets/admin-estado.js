@@ -78,9 +78,50 @@
   const normalizedCode = (value) => String(value ?? "").trim().toUpperCase();
   const linesToList = (value = "") => String(value).split("\n").map((item) => item.trim()).filter(Boolean);
   const sourceLinks = (value = "") => [...new Map(linesToList(value)
-    .filter((url) => /^https:\/\//i.test(url))
+    .filter((url) => /^https?:\/\//i.test(url))
     .map((url) => [url, { url, titulo: "Fuente verificada por el taller", tipo: "Consulta manual" }])).values()];
   const sourceLinksText = (sources = []) => (sources || []).map((source) => typeof source === "string" ? source : source?.url).filter(Boolean).join("\n");
+  const cleanResearchLine = (value) => String(value || "")
+    .replace(/\[\[\d+\]\([^)]*\)\]/g, "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\*{1,3}/g, "")
+    .replace(/^\s*[-•]\s*/, "")
+    .replace(/\s+/g, " ").trim();
+  const extractResearchSection = (raw, heading) => {
+    const lines = String(raw || "").split(/\r?\n/);
+    const start = lines.findIndex((line) => heading.test(cleanResearchLine(line)));
+    if (start < 0) return [];
+    const result = [];
+    for (const line of lines.slice(start + 1)) {
+      const clean = cleanResearchLine(line);
+      if (/^#{1,6}\s/.test(line) || (/^\*\*.+\*\*$/.test(line.trim()) && clean && !heading.test(clean))) break;
+      if (clean) result.push(clean);
+    }
+    return result;
+  };
+  const organizeManualResearch = () => {
+    const raw = formValue("#product-manual-research").trim();
+    if (!raw) return showNotice("Pega primero el resultado que encontraste.", "error");
+    const firstHeading = raw.search(/\n\s*\*\*|\n\s*#{1,6}\s/);
+    const intro = cleanResearchLine((firstHeading >= 0 ? raw.slice(0, firstHeading) : raw)).slice(0, 1200);
+    const compatibility = extractResearchSection(raw, /compatibilidad|aplicaciones principales/i)
+      .filter((line) => !/^(referencias?|fuentes?|caracter[ií]sticas?)/i.test(line));
+    const sourceUrls = [...new Set([...raw.matchAll(/\]\((https?:\/\/[^)\s]+)|\b(https?:\/\/[^\s)\]]+)/gi)].map((match) => match[1] || match[2]))];
+    const brand = raw.match(/marca\s+\*\*([^*]+)\*\*/i)?.[1]?.trim()
+      || raw.match(/fabricad[oa]s?\s+por(?:\s+la\s+marca)?\s+\*\*([^*]+)\*\*/i)?.[1]?.trim();
+    const codes = [...new Set((cleanResearchLine(raw).match(/\b(?:\d{5}-\d{5}|(?:Wagner|Duralast)\s+[A-Z]*D\d+[A-Z]?|[A-Z]{0,4}D\d+[A-Z]?)\b/gi) || [])
+      .map((value) => value.trim()).filter((value) => value.length > 2))];
+    if (brand) setFormValue("#product-brand", brand);
+    if (/pastill|balata/i.test(raw)) setFormValue("#product-category", "Pastillas de freno");
+    if (intro) {
+      setFormValue("#product-description", intro);
+      setFormValue("#product-short-description", intro.length > 215 ? `${intro.slice(0, 212).trimEnd()}…` : intro);
+    }
+    if (compatibility.length) setFormValue("#product-compatibility", compatibility.join("\n"));
+    if (codes.length) setFormValue("#product-references", codes.join("\n"));
+    if (sourceUrls.length) setFormValue("#product-sources", sourceUrls.join("\n"));
+    showNotice("Organicé una propuesta. Revísala: confirma cada dato antes de guardar y publicar.", "success");
+  };
   const editDraft = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
     ? product.resultado_bot.edicion_pendiente || null
     : null;
@@ -390,8 +431,8 @@
       const file = entry.useClean ? entry.cleanedFile : entry.originalFile;
       const url = URL.createObjectURL(file);
       backgroundPreviewUrls.push(url);
-      const label = entry.protected ? "Etiqueta original" : entry.useClean ? "Fondo eliminado" : "Foto original";
-      const button = entry.protected ? "" : `<button class="${entry.useClean ? "is-clean" : ""}" data-photo-version="${index}" type="button">${entry.useClean ? "Usar fondo limpio" : "Usar original"}</button>`;
+      const label = entry.useClean ? "Fondo eliminado" : "Foto original";
+      const button = `<button class="${entry.useClean ? "is-clean" : ""}" data-photo-version="${index}" type="button">${entry.useClean ? "Usar fondo limpio" : "Usar original"}</button>`;
       return `<article class="background-preview-card"><img src="${url}" alt="Vista previa: ${escapeHtml(file.name)}"><p>${label}</p>${button}</article>`;
     }).join("");
     backgroundPreview.hidden = !backgroundPreparedPhotos.length;
@@ -427,10 +468,6 @@
       const prepared = [];
       for (const [index, file] of files.entries()) {
         if (preparationId !== backgroundPreparationId) return [];
-        if (index === 0 && files.length > 1) {
-          prepared.push({ originalFile: file, cleanedFile: null, useClean: false, protected: true });
-          continue;
-        }
         backgroundStatus.textContent = `Quitando fondo de la foto ${index + 1} de ${files.length}…`;
         const result = await removeBackground(file, {
           quality: "fast",
@@ -540,6 +577,7 @@
   };
 
   document.querySelector("#new-product").addEventListener("click", openNewProduct);
+  document.querySelector("#organize-manual-research").addEventListener("click", organizeManualResearch);
 
   const enqueueSelectedPhotos = async (added) => {
     if (!added.length) return;
@@ -778,7 +816,7 @@
         actualizado: new Date().toISOString()
       };
       if (!payload.nombre) throw new Error("Escribe el nombre del producto.");
-      if (formValue("#product-sources").trim() && !payload.fuentes.length) throw new Error("Las fuentes deben empezar con https://.");
+      if (formValue("#product-sources").trim() && !payload.fuentes.length) throw new Error("Las fuentes deben empezar con http:// o https://.");
       const manualResearch = formValue("#product-manual-research").trim();
       if (existing) {
         const photoPaths = [...(displayedProduct(existing).fotos || [])];
