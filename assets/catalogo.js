@@ -67,6 +67,27 @@
     return `<img src="${escapeHtml(medium.src)}" alt="${escapeHtml(alt)}" loading="lazy"${fitStyle}>`;
   };
 
+  // Algunos navegadores móviles fuerzan el ancho de las imágenes dentro de diálogos.
+  // Calculamos su tamaño con los píxeles reales para que una foto vertical nunca se recorte.
+  const fitMainImage = (container) => {
+    const image = container?.querySelector("img");
+    if (!image) return;
+    const fit = () => {
+      if (!image.naturalWidth || !image.naturalHeight || !container.clientWidth || !container.clientHeight) return;
+      const availableWidth = Math.max(1, container.clientWidth - 28);
+      const availableHeight = Math.max(1, container.clientHeight - 28);
+      const scale = Math.min(availableWidth / image.naturalWidth, availableHeight / image.naturalHeight);
+      image.style.setProperty("width", `${Math.max(1, Math.floor(image.naturalWidth * scale))}px`, "important");
+      image.style.setProperty("height", `${Math.max(1, Math.floor(image.naturalHeight * scale))}px`, "important");
+      image.style.setProperty("max-width", "none", "important");
+      image.style.setProperty("max-height", "none", "important");
+    };
+    // Dos cuadros aseguran que el diálogo ya tenga su alto definitivo en móvil.
+    const scheduleFit = () => requestAnimationFrame(() => requestAnimationFrame(fit));
+    if (image.complete) scheduleFit();
+    else image.addEventListener("load", scheduleFit, { once: true });
+  };
+
   const normalizeSearch = (value = "") => String(value)
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -373,6 +394,7 @@
     activeMediaIndex = ((index % total) + total) % total;
     const medium = product.medios[activeMediaIndex];
     target.innerHTML = mediaElement(medium, productLabel(product), { controls: true, fit: "contain" });
+    fitMainImage(target);
     dialogContent.querySelectorAll(".dialog-thumb").forEach((thumb, thumbIndex) => {
       const selected = thumbIndex === activeMediaIndex;
       thumb.classList.toggle("is-active", selected);
@@ -472,6 +494,7 @@
     dialogContent.querySelectorAll("[data-media-step]").forEach((button) => {
       button.addEventListener("click", () => stepMedia(Number(button.dataset.mediaStep)));
     });
+    fitMainImage(dialogContent.querySelector("#dialog-main-media"));
     dialogContent.querySelector("[data-open-image-zoom]")?.addEventListener("click", openImageZoom);
     dialogContent.querySelector("[data-close-image-zoom]")?.addEventListener("click", closeImageZoom);
     dialogContent.querySelectorAll("[data-zoom-step]").forEach((button) => button.addEventListener("click", () => {
