@@ -126,18 +126,20 @@
   const promotionText = (product) => {
     const compatibility = (product.compatibilidad || []).slice(0, 2).join(" · ");
     return [
-      "🔧 ¡Repuesto disponible en Mecánica Keiko!",
-      product.nombre,
+      "🔧 REPUESTO DISPONIBLE | MECÁNICA KEIKO",
+      `✅ ${product.nombre}`,
       `Código: ${product.codigo}`,
       `Precio: ${priceText(product)}`,
       compatibility ? `Compatible con: ${compatibility}` : "",
       "📍 Archidona, Napo",
-      "Confirma compatibilidad y disponibilidad por WhatsApp."
+      "💬 Confirma compatibilidad y disponibilidad por WhatsApp.",
+      `🔗 Fotos y detalles: ${productUrl(product)}`
     ].filter(Boolean).join("\n");
   };
 
   const loadImage = (src) => new Promise((resolve, reject) => {
     const image = new Image();
+    image.crossOrigin = "anonymous";
     image.onload = () => resolve(image);
     image.onerror = reject;
     image.src = new URL(src, document.baseURI).toString();
@@ -182,15 +184,15 @@
     const image = await loadImage(medium.src);
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
-    canvas.height = 1080;
+    canvas.height = 1350;
     const context = canvas.getContext("2d");
 
     context.fillStyle = "#171717";
-    context.fillRect(0, 0, 1080, 1080);
+    context.fillRect(0, 0, 1080, 1350);
     context.fillStyle = "#c8272c";
-    context.fillRect(0, 0, 1080, 112);
+    context.fillRect(0, 0, 1080, 126);
     context.fillStyle = "#e9a927";
-    context.fillRect(0, 112, 1080, 8);
+    context.fillRect(0, 126, 1080, 8);
     context.fillStyle = "#ffffff";
     context.font = "800 42px Inter, Arial, sans-serif";
     context.fillText("MECÁNICA KEIKO", 54, 70);
@@ -201,29 +203,32 @@
     context.textAlign = "left";
 
     context.fillStyle = "#0d0d0d";
-    context.fillRect(54, 158, 972, 570);
-    drawContainedImage(context, image, 54, 158, 972, 570);
+    context.fillRect(54, 172, 972, 650);
+    drawContainedImage(context, image, 54, 172, 972, 650);
 
     context.fillStyle = "#ffffff";
     context.font = "700 54px Oswald, Arial Narrow, sans-serif";
-    const textBottom = drawWrappedText(context, product.nombre.toUpperCase(), 54, 800, 972, 62, 2);
+    const textBottom = drawWrappedText(context, product.nombre.toUpperCase(), 54, 900, 972, 62, 2);
     context.fillStyle = "#e9a927";
     context.font = "800 30px Inter, Arial, sans-serif";
-    context.fillText(`CÓDIGO: ${product.codigo}`, 54, textBottom + 22);
+    context.fillText(`CÓDIGO: ${product.codigo}`, 54, textBottom + 26);
     context.fillStyle = "#ffffff";
     context.font = "800 38px Inter, Arial, sans-serif";
     context.textAlign = "right";
-    context.fillText(priceText(product), 1026, textBottom + 22);
+    context.fillText(priceText(product), 1026, textBottom + 26);
     context.textAlign = "left";
 
     context.fillStyle = "#2a2a2a";
-    context.fillRect(0, 994, 1080, 86);
+    context.fillRect(0, 1194, 1080, 156);
     context.fillStyle = "#ffffff";
-    context.font = "700 25px Inter, Arial, sans-serif";
-    context.fillText("ARCHIDONA · NAPO", 54, 1047);
+    context.font = "800 27px Inter, Arial, sans-serif";
+    context.fillText("VER FOTOS Y DETALLES EN LA WEB", 54, 1254);
+    context.fillStyle = "#c9c9c9";
+    context.font = "700 23px Inter, Arial, sans-serif";
+    context.fillText("ARCHIDONA · NAPO", 54, 1302);
     context.fillStyle = "#50d47d";
     context.textAlign = "right";
-    context.fillText("WHATSAPP 098 938 1059", 1026, 1047);
+    context.fillText("WHATSAPP 098 938 1059", 1026, 1302);
 
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
     return blob ? new File([blob], `${product.id}-mecanica-keiko.jpg`, { type: "image/jpeg" }) : null;
@@ -238,10 +243,35 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const copyPromotionText = async (product) => {
+    try {
+      await navigator.clipboard.writeText(promotionText(product));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const downloadPromotion = async (product) => {
+    try {
+      const promotionFile = await createPromotionFile(product);
+      if (!promotionFile) {
+        showToast("Este repuesto aún no tiene una foto para promocionar");
+        return;
+      }
+      downloadFile(promotionFile);
+      const copied = await copyPromotionText(product);
+      showToast(copied ? "Imagen descargada y texto con enlace copiado" : "Imagen promocional descargada");
+    } catch {
+      showToast("No se pudo preparar la imagen promocional");
+    }
+  };
+
   const shareProduct = async (product) => {
     const shareData = { title: productLabel(product), text: promotionText(product), url: productUrl(product) };
     try {
       const promotionFile = await createPromotionFile(product);
+      await copyPromotionText(product);
       const canSharePromotion = Boolean(promotionFile && navigator.share && navigator.canShare?.({ files: [promotionFile] }));
       if (canSharePromotion) {
         shareData.files = [promotionFile];
@@ -249,9 +279,8 @@
       } else if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
         if (promotionFile) downloadFile(promotionFile);
-        showToast("Promoción lista: imagen descargada y texto copiado");
+        showToast("Promoción lista: imagen descargada y texto con enlace copiado");
       }
     } catch (error) {
       if (error?.name !== "AbortError") showToast("No se pudo preparar la promoción");
@@ -364,7 +393,9 @@
             ${details.length ? `<ul class="dialog-list">${details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}
             <div class="dialog-buttons">
               <button class="button button-red" type="button" data-share-current>Compartir promoción</button>
+              <button class="button button-light" type="button" data-download-promotion>Descargar imagen promocional</button>
             </div>
+            <p class="promotion-note">En celular se abre el menú para compartir con imagen, texto y enlace. El enlace lleva a este repuesto en la web.</p>
           </div>
           <div class="dialog-primary-action"><a class="button button-whatsapp" href="${whatsappUrl(product)}" target="_blank" rel="noopener">Consultar este repuesto</a></div>
         </div>
@@ -388,6 +419,7 @@
       if (Math.abs(distance) >= 45) stepMedia(distance < 0 ? 1 : -1);
     }, { passive: true });
     dialogContent.querySelector("[data-share-current]")?.addEventListener("click", () => shareProduct(product));
+    dialogContent.querySelector("[data-download-promotion]")?.addEventListener("click", () => downloadPromotion(product));
     lockPageScroll();
     dialog.showModal();
   };

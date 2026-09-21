@@ -44,6 +44,153 @@
 
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 
+  const publicProductUrl = (product) => {
+    const url = new URL("./", document.baseURI);
+    url.searchParams.set("producto", product.id);
+    url.hash = "repuestos";
+    return url.toString();
+  };
+
+  const priceText = (product) => product.precio === null || product.precio === undefined || product.precio === ""
+    ? "Consultar"
+    : new Intl.NumberFormat("es-EC", { style: "currency", currency: "USD", maximumFractionDigits: Number(product.precio) % 1 === 0 ? 0 : 2 }).format(Number(product.precio));
+
+  const promotionText = (product) => [
+    "🔧 REPUESTO DISPONIBLE | MECÁNICA KEIKO",
+    `✅ ${product.nombre}`,
+    `Código: ${product.codigo}`,
+    `Precio: ${priceText(product)}`,
+    product.compatibilidad?.length ? `Compatible con: ${product.compatibilidad.slice(0, 2).join(" · ")}` : "",
+    "📍 Archidona, Napo",
+    "💬 Confirma compatibilidad y disponibilidad por WhatsApp.",
+    `🔗 Fotos y detalles: ${publicProductUrl(product)}`
+  ].filter(Boolean).join("\n");
+
+  const signedPhotoUrl = async (path) => {
+    if (!path) return null;
+    const body = await request(`/storage/v1/object/sign/inventario/${encodeURIComponent(path).replaceAll("%2F", "/")}`, {
+      method: "POST",
+      body: JSON.stringify({ expiresIn: 3600 })
+    });
+    return body?.signedURL ? `${config.supabaseUrl}/storage/v1${body.signedURL}` : null;
+  };
+
+  const loadImage = (src) => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+
+  const drawContainedImage = (context, image, x, y, width, height) => {
+    const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+    const renderedWidth = image.naturalWidth * scale;
+    const renderedHeight = image.naturalHeight * scale;
+    context.drawImage(image, x + (width - renderedWidth) / 2, y + (height - renderedHeight) / 2, renderedWidth, renderedHeight);
+  };
+
+  const drawWrappedText = (context, value, x, y, maxWidth, lineHeight, maxLines = 2) => {
+    const words = value.split(/\s+/);
+    const lines = [];
+    let line = "";
+    let truncated = false;
+    for (const word of words) {
+      const next = line ? `${line} ${word}` : word;
+      if (context.measureText(next).width <= maxWidth || !line) line = next;
+      else if (lines.length < maxLines - 1) { lines.push(line); line = word; }
+      else { truncated = true; break; }
+    }
+    if (line && lines.length < maxLines) lines.push(line);
+    if (truncated) {
+      let last = lines.at(-1) || "";
+      while (last && context.measureText(`${last}…`).width > maxWidth) last = last.slice(0, -1);
+      lines[lines.length - 1] = `${last}…`;
+    }
+    lines.forEach((text, index) => context.fillText(text, x, y + index * lineHeight));
+    return y + lines.length * lineHeight;
+  };
+
+  const createPromotionFile = async (product) => {
+    const source = await signedPhotoUrl(product.fotos?.[0]);
+    if (!source) return null;
+    const image = await loadImage(source);
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1350;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#171717";
+    context.fillRect(0, 0, 1080, 1350);
+    context.fillStyle = "#c8272c";
+    context.fillRect(0, 0, 1080, 126);
+    context.fillStyle = "#e9a927";
+    context.fillRect(0, 126, 1080, 8);
+    context.fillStyle = "#ffffff";
+    context.font = "800 42px Inter, Arial, sans-serif";
+    context.fillText("MECÁNICA KEIKO", 54, 70);
+    context.fillStyle = "#ffd779";
+    context.font = "800 24px Inter, Arial, sans-serif";
+    context.textAlign = "right";
+    context.fillText("REPUESTO DISPONIBLE", 1026, 67);
+    context.textAlign = "left";
+    context.fillStyle = "#0d0d0d";
+    context.fillRect(54, 172, 972, 650);
+    drawContainedImage(context, image, 54, 172, 972, 650);
+    context.fillStyle = "#ffffff";
+    context.font = "700 54px Oswald, Arial Narrow, sans-serif";
+    const textBottom = drawWrappedText(context, product.nombre.toUpperCase(), 54, 900, 972, 62, 2);
+    context.fillStyle = "#e9a927";
+    context.font = "800 30px Inter, Arial, sans-serif";
+    context.fillText(`CÓDIGO: ${product.codigo}`, 54, textBottom + 26);
+    context.fillStyle = "#ffffff";
+    context.font = "800 38px Inter, Arial, sans-serif";
+    context.textAlign = "right";
+    context.fillText(priceText(product), 1026, textBottom + 26);
+    context.textAlign = "left";
+    context.fillStyle = "#2a2a2a";
+    context.fillRect(0, 1194, 1080, 156);
+    context.fillStyle = "#ffffff";
+    context.font = "800 27px Inter, Arial, sans-serif";
+    context.fillText("VER FOTOS Y DETALLES EN LA WEB", 54, 1254);
+    context.fillStyle = "#c9c9c9";
+    context.font = "700 23px Inter, Arial, sans-serif";
+    context.fillText("ARCHIDONA · NAPO", 54, 1302);
+    context.fillStyle = "#50d47d";
+    context.textAlign = "right";
+    context.fillText("WHATSAPP 098 938 1059", 1026, 1302);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
+    return blob ? new File([blob], `${product.codigo || product.id}-mecanica-keiko.jpg`, { type: "image/jpeg" }) : null;
+  };
+
+  const downloadFile = (file) => {
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = file.name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const sharePromotion = async (product) => {
+    try {
+      const promotionFile = await createPromotionFile(product);
+      if (!promotionFile) throw new Error("Este producto aún no tiene una foto para promocionar.");
+      const text = promotionText(product);
+      let copied = false;
+      try { await navigator.clipboard.writeText(text); copied = true; } catch { /* El navegador puede bloquear el portapapeles. */ }
+      const shareData = { title: product.nombre, text, url: publicProductUrl(product) };
+      if (navigator.share && navigator.canShare?.({ files: [promotionFile] })) {
+        await navigator.share({ ...shareData, files: [promotionFile] });
+        showNotice("Se abrió el menú para publicar la promoción.", "success");
+      } else {
+        downloadFile(promotionFile);
+        showNotice(copied ? "Imagen descargada y texto con enlace copiado. Súbelos a tu red social." : "Imagen descargada. Usa el enlace del producto al publicar.", "success");
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") showNotice(error.message || "No se pudo preparar la promoción.", "error");
+    }
+  };
+
   const loadProducts = async () => {
     const products = await request("/rest/v1/productos_admin?select=*&order=actualizado.desc");
     productsCache = products;
@@ -65,6 +212,7 @@
       <div class="review-actions">
         ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
+        ${product.revision === "publicado" ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
         <button class="secondary" data-review-action="cerrar" type="button">Cerrar</button>
       </div>`;
     productReview.dataset.productId = product.id;
@@ -140,6 +288,11 @@
     const action = event.target.closest("[data-review-action]")?.dataset.reviewAction;
     if (!action) return;
     if (action === "cerrar") { productReview.hidden = true; productList.hidden = false; return; }
+    if (action === "compartir") {
+      const product = productsCache.find((item) => item.id === productReview.dataset.productId);
+      if (product) await sharePromotion(product);
+      return;
+    }
     if (action === "publicar" && !window.confirm("¿Confirmas que revisaste código, compatibilidad, precio y fotografías? El producto será visible para clientes.")) return;
     const revision = action === "aprobar" ? "aprobado" : "publicado";
     try {
