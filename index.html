@@ -461,7 +461,7 @@
       background: #f5f2ed;
       cursor: pointer;
     }
-    .product-media img, .product-media video { box-sizing:border-box; width:100%; height:100%; padding:10px; object-fit:contain; display:block; transition:transform .35s ease; }
+    .product-media img, .product-media video { position:absolute; inset:0; box-sizing:border-box; width:100%; height:100%; padding:10px; object-fit:contain; display:block; }
     .product-card:hover .product-media img { transform:scale(1.01); }
     .media-count { position: absolute; right: 12px; bottom: 12px; padding: 6px 9px; color: var(--white); background: rgba(0, 0, 0, .68); border-radius: 999px; font-size: .72rem; font-weight: 800; }
     .product-body { padding: 22px; display: flex; flex: 1; flex-direction: column; }
@@ -495,9 +495,9 @@
     .dialog-close { position: absolute; z-index: 5; top: 12px; right: 12px; width: 42px; aspect-ratio: 1; margin: 0; color: var(--white); border: 1px solid rgba(255, 255, 255, .35); border-radius: 50%; background: rgba(0, 0, 0, .72); cursor: pointer; font-size: 1.2rem; }
     .dialog-layout { display: grid; grid-template-columns: 1.12fr .88fr; overflow: hidden; }
     .dialog-gallery { min-width: 0; min-height: 0; position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; background: #f5f2ed; }
-    .dialog-main-media { min-height: 0; display: grid; place-items: center; overflow: hidden; background:radial-gradient(circle at 50% 42%,#fff 0,#f5f2ed 72%); touch-action: pan-y; }
+    .dialog-main-media { position:relative; min-width:0; min-height: 0; display: grid; place-items: center; overflow: hidden; background:radial-gradient(circle at 50% 42%,#fff 0,#f5f2ed 72%); touch-action: pan-y; }
     /* La foto nunca llena el recuadro a la fuerza: se limita por el lado más pequeño y siempre se ve completa. */
-    .dialog-main-media img { width:auto!important; height:auto!important; max-width:calc(100% - 28px)!important; max-height:calc(100% - 28px)!important; object-fit:contain!important; display:block; }
+    .dialog-main-media img { position:absolute; inset:14px; width:calc(100% - 28px); height:calc(100% - 28px); object-fit:contain; display:block; }
     .dialog-main-media video { box-sizing:border-box; width:100%; height:100%; max-height:none; padding:14px; object-fit:contain; display:block; }
     .dialog-nav { position: absolute; z-index: 3; top: calc(50% - 37px); width: 44px; height: 54px; display: grid; place-items: center; color: var(--white); border: 1px solid rgba(255,255,255,.3); background: rgba(0,0,0,.58); cursor: pointer; font-size: 2rem; line-height: 1; }
     .dialog-nav:hover, .dialog-nav:focus-visible { background: rgba(0,0,0,.82); border-color: var(--gold); outline: none; }
@@ -630,7 +630,7 @@
       .catalog-toolbar { grid-template-columns: 1fr; }
       .catalog-filters { justify-content: flex-start; }
       .dialog-layout { display:flex; flex-direction:column; }
-      .dialog-gallery { flex:0 0 clamp(280px, 45dvh, 420px); }
+      .dialog-gallery { flex:0 0 min(45dvh, 420px); }
       .dialog-copy { flex:1 1 auto; min-height:0; }
       .dialog-gallery, .dialog-main-media { min-height: 0; }
     }
@@ -914,7 +914,7 @@
   <div class="toast" id="catalog-toast" role="status" aria-live="polite"></div>
   <script src="assets/config.js?v=20260913-2" defer></script>
   <script src="assets/servicios.js" defer></script>
-  <script src="assets/catalogo.js?v=20260913-1" defer></script>
+  <script src="assets/catalogo.js?v=20260921-audit" defer></script>
   <script src="assets/estado-taller.js?v=20260912-3" defer></script>
 </body>
 </html>

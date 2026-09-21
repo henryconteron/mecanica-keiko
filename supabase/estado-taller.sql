@@ -75,7 +75,9 @@ drop policy if exists "Productos publicados visibles" on public.productos_admin;
 create policy "Productos publicados visibles"
 on public.productos_admin for select to anon
 using (revision = 'publicado');
-grant select on public.productos_admin to anon;
+-- Los borradores, notas y resultados internos nunca son públicos.
+revoke select on public.productos_admin from anon;
+grant select (id,codigo,nombre,cantidad,precio,marca,categoria,descripcion_corta,descripcion,compatibilidad,referencias,fotos,revision,actualizado) on public.productos_admin to anon;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('inventario', 'inventario', false, 10485760, array['image/jpeg','image/png','image/webp'])

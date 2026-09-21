@@ -258,7 +258,7 @@ for (const product of pending) {
     };
     // Si el usuario ya estaba revisando cambios, una verificación que no alcanza el umbral
     // nunca debe borrar su borrador. Una propuesta completa sí lo reemplaza para revisarla.
-    if (isRecheck && (ready || visualProposal || pendingDraft)) resultData.edicion_pendiente = ready ? proposal : (pendingDraft || visualProposal);
+    if (isRecheck && (ready || visualProposal || pendingDraft)) resultData.edicion_pendiente = pendingDraft || (ready ? proposal : visualProposal);
     const update = isRecheck ? {
       resultado_bot: resultData,
       error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "),
@@ -266,7 +266,7 @@ for (const product of pending) {
     } : {
       ...safeDetails, resultado_bot: resultData,
       error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "),
-      revision: ready ? "revisar" : "investigar", actualizado: new Date().toISOString()
+      revision: "revisar", actualizado: new Date().toISOString()
     };
     await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
       method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(update)
@@ -280,7 +280,7 @@ for (const product of pending) {
       method: "PATCH", headers: { Prefer: "return=minimal" },
       body: JSON.stringify(isRecheck
         ? { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, error_investigacion: error.message, revision: "publicado", actualizado: new Date().toISOString() }
-        : { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, error_investigacion: error.message, actualizado: new Date().toISOString() })
+        : { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, revision: "revisar", error_investigacion: error.message, actualizado: new Date().toISOString() })
     });
     console.error(`${product.codigo}: ${error.message}`);
   }

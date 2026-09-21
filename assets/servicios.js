@@ -126,7 +126,10 @@
   });
 
   closeDialog?.addEventListener("click", () => dialog.close());
-  dialog.addEventListener("close", unlockPageScroll);
+  dialog.addEventListener("close", () => {
+    dialogContent.querySelectorAll("video").forEach((video) => video.pause());
+    unlockPageScroll();
+  });
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });

@@ -95,6 +95,10 @@
     .share-promotion { color:#fff; background:var(--green); }
     .empty { padding:28px; border-radius:16px; color:var(--muted); background:#f5f3ef; text-align:center; }
     [hidden] { display:none!important; }
+    .screen-head > div { min-width:0; }
+    .review a { overflow-wrap:anywhere; }
+    button:disabled { opacity:.6; cursor:wait; }
+    @media(max-width:600px) { .screen-head{align-items:stretch;flex-direction:column}.screen-actions{justify-content:flex-start}.product-grid{grid-template-columns:1fr}#product-form{padding:0}.product-row{flex-wrap:wrap} }
     @media(max-width:430px) { body{padding:0;background:#fff} main{min-height:100dvh;border-radius:0}.states{grid-template-columns:1fr} .automatic{grid-column:auto} }
   </style>
 </head>

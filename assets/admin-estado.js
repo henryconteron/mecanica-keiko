@@ -19,6 +19,27 @@
   const backgroundPreview = document.querySelector("#product-background-preview");
   let productsCache = [];
   let token = sessionStorage.getItem("keikoAdminToken") || "";
+  let refreshToken = sessionStorage.getItem("keikoAdminRefresh") || "";
+  let refreshPromise;
+  const saveSession = (session) => {
+    token = session.access_token;
+    refreshToken = session.refresh_token || "";
+    sessionStorage.setItem("keikoAdminToken", token);
+    sessionStorage.setItem("keikoAdminRefresh", refreshToken);
+  };
+  const refreshSession = async () => {
+    if (!refreshToken) return false;
+    if (!refreshPromise) refreshPromise = (async () => {
+      const response = await fetch(`${config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+        method: "POST", headers: { apikey: config.supabaseAnonKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      });
+      if (!response.ok) return false;
+      saveSession(await response.json());
+      return true;
+    })().finally(() => { refreshPromise = null; });
+    return refreshPromise;
+  };
   let backgroundRemovalModule;
   let backgroundPreparedPhotos = [];
   let backgroundPreparedSignature = "";
@@ -26,6 +47,8 @@
   let backgroundPreparationId = 0;
   let queuedPhotoFiles = [];
   let queuePreviewUrls = [];
+  let savingProduct = false;
+  let refreshingProducts = false;
 
   const showNotice = (text, type = "") => {
     notice.textContent = text;
@@ -33,7 +56,7 @@
     notice.hidden = !text;
   };
 
-  const request = async (path, options = {}) => {
+  const request = async (path, options = {}, retried = false) => {
     const response = await fetch(`${config.supabaseUrl}${path}`, {
       ...options,
       headers: {
@@ -44,6 +67,7 @@
       }
     });
     const body = response.status === 204 ? null : await response.json().catch(() => null);
+    if (response.status === 401 && !path.startsWith("/auth/") && !retried && await refreshSession()) return request(path, options, true);
     if (!response.ok) throw new Error(body?.msg || body?.message || body?.error_description || "No se pudo completar la operación.");
     return body;
   };
@@ -52,6 +76,7 @@
   const triggerInvestigation = async () => {
     if (!token) return false;
     try {
+      await refreshSession();
       const response = await fetch(`${config.supabaseUrl}/functions/v1/activar-investigacion`, {
         method: "POST",
         headers: {
@@ -137,7 +162,7 @@
     if (result.estado_investigacion === "lista_para_revisar") return { label: "Lista para revisar", detail: "La propuesta está lista para que la compruebes." };
     if (result.estado_investigacion === "requiere_atencion") return { label: "Requiere atención", detail: "La búsqueda terminó, pero necesita tu revisión antes de publicar." };
     if (result.estado_investigacion === "error") return { label: "No se pudo completar", detail: "La búsqueda falló; puedes solicitarla otra vez." };
-    if (verificationRequested(product) || product.revision === "investigar") return { label: "En cola", detail: "Solicitud recibida. Se iniciará automáticamente pronto." };
+    if (verificationRequested(product) || product.revision === "investigar") return { label: "En cola", detail: "Esperando el siguiente ciclo del bot. El horario automático puede demorarse." };
     return null;
   };
   const researchTime = (value) => value ? new Intl.DateTimeFormat("es-EC", { dateStyle: "short", timeStyle: "short" }).format(new Date(value)) : "";
@@ -324,7 +349,7 @@
     const hasDraft = Boolean(editDraft(product));
     const status = researchStatus(product);
     const progress = researchProgress(product);
-    const sources = (view.fuentes || []).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
+    const sources = (view.fuentes || []).filter((source) => /^https?:\/\//i.test(source?.url || "")).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
     productReview.innerHTML = `
       <h3>${escapeHtml(view.nombre)}</h3>
       ${hasDraft ? '<p class="review-error"><strong>Cambios pendientes:</strong> esta es la versión que revisarás. La página pública conserva la versión anterior hasta que pulses “Publicar cambios”.</p>' : ""}
@@ -345,7 +370,7 @@
         ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
         ${product.revision === "publicado" && hasDraft ? '<button class="primary" data-review-action="publicar-cambios" type="button">Publicar cambios</button>' : ""}
-        ${product.revision === "publicado" && !verificationRequested(product) ? '<button class="secondary" data-review-action="verificar" type="button">Verificar información de nuevo</button>' : ""}
+        ${product.revision !== "investigar" && !verificationRequested(product) ? '<button class="secondary" data-review-action="verificar" type="button">Verificar información de nuevo</button>' : ""}
         ${product.revision === "publicado" && !hasDraft ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
         <button class="secondary" data-review-action="cerrar" type="button">Cerrar</button>
       </div>`;
@@ -378,6 +403,7 @@
   };
 
   const uploadPhoto = async (file, code, index, options) => {
+    await refreshSession();
     const prepared = await preparePhoto(file, options);
     const safeCode = code.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
     const filePath = `${safeCode}/${Date.now()}-${String(index + 1).padStart(2, "0")}.${prepared.extension}`;
@@ -476,6 +502,10 @@
     backgroundPreview.innerHTML = "";
     backgroundPreview.hidden = true;
     backgroundStatus.textContent = "";
+    document.querySelector("#product-save").disabled = savingProduct;
+    photosInput.disabled = false;
+    galleryPhotosInput.disabled = false;
+    removeBackgroundInput.disabled = false;
   };
 
   const renderBackgroundPreview = () => {
@@ -486,7 +516,7 @@
       const url = URL.createObjectURL(file);
       backgroundPreviewUrls.push(url);
       const label = entry.useClean ? "Fondo eliminado" : "Foto original";
-      const button = `<button class="${entry.useClean ? "is-clean" : ""}" data-photo-version="${index}" type="button">${entry.useClean ? "Usar fondo limpio" : "Usar original"}</button>`;
+      const button = `<button class="${entry.useClean ? "is-clean" : ""}" data-photo-version="${index}" type="button">${entry.useClean ? "Volver a la original" : "Usar fondo limpio"}</button>`;
       return `<article class="background-preview-card"><img src="${url}" alt="Vista previa: ${escapeHtml(file.name)}"><p>${label}</p>${button}</article>`;
     }).join("");
     backgroundPreview.hidden = !backgroundPreparedPhotos.length;
@@ -497,13 +527,13 @@
       backgroundRemovalModule = import("https://esm.sh/@bg0/browser@0.1.1?bundle").then((module) => {
         if (typeof module.removeBackground !== "function") throw new Error("La herramienta de edición no se pudo iniciar.");
         return module;
-      });
+      }).catch((error) => { backgroundRemovalModule = null; throw error; });
     }
     return backgroundRemovalModule;
   };
 
   const prepareBackgroundPhotos = async () => {
-    const files = queuedPhotoFiles;
+    const files = [...queuedPhotoFiles];
     const signature = photosSignature(files);
     if (!removeBackgroundInput.checked || !files.length) {
       return files.map((file) => ({ originalFile: file, cleanedFile: null, useClean: false, protected: false }));
@@ -513,6 +543,7 @@
     const saveButton = document.querySelector("#product-save");
     saveButton.disabled = true;
     photosInput.disabled = true;
+    galleryPhotosInput.disabled = true;
     removeBackgroundInput.disabled = true;
     backgroundPreview.hidden = true;
     backgroundStatus.textContent = "Preparando la edición local…";
@@ -550,8 +581,9 @@
       throw new Error(error.message || "No se pudo preparar la edición local.");
     } finally {
       if (preparationId === backgroundPreparationId) {
-        saveButton.disabled = false;
+        saveButton.disabled = savingProduct;
         photosInput.disabled = false;
+        galleryPhotosInput.disabled = false;
         removeBackgroundInput.disabled = false;
       }
     }
@@ -570,6 +602,19 @@
     panel.hidden = false;
     try { await loadState(); } catch (error) { showNotice(error.message, "error"); }
   };
+
+  // Actualiza el progreso visible sin tocar el formulario que se está editando.
+  window.setInterval(async () => {
+    if (!token || document.hidden || panel.hidden || !productForm.hidden || savingProduct || refreshingProducts || document.querySelector("#screen-inventory").hidden) return;
+    refreshingProducts = true;
+    const selectedId = !productReview.hidden && productReview.dataset.productId;
+    try {
+      await loadProducts();
+      const selected = selectedId && productsCache.find((item) => item.id === selectedId);
+      if (selected && productForm.hidden && !productReview.hidden && productReview.dataset.productId === selectedId) showProduct(selected);
+    } catch { /* Conserva la vista actual cuando se pierde la conexión. */ }
+    finally { refreshingProducts = false; }
+  }, 15000);
 
   document.querySelectorAll("[data-screen]").forEach((button) => button.addEventListener("click", async () => {
     document.querySelectorAll("[data-screen]").forEach((item) => item.classList.toggle("is-current", item === button));
@@ -812,7 +857,7 @@
         });
         productReview.hidden = true; productList.hidden = false; await loadProducts();
         const started = await triggerInvestigation();
-        showNotice(started ? `${product.codigo}: el bot se inició automáticamente.` : `${product.codigo} quedó en cola; se iniciará en el siguiente ciclo automático.`, "success");
+        showNotice(started ? `${product.codigo}: se solicitó el inicio del bot.` : `${product.codigo} quedó en cola. No se pudo activar de inmediato; espera el ciclo programado o inicia “Investigar productos del panel” en GitHub.`, started ? "success" : "");
       } catch (error) { showNotice(error.message, "error"); }
       return;
     }
@@ -845,12 +890,15 @@
 
   productForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (savingProduct) return;
     const productId = formValue("#product-id");
     const existing = productId ? productsCache.find((product) => product.id === productId) : null;
     const code = normalizedCode(formValue("#product-code"));
     let files = queuedPhotoFiles;
     if (!productId && !files.length) return showNotice("Añade al menos una foto donde se vea el código.", "error");
     if (files.some((file) => file.size > 10 * 1024 * 1024)) return showNotice("Cada fotografía debe pesar menos de 10 MB.", "error");
+    savingProduct = true;
+    document.querySelector("#product-save").disabled = true;
     showNotice(`${productId ? "Guardando cambios de" : "Guardando"} ${code}${files.length ? ` y preparando ${files.length} foto${files.length === 1 ? "" : "s"}` : ""}…`);
     try {
       files = await filesForUpload();
@@ -894,10 +942,9 @@
         }
       } else {
         const queuedAt = new Date().toISOString();
-        const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, revision: "investigar", resultado_bot: { estado_investigacion: "en_cola", investigacion_solicitada_en: queuedAt, ...(manualResearch ? { investigacion_manual: manualResearch } : {}) } }) });
         const photoPaths = [];
         for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, index, { preserveTransparency: photo.preserveTransparency }));
-        await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ fotos: photoPaths }) });
+        await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, fotos: photoPaths, revision: "investigar", resultado_bot: { estado_investigacion: "en_cola", investigacion_solicitada_en: queuedAt, ...(manualResearch ? { investigacion_manual: manualResearch } : {}) } }) });
         const started = await triggerInvestigation();
         showNotice(started ? `${code} se guardó y el bot se inició automáticamente.` : `${code} quedó guardado para investigación.`, "success");
       }
@@ -906,6 +953,9 @@
       await loadProducts();
     } catch (error) {
       showNotice(error.message.includes("duplicate") ? "Ese código ya existe en el inventario." : error.message, "error");
+    } finally {
+      savingProduct = false;
+      document.querySelector("#product-save").disabled = false;
     }
   });
 
@@ -919,8 +969,7 @@
         method: "POST",
         body: JSON.stringify({ email: form.get("email"), password: form.get("password") })
       });
-      token = result.access_token;
-      sessionStorage.setItem("keikoAdminToken", token);
+      saveSession(result);
       showNotice("");
       await showPanel();
     } catch (error) {
@@ -951,8 +1000,10 @@
     }
   });
 
-  document.querySelector("#admin-logout").addEventListener("click", () => {
+  document.querySelector("#admin-logout").addEventListener("click", async () => {
+    try { await request("/auth/v1/logout?scope=local", { method: "POST" }); } catch { /* Borra también la sesión local si no hay conexión. */ }
     sessionStorage.removeItem("keikoAdminToken");
+    sessionStorage.removeItem("keikoAdminRefresh");
     location.reload();
   });
 

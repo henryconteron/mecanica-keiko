@@ -61,31 +61,7 @@
     if (medium.tipo === "video") {
       return `<video src="${escapeHtml(medium.src)}" ${options.controls ? "controls" : "muted playsinline preload=\"metadata\""} aria-label="${escapeHtml(alt)}"></video>`;
     }
-    const fitStyle = options.fit === "contain"
-      ? ' style="width:auto!important;height:auto!important;max-width:calc(100% - 28px)!important;max-height:calc(100% - 28px)!important;object-fit:contain!important"'
-      : "";
-    return `<img src="${escapeHtml(medium.src)}" alt="${escapeHtml(alt)}" loading="lazy"${fitStyle}>`;
-  };
-
-  // Algunos navegadores móviles fuerzan el ancho de las imágenes dentro de diálogos.
-  // Calculamos su tamaño con los píxeles reales para que una foto vertical nunca se recorte.
-  const fitMainImage = (container) => {
-    const image = container?.querySelector("img");
-    if (!image) return;
-    const fit = () => {
-      if (!image.naturalWidth || !image.naturalHeight || !container.clientWidth || !container.clientHeight) return;
-      const availableWidth = Math.max(1, container.clientWidth - 28);
-      const availableHeight = Math.max(1, container.clientHeight - 28);
-      const scale = Math.min(availableWidth / image.naturalWidth, availableHeight / image.naturalHeight);
-      image.style.setProperty("width", `${Math.max(1, Math.floor(image.naturalWidth * scale))}px`, "important");
-      image.style.setProperty("height", `${Math.max(1, Math.floor(image.naturalHeight * scale))}px`, "important");
-      image.style.setProperty("max-width", "none", "important");
-      image.style.setProperty("max-height", "none", "important");
-    };
-    // Dos cuadros aseguran que el diálogo ya tenga su alto definitivo en móvil.
-    const scheduleFit = () => requestAnimationFrame(() => requestAnimationFrame(fit));
-    if (image.complete) scheduleFit();
-    else image.addEventListener("load", scheduleFit, { once: true });
+    return `<img src="${escapeHtml(medium.src)}" alt="${escapeHtml(alt)}" loading="${options.controls ? "eager" : "lazy"}">`;
   };
 
   const normalizeSearch = (value = "") => String(value)
@@ -394,7 +370,8 @@
     activeMediaIndex = ((index % total) + total) % total;
     const medium = product.medios[activeMediaIndex];
     target.innerHTML = mediaElement(medium, productLabel(product), { controls: true, fit: "contain" });
-    fitMainImage(target);
+    const zoomButton = dialogContent.querySelector("[data-open-image-zoom]");
+    if (zoomButton) zoomButton.hidden = medium?.tipo === "video";
     dialogContent.querySelectorAll(".dialog-thumb").forEach((thumb, thumbIndex) => {
       const selected = thumbIndex === activeMediaIndex;
       thumb.classList.toggle("is-active", selected);
@@ -460,7 +437,7 @@
             <button class="dialog-thumb${index === 0 ? " is-active" : ""}" type="button" data-media-index="${index}" aria-label="Ver archivo ${index + 1}" aria-pressed="${index === 0}">
               ${mediaElement(medium, "", { controls: false })}
             </button>`).join("")}</div>` : ""}
-          ${media[0] && media[0].tipo !== "video" ? `<button class="dialog-zoom-trigger" type="button" data-open-image-zoom aria-label="Ampliar foto">⌕ <span>Ampliar</span></button>` : ""}
+          ${media.length ? `<button class="dialog-zoom-trigger" type="button" data-open-image-zoom ${media[0].tipo === "video" ? "hidden" : ""} aria-label="Ampliar foto">⌕ <span>Ampliar</span></button>` : ""}
           <section class="dialog-image-zoom" data-image-zoom hidden aria-label="Foto ampliada">
             <button class="dialog-image-zoom-close" type="button" data-close-image-zoom aria-label="Cerrar ampliación">×</button>
             <div class="dialog-image-zoom-canvas"><img src="" alt=""></div>
@@ -494,7 +471,6 @@
     dialogContent.querySelectorAll("[data-media-step]").forEach((button) => {
       button.addEventListener("click", () => stepMedia(Number(button.dataset.mediaStep)));
     });
-    fitMainImage(dialogContent.querySelector("#dialog-main-media"));
     dialogContent.querySelector("[data-open-image-zoom]")?.addEventListener("click", openImageZoom);
     dialogContent.querySelector("[data-close-image-zoom]")?.addEventListener("click", closeImageZoom);
     dialogContent.querySelectorAll("[data-zoom-step]").forEach((button) => button.addEventListener("click", () => {
@@ -611,6 +587,7 @@
     if (event.key === "ArrowRight") stepMedia(1);
   });
   dialog.addEventListener("close", () => {
+    dialogContent.querySelectorAll("video").forEach((video) => video.pause());
     activeProduct = null;
     activeMediaIndex = 0;
     touchStartX = null;
@@ -621,20 +598,24 @@
     if (event.target === dialog) dialog.close();
   });
 
-  Promise.all([
+  Promise.allSettled([
     fetch(`data/catalogo.json?v=${Date.now()}`).then((response) => {
       if (!response.ok) throw new Error("No se pudo cargar el catálogo");
       return response.json();
     }),
-    loadPanelProducts().catch(() => [])
+    loadPanelProducts()
   ])
-    .then(([data, panelProducts]) => {
+    .then(([staticResult, panelResult]) => {
+      if (staticResult.status === "rejected" && panelResult.status === "rejected") throw new Error("Catálogo no disponible");
+      const data = staticResult.status === "fulfilled" ? staticResult.value : { productos: [] };
+      const panelProducts = panelResult.status === "fulfilled" ? panelResult.value : [];
       const staticProducts = (data.productos || [])
         .filter((product) => product.publicado !== false && !panelProducts.some((panelProduct) => String(panelProduct.codigo || "").trim().toUpperCase() === String(product.codigo || "").trim().toUpperCase()))
         .sort((a, b) => Number(Boolean(b.destacado)) - Number(Boolean(a.destacado)) || (a.orden || 99) - (b.orden || 99));
       products = [...panelProducts, ...staticProducts];
       renderFilters();
       renderProducts();
+      if (staticResult.status === "rejected" || panelResult.status === "rejected") status.textContent += " · No se pudo cargar parte del catálogo. Actualiza para reintentar.";
 
       const requestedId = new URLSearchParams(window.location.search).get("producto");
       const requested = requestedId && productById(requestedId);
