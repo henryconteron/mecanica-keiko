@@ -45,6 +45,11 @@
 
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
   const normalizedCode = (value) => String(value ?? "").trim().toUpperCase();
+  const linesToList = (value = "") => String(value).split("\n").map((item) => item.trim()).filter(Boolean);
+  const editDraft = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
+    ? product.resultado_bot.edicion_pendiente || null
+    : null;
+  const displayedProduct = (product) => editDraft(product) ? { ...product, ...editDraft(product) } : product;
 
   const publicProductUrl = (product) => {
     const url = new URL("./", document.baseURI);
@@ -218,23 +223,32 @@
     productsCache = products;
     productList.innerHTML = products.length ? products.map((product) => `
       <article class="product-row">
-        <div><strong>${escapeHtml(product.nombre)}</strong><span>${escapeHtml(product.codigo)} · ${product.cantidad} unidad${product.cantidad === 1 ? "" : "es"}</span><small>${product.fotos?.length || 0} foto${product.fotos?.length === 1 ? "" : "s"}</small><button class="secondary" data-product="${product.id}" type="button">Ver detalles</button></div>
-        <span class="badge">${escapeHtml(product.revision)}</span>
+        <div><strong>${escapeHtml(displayedProduct(product).nombre)}</strong><span>${escapeHtml(displayedProduct(product).codigo)} · ${displayedProduct(product).cantidad} unidad${displayedProduct(product).cantidad === 1 ? "" : "es"}</span><small>${displayedProduct(product).fotos?.length || 0} foto${displayedProduct(product).fotos?.length === 1 ? "" : "s"}</small><button class="secondary" data-product="${product.id}" type="button">Ver detalles</button></div>
+        <span class="badge">${editDraft(product) ? "cambios pendientes" : escapeHtml(product.revision)}</span>
       </article>`).join("") : '<p class="empty">Todavía no hay productos. Pulsa “Nuevo” para comenzar.</p>';
   };
 
   const showProduct = (product) => {
-    const sources = (product.fuentes || []).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
+    const view = displayedProduct(product);
+    const hasDraft = Boolean(editDraft(product));
+    const sources = (view.fuentes || []).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
     productReview.innerHTML = `
-      <h3>${escapeHtml(product.nombre)}</h3><p><strong>Código:</strong> ${escapeHtml(product.codigo)} · <strong>Confianza:</strong> ${escapeHtml(product.confianza || "Pendiente")}</p>
-      ${product.descripcion ? `<p>${escapeHtml(product.descripcion)}</p>` : ""}
-      ${product.compatibilidad?.length ? `<p><strong>Compatibilidad</strong></p><ul>${product.compatibilidad.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+      <h3>${escapeHtml(view.nombre)}</h3>
+      ${hasDraft ? '<p class="review-error"><strong>Cambios pendientes:</strong> esta es la versión que revisarás. La página pública conserva la versión anterior hasta que pulses “Publicar cambios”.</p>' : ""}
+      <p><strong>Código:</strong> ${escapeHtml(view.codigo)} · <strong>Marca:</strong> ${escapeHtml(view.marca || "No indicada")} · <strong>Confianza:</strong> ${escapeHtml(view.confianza || "Pendiente")}</p>
+      <p><strong>Cantidad:</strong> ${escapeHtml(view.cantidad)} · <strong>Precio:</strong> ${escapeHtml(priceText(view))} · <strong>Categoría:</strong> ${escapeHtml(view.categoria || "Sin categoría")} · <strong>Fotos:</strong> ${view.fotos?.length || 0}</p>
+      ${view.descripcion_corta ? `<p><strong>Resumen para clientes:</strong> ${escapeHtml(view.descripcion_corta)}</p>` : ""}
+      ${view.descripcion ? `<p><strong>Descripción que se publicará:</strong> ${escapeHtml(view.descripcion)}</p>` : ""}
+      ${view.compatibilidad?.length ? `<p><strong>Compatibilidad</strong></p><ul>${view.compatibilidad.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+      ${view.referencias?.length ? `<p><strong>Referencias</strong></p><ul>${view.referencias.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
       ${sources ? `<p><strong>Fuentes para comprobar</strong></p><ul>${sources}</ul>` : ""}
       ${product.error_investigacion ? `<p class="review-error"><strong>Requiere atención:</strong> ${escapeHtml(product.error_investigacion)}</p>` : ""}
       <div class="review-actions">
+        <button class="secondary" data-review-action="editar" type="button">Editar producto</button>
         ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
-        ${product.revision === "publicado" ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
+        ${product.revision === "publicado" && hasDraft ? '<button class="primary" data-review-action="publicar-cambios" type="button">Publicar cambios</button>' : ""}
+        ${product.revision === "publicado" && !hasDraft ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
         <button class="secondary" data-review-action="cerrar" type="button">Cerrar</button>
       </div>`;
     productReview.dataset.productId = product.id;
@@ -288,13 +302,49 @@
     }
   }));
 
-  document.querySelector("#new-product").addEventListener("click", () => {
+  const formValue = (selector) => document.querySelector(selector).value;
+  const setFormValue = (selector, value) => { document.querySelector(selector).value = value ?? ""; };
+
+  const openNewProduct = () => {
     productForm.reset();
     document.querySelector("#product-quantity").value = 1;
+    document.querySelector("#product-form-title").textContent = "Nuevo producto";
+    document.querySelector("#product-form-intro").textContent = "Guarda lo básico y el bot completará la información técnica.";
+    document.querySelector("#product-photo-help").textContent = "Toma primero la etiqueta con el código y luego el producto desde varios ángulos. Máximo 10 MB por foto.";
+    document.querySelector("#product-save").textContent = "Guardar para investigar";
     productForm.hidden = false;
+    productReview.hidden = true;
     productList.hidden = true;
     document.querySelector("#product-code").focus();
-  });
+  };
+
+  const openEditProduct = (product) => {
+    const view = displayedProduct(product);
+    productForm.reset();
+    setFormValue("#product-id", product.id);
+    setFormValue("#product-code", view.codigo);
+    setFormValue("#product-name", view.nombre);
+    setFormValue("#product-quantity", view.cantidad);
+    setFormValue("#product-price", view.precio);
+    setFormValue("#product-brand", view.marca);
+    setFormValue("#product-category", view.categoria);
+    setFormValue("#product-confidence", view.confianza);
+    setFormValue("#product-short-description", view.descripcion_corta);
+    setFormValue("#product-description", view.descripcion);
+    setFormValue("#product-compatibility", (view.compatibilidad || []).join("\n"));
+    setFormValue("#product-references", (view.referencias || []).join("\n"));
+    setFormValue("#product-notes", view.observaciones);
+    document.querySelector("#product-form-title").textContent = `Editar: ${view.codigo}`;
+    document.querySelector("#product-form-intro").textContent = product.revision === "publicado" ? "Revisa la información. Al guardar quedará como borrador hasta que pulses “Publicar cambios”." : "Al guardar, el producto volverá a revisión antes de publicarse.";
+    document.querySelector("#product-photo-help").textContent = `${view.fotos?.length || 0} fotos actuales. Las fotos nuevas se añadirán a las existentes. Máximo 10 MB por foto.`;
+    document.querySelector("#product-save").textContent = product.revision === "publicado" ? "Guardar cambios para revisar" : "Guardar cambios";
+    productForm.hidden = false;
+    productReview.hidden = true;
+    productList.hidden = true;
+    document.querySelector("#product-code").focus();
+  };
+
+  document.querySelector("#new-product").addEventListener("click", openNewProduct);
 
   const legacyPhotoFile = async (medium) => {
     const response = await fetch(new URL(medium.src, document.baseURI));
@@ -382,9 +432,32 @@
     const action = event.target.closest("[data-review-action]")?.dataset.reviewAction;
     if (!action) return;
     if (action === "cerrar") { productReview.hidden = true; productList.hidden = false; return; }
+    if (action === "editar") {
+      const product = productsCache.find((item) => item.id === productReview.dataset.productId);
+      if (product) openEditProduct(product);
+      return;
+    }
     if (action === "compartir") {
       const product = productsCache.find((item) => item.id === productReview.dataset.productId);
       if (product) await sharePromotion(product);
+      return;
+    }
+    if (action === "publicar-cambios") {
+      if (!window.confirm("¿Publicar estos cambios? Reemplazarán la información que ven los clientes.")) return;
+      const product = productsCache.find((item) => item.id === productReview.dataset.productId);
+      const draft = editDraft(product);
+      if (!product || !draft) return;
+      const result = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
+      delete result.edicion_pendiente;
+      try {
+        await request(`/rest/v1/productos_admin?id=eq.${product.id}`, {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ ...draft, resultado_bot: Object.keys(result).length ? result : null, revision: "publicado", actualizado: new Date().toISOString() })
+        });
+        productReview.hidden = true; productList.hidden = false; await loadProducts();
+        showNotice("Cambios publicados correctamente.", "success");
+      } catch (error) { showNotice(error.message, "error"); }
       return;
     }
     if (action === "publicar" && !window.confirm("¿Confirmas que revisaste código, compatibilidad, precio y fotografías? El producto será visible para clientes.")) return;
@@ -398,30 +471,59 @@
 
   productForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const code = document.querySelector("#product-code").value.trim().toUpperCase();
+    const productId = formValue("#product-id");
+    const existing = productId ? productsCache.find((product) => product.id === productId) : null;
+    const code = normalizedCode(formValue("#product-code"));
     const files = [...document.querySelector("#product-photos").files];
-    if (!files.length) return showNotice("Añade al menos una foto donde se vea el código.", "error");
+    if (!productId && !files.length) return showNotice("Añade al menos una foto donde se vea el código.", "error");
     if (files.some((file) => file.size > 10 * 1024 * 1024)) return showNotice("Cada fotografía debe pesar menos de 10 MB.", "error");
-    showNotice(`Guardando ${code} y subiendo ${files.length} foto${files.length === 1 ? "" : "s"}…`);
+    showNotice(`${productId ? "Guardando cambios de" : "Guardando"} ${code}${files.length ? ` y subiendo ${files.length} foto${files.length === 1 ? "" : "s"}` : ""}…`);
     try {
       const payload = {
         codigo: code,
-        nombre: document.querySelector("#product-name").value.trim(),
-        cantidad: Number(document.querySelector("#product-quantity").value),
-        precio: document.querySelector("#product-price").value || null,
-        marca: document.querySelector("#product-brand").value.trim(),
-        observaciones: document.querySelector("#product-notes").value.trim(),
-        revision: "investigar",
+        nombre: formValue("#product-name").trim(),
+        cantidad: Number(formValue("#product-quantity")),
+        precio: formValue("#product-price") === "" ? null : Number(formValue("#product-price")),
+        marca: formValue("#product-brand").trim(),
+        categoria: formValue("#product-category").trim() || "Repuesto disponible",
+        confianza: formValue("#product-confidence"),
+        descripcion_corta: formValue("#product-short-description").trim(),
+        descripcion: formValue("#product-description").trim(),
+        compatibilidad: linesToList(formValue("#product-compatibility")),
+        referencias: linesToList(formValue("#product-references")),
+        observaciones: formValue("#product-notes").trim(),
         actualizado: new Date().toISOString()
       };
-      const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
-      const photoPaths = [];
-      for (const [index, file] of files.entries()) photoPaths.push(await uploadPhoto(file, code, index));
-      await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ fotos: photoPaths }) });
+      if (!payload.nombre) throw new Error("Escribe el nombre del producto.");
+      if (existing) {
+        const photoPaths = [...(displayedProduct(existing).fotos || [])];
+        for (const [index, file] of files.entries()) photoPaths.push(await uploadPhoto(file, code, photoPaths.length + index));
+        const update = { ...payload, fotos: photoPaths };
+        if (existing.revision === "publicado") {
+          await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(existing.id)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ resultado_bot: { ...(existing.resultado_bot && typeof existing.resultado_bot === "object" && !Array.isArray(existing.resultado_bot) ? existing.resultado_bot : {}), edicion_pendiente: update }, actualizado: new Date().toISOString() })
+          });
+          showNotice(`${code} quedó guardado como cambios pendientes de publicación.`, "success");
+        } else {
+          await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(existing.id)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ ...update, revision: "revisar", actualizado: new Date().toISOString() })
+          });
+          showNotice(`${code} fue actualizado y quedó listo para revisar.`, "success");
+        }
+      } else {
+        const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, revision: "investigar" }) });
+        const photoPaths = [];
+        for (const [index, file] of files.entries()) photoPaths.push(await uploadPhoto(file, code, index));
+        await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ fotos: photoPaths }) });
+        showNotice(`${code} quedó guardado para investigación.`, "success");
+      }
       productForm.hidden = true;
       productList.hidden = false;
       await loadProducts();
-      showNotice(`${code} quedó guardado para investigación.`, "success");
     } catch (error) {
       showNotice(error.message.includes("duplicate") ? "Ese código ya existe en el inventario." : error.message, "error");
     }
