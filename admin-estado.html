@@ -89,6 +89,7 @@
     .review-error { padding:10px; border-radius:10px; color:#7e181c; background:#ffe0e1; }
     .review-progress { padding:10px; border-radius:10px; color:#135f3d; background:#dff5e8; }
     .review-progress small { display:block; margin-top:4px; color:#537265; }
+    .manual-research { max-height:230px; overflow:auto; white-space:pre-wrap; color:#48433e; background:#f0ede8; padding:10px; border-radius:10px; }
     .review-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:15px; }
     .review-actions button { flex:1 1 160px; }
     .share-promotion { color:#fff; background:var(--green); }
@@ -137,6 +138,8 @@
             <label class="wide">Descripción completa<textarea id="product-description" maxlength="1200" placeholder="Explicación técnica y condiciones de venta"></textarea></label>
             <label class="wide">Compatibilidad (una por línea)<textarea id="product-compatibility" maxlength="1200" placeholder="Ej.: Toyota Corolla E12, 2001–2007"></textarea></label>
             <label class="wide">Referencias o equivalencias (una por línea)<textarea id="product-references" maxlength="1200" placeholder="Ej.: SDB1714"></textarea></label>
+            <label class="wide">Fuentes que verificaste (un enlace por línea)<textarea id="product-sources" maxlength="2000" placeholder="Pega aquí las páginas que comprobaste antes de usar los datos"></textarea></label>
+            <label class="wide">Resultado que verificaste personalmente (solo respaldo privado)<textarea id="product-manual-research" maxlength="5000" placeholder="Opcional: pega aquí el resultado de Google y luego completa arriba solo los datos que confirmaste. Esto no se muestra a los clientes."></textarea></label>
             <label class="wide">Observaciones<textarea id="product-notes" maxlength="500" placeholder="Cualquier detalle visible o duda"></textarea></label>
             <label class="wide photo-box">📷 Fotos del artículo<input id="product-photos" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple></label>
             <label class="gallery-picker">O elegir fotos desde la galería<input id="product-photos-gallery" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>

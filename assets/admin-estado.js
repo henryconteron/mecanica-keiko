@@ -77,6 +77,10 @@
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
   const normalizedCode = (value) => String(value ?? "").trim().toUpperCase();
   const linesToList = (value = "") => String(value).split("\n").map((item) => item.trim()).filter(Boolean);
+  const sourceLinks = (value = "") => [...new Map(linesToList(value)
+    .filter((url) => /^https:\/\//i.test(url))
+    .map((url) => [url, { url, titulo: "Fuente verificada por el taller", tipo: "Consulta manual" }])).values()];
+  const sourceLinksText = (sources = []) => (sources || []).map((source) => typeof source === "string" ? source : source?.url).filter(Boolean).join("\n");
   const editDraft = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
     ? product.resultado_bot.edicion_pendiente || null
     : null;
@@ -291,9 +295,11 @@
       ${view.compatibilidad?.length ? `<p><strong>Compatibilidad</strong></p><ul>${view.compatibilidad.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
       ${view.referencias?.length ? `<p><strong>Referencias</strong></p><ul>${view.referencias.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
       ${sources ? `<p><strong>Fuentes para comprobar</strong></p><ul>${sources}</ul>` : ""}
+      ${researchProgress(product).investigacion_manual ? `<details><summary><strong>Información que verificaste personalmente</strong></summary><p class="manual-research">${escapeHtml(researchProgress(product).investigacion_manual)}</p></details>` : ""}
       ${product.error_investigacion ? `<p class="review-error"><strong>Requiere atención:</strong> ${escapeHtml(product.error_investigacion)}</p>` : ""}
       <div class="review-actions">
         <button class="secondary" data-review-action="editar" type="button">Editar producto</button>
+        <button class="secondary" data-review-action="manual" type="button">Ingresar información verificada</button>
         ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
         ${product.revision === "publicado" && hasDraft ? '<button class="primary" data-review-action="publicar-cambios" type="button">Publicar cambios</button>' : ""}
@@ -501,7 +507,7 @@
     document.querySelector("#product-code").focus();
   };
 
-  const openEditProduct = (product) => {
+  const openEditProduct = (product, { manual = false } = {}) => {
     const view = displayedProduct(product);
     clearBackgroundPreview();
     clearPhotoQueue();
@@ -518,9 +524,13 @@
     setFormValue("#product-description", view.descripcion);
     setFormValue("#product-compatibility", (view.compatibilidad || []).join("\n"));
     setFormValue("#product-references", (view.referencias || []).join("\n"));
+    setFormValue("#product-sources", sourceLinksText(view.fuentes));
+    setFormValue("#product-manual-research", researchProgress(product).investigacion_manual || "");
     setFormValue("#product-notes", view.observaciones);
-    document.querySelector("#product-form-title").textContent = `Editar: ${view.codigo}`;
-    document.querySelector("#product-form-intro").textContent = product.revision === "publicado" ? "Revisa la información. Al guardar quedará como borrador hasta que pulses “Publicar cambios”." : "Al guardar, el producto volverá a revisión antes de publicarse.";
+    document.querySelector("#product-form-title").textContent = manual ? `Información verificada: ${view.codigo}` : `Editar: ${view.codigo}`;
+    document.querySelector("#product-form-intro").textContent = manual
+      ? "Pega el resultado que comprobaste como respaldo y completa solo los datos que confirmaste. Al guardar será un borrador: tú decides cuándo publicarlo."
+      : (product.revision === "publicado" ? "Revisa la información. Al guardar quedará como borrador hasta que pulses “Publicar cambios”." : "Al guardar, el producto volverá a revisión antes de publicarse.");
     document.querySelector("#product-photo-help").textContent = `${view.fotos?.length || 0} fotos actuales. Las fotos nuevas se añadirán a las existentes. Máximo 8 fotos nuevas, de 10 MB cada una.`;
     document.querySelector("#product-save").textContent = product.revision === "publicado" ? "Guardar cambios para revisar" : "Guardar cambios";
     productForm.hidden = false;
@@ -684,6 +694,11 @@
       if (product) openEditProduct(product);
       return;
     }
+    if (action === "manual") {
+      const product = productsCache.find((item) => item.id === productReview.dataset.productId);
+      if (product) openEditProduct(product, { manual: true });
+      return;
+    }
     if (action === "compartir") {
       const product = productsCache.find((item) => item.id === productReview.dataset.productId);
       if (product) await sharePromotion(product);
@@ -758,10 +773,13 @@
         descripcion: formValue("#product-description").trim(),
         compatibilidad: linesToList(formValue("#product-compatibility")),
         referencias: linesToList(formValue("#product-references")),
+        fuentes: sourceLinks(formValue("#product-sources")),
         observaciones: formValue("#product-notes").trim(),
         actualizado: new Date().toISOString()
       };
       if (!payload.nombre) throw new Error("Escribe el nombre del producto.");
+      if (formValue("#product-sources").trim() && !payload.fuentes.length) throw new Error("Las fuentes deben empezar con https://.");
+      const manualResearch = formValue("#product-manual-research").trim();
       if (existing) {
         const photoPaths = [...(displayedProduct(existing).fotos || [])];
         for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, photoPaths.length + index, { preserveTransparency: photo.preserveTransparency }));
@@ -770,20 +788,20 @@
           await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(existing.id)}`, {
             method: "PATCH",
             headers: { Prefer: "return=minimal" },
-            body: JSON.stringify({ resultado_bot: { ...(existing.resultado_bot && typeof existing.resultado_bot === "object" && !Array.isArray(existing.resultado_bot) ? existing.resultado_bot : {}), edicion_pendiente: update }, actualizado: new Date().toISOString() })
+            body: JSON.stringify({ resultado_bot: { ...(existing.resultado_bot && typeof existing.resultado_bot === "object" && !Array.isArray(existing.resultado_bot) ? existing.resultado_bot : {}), ...(manualResearch ? { investigacion_manual: manualResearch } : {}), edicion_pendiente: update }, actualizado: new Date().toISOString() })
           });
           showNotice(`${code} quedó guardado como cambios pendientes de publicación.`, "success");
         } else {
           await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(existing.id)}`, {
             method: "PATCH",
             headers: { Prefer: "return=minimal" },
-            body: JSON.stringify({ ...update, revision: "revisar", actualizado: new Date().toISOString() })
+          body: JSON.stringify({ ...update, ...(manualResearch ? { resultado_bot: { ...(existing.resultado_bot && typeof existing.resultado_bot === "object" && !Array.isArray(existing.resultado_bot) ? existing.resultado_bot : {}), investigacion_manual: manualResearch } } : {}), revision: "revisar", actualizado: new Date().toISOString() })
           });
           showNotice(`${code} fue actualizado y quedó listo para revisar.`, "success");
         }
       } else {
         const queuedAt = new Date().toISOString();
-        const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, revision: "investigar", resultado_bot: { estado_investigacion: "en_cola", investigacion_solicitada_en: queuedAt } }) });
+        const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, revision: "investigar", resultado_bot: { estado_investigacion: "en_cola", investigacion_solicitada_en: queuedAt, ...(manualResearch ? { investigacion_manual: manualResearch } : {}) } }) });
         const photoPaths = [];
         for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, index, { preserveTransparency: photo.preserveTransparency }));
         await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ fotos: photoPaths }) });
