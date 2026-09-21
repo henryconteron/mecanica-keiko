@@ -446,9 +446,9 @@
           <div class="dialog-copy-scroll">
             <p class="eyebrow">${escapeHtml(product.categoria || "Repuesto disponible")}</p>
             <h2 id="dialog-title">${escapeHtml(product.nombre)}</h2>
+            <p class="dialog-summary">${escapeHtml(summary)}</p>
             <div class="dialog-key-facts"><span><strong>Código</strong>${escapeHtml(product.codigo)}</span>${product.marca ? `<span><strong>Marca</strong>${escapeHtml(product.marca)}</span>` : ""}${typeof product.stock === "number" ? `<span><strong>Stock</strong>${escapeHtml(product.stock)}</span>` : ""}</div>
             <div class="dialog-price">${escapeHtml(priceText(product))}</div>
-            <p class="dialog-summary">${escapeHtml(summary)}</p>
             ${compatibility.length ? `<details class="dialog-accordion" open><summary>Compatibilidad <span>${compatibility.length}</span></summary><ul>${compatibility.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}
             ${references.length ? `<details class="dialog-accordion"><summary>Referencias y equivalencias <span>${references.length}</span></summary><ul>${references.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}
             ${hasMoreDescription ? `<details class="dialog-accordion"><summary>Descripción del repuesto</summary><p>${escapeHtml(fullDescription)}</p></details>` : ""}

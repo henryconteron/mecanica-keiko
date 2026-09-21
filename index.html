@@ -494,19 +494,19 @@
     .catalog-dialog > div, .dialog-layout { height: 100%; min-height: 0; }
     .dialog-close { position: absolute; z-index: 5; top: 12px; right: 12px; width: 42px; aspect-ratio: 1; margin: 0; color: var(--white); border: 1px solid rgba(255, 255, 255, .35); border-radius: 50%; background: rgba(0, 0, 0, .72); cursor: pointer; font-size: 1.2rem; }
     .dialog-layout { display: grid; grid-template-columns: 1.12fr .88fr; overflow: hidden; }
-    .dialog-gallery { min-width: 0; min-height: 0; position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; background: #121212; }
-    .dialog-main-media { min-height: 0; display: grid; place-items: center; overflow: hidden; touch-action: pan-y; }
-    .dialog-main-media img, .dialog-main-media video { width: 100%; height: 100%; max-height: none; object-fit: contain; display: block; }
+    .dialog-gallery { min-width: 0; min-height: 0; position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; background: #f5f2ed; }
+    .dialog-main-media { min-height: 0; display: grid; place-items: center; overflow: hidden; background:radial-gradient(circle at 50% 42%,#fff 0,#f5f2ed 72%); touch-action: pan-y; }
+    .dialog-main-media img, .dialog-main-media video { box-sizing:border-box; width: 100%; height: 100%; max-height: none; padding:14px; object-fit: contain; display: block; }
     .dialog-nav { position: absolute; z-index: 3; top: calc(50% - 37px); width: 44px; height: 54px; display: grid; place-items: center; color: var(--white); border: 1px solid rgba(255,255,255,.3); background: rgba(0,0,0,.58); cursor: pointer; font-size: 2rem; line-height: 1; }
     .dialog-nav:hover, .dialog-nav:focus-visible { background: rgba(0,0,0,.82); border-color: var(--gold); outline: none; }
     .dialog-nav-prev { left: 10px; border-radius: 999px 10px 10px 999px; }
     .dialog-nav-next { right: 10px; border-radius: 10px 999px 999px 10px; }
     .dialog-counter { position: absolute; z-index: 3; right: 12px; bottom: 86px; padding: 5px 9px; color: var(--white); background: rgba(0,0,0,.7); border-radius: 999px; font-size: .72rem; font-weight: 800; }
-    .dialog-thumbs { padding: 10px; display: flex; gap: 8px; overflow-x: auto; background: #1c1c1c; }
-    .dialog-thumb { width: 66px; height: 54px; flex: 0 0 auto; overflow: hidden; border: 2px solid transparent; border-radius: 8px; background: #333; cursor: pointer; }
+    .dialog-thumbs { padding: 9px 10px; display: flex; gap: 8px; overflow-x: auto; background: #e9e4dc; }
+    .dialog-thumb { width:66px; height:54px; flex:0 0 auto; overflow:hidden; border:2px solid transparent; border-radius:8px; background:#fff; cursor:pointer; }
     .dialog-thumb.is-active { border-color: var(--gold); }
-    .dialog-thumb img, .dialog-thumb video { width: 100%; height: 100%; object-fit: cover; }
-    .dialog-zoom-trigger { position:absolute; z-index:3; left:12px; bottom:86px; display:flex; align-items:center; gap:5px; padding:7px 10px; color:var(--white); border:1px solid rgba(255,255,255,.34); border-radius:999px; background:rgba(0,0,0,.7); font:800 .72rem Inter,sans-serif; cursor:pointer; }
+    .dialog-thumb img, .dialog-thumb video { width:100%; height:100%; object-fit:contain; display:block; }
+    .dialog-zoom-trigger { position:absolute; z-index:3; left:12px; bottom:78px; display:flex; align-items:center; gap:5px; padding:7px 10px; color:#181818; border:1px solid #c8c0b6; border-radius:999px; background:rgba(255,255,255,.92); font:800 .72rem Inter,sans-serif; cursor:pointer; }
     .dialog-image-zoom { position:absolute; z-index:7; inset:0; display:grid; grid-template-rows:minmax(0,1fr) auto; overflow:hidden; background:#090909; }
     .dialog-image-zoom[hidden] { display:none; }
     .dialog-image-zoom-canvas { min-height:0; display:grid; place-items:center; overflow:auto; touch-action:pan-x pan-y; }
@@ -628,7 +628,7 @@
       .catalog-toolbar { grid-template-columns: 1fr; }
       .catalog-filters { justify-content: flex-start; }
       .dialog-layout { display:flex; flex-direction:column; }
-      .dialog-gallery { flex:0 0 clamp(230px, 39dvh, 355px); }
+      .dialog-gallery { flex:0 0 clamp(215px, 32dvh, 300px); }
       .dialog-copy { flex:1 1 auto; min-height:0; }
       .dialog-gallery, .dialog-main-media { min-height: 0; }
     }
@@ -664,7 +664,7 @@
       .dialog-primary-action { padding: 11px 18px 14px; }
       .dialog-copy h2 { max-width:calc(100% - 28px); font-size:clamp(1.55rem, 7.5vw, 2rem); line-height:1.02; }
       .dialog-nav { width: 40px; height: 48px; }
-      .dialog-zoom-trigger { bottom:74px; }
+      .dialog-zoom-trigger { bottom:72px; }
       .service-card, .service-body, .service-card.has-media .service-body { min-height: auto; }
       .contact-info, .compat-copy, .checklist { padding: 27px 22px; }
       .footer-inner { flex-direction: column; }
