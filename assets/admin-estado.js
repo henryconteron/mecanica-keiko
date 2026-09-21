@@ -65,6 +65,18 @@
   const verificationRequested = (product) => Boolean(product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
     && product.resultado_bot.verificacion_solicitada);
   const displayedProduct = (product) => editDraft(product) ? { ...product, ...editDraft(product) } : product;
+  const researchProgress = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
+    ? product.resultado_bot : {};
+  const researchStatus = (product) => {
+    const result = researchProgress(product);
+    if (result.estado_investigacion === "investigando") return { label: "Investigando ahora", detail: "El bot está revisando la etiqueta y las fuentes." };
+    if (result.estado_investigacion === "lista_para_revisar") return { label: "Lista para revisar", detail: "La propuesta está lista para que la compruebes." };
+    if (result.estado_investigacion === "requiere_atencion") return { label: "Requiere atención", detail: "La búsqueda terminó, pero necesita tu revisión antes de publicar." };
+    if (result.estado_investigacion === "error") return { label: "No se pudo completar", detail: "La búsqueda falló; puedes solicitarla otra vez." };
+    if (verificationRequested(product) || product.revision === "investigar") return { label: "En cola", detail: "Solicitud recibida. Se iniciará automáticamente pronto." };
+    return null;
+  };
+  const researchTime = (value) => value ? new Intl.DateTimeFormat("es-EC", { dateStyle: "short", timeStyle: "short" }).format(new Date(value)) : "";
 
   const publicProductUrl = (product) => {
     const url = new URL("./", document.baseURI);
@@ -239,18 +251,21 @@
     productList.innerHTML = products.length ? products.map((product) => `
       <article class="product-row">
         <div><strong>${escapeHtml(displayedProduct(product).nombre)}</strong><span>${escapeHtml(displayedProduct(product).codigo)} · ${displayedProduct(product).cantidad} unidad${displayedProduct(product).cantidad === 1 ? "" : "es"}</span><small>${displayedProduct(product).fotos?.length || 0} foto${displayedProduct(product).fotos?.length === 1 ? "" : "s"}</small><button class="secondary" data-product="${product.id}" type="button">Ver detalles</button></div>
-        <span class="badge">${verificationRequested(product) ? "verificando" : (editDraft(product) ? "cambios pendientes" : escapeHtml(product.revision))}</span>
+        <span class="badge">${escapeHtml(researchStatus(product)?.label || (editDraft(product) ? "cambios pendientes" : product.revision))}</span>
       </article>`).join("") : '<p class="empty">Todavía no hay productos. Pulsa “Nuevo” para comenzar.</p>';
   };
 
   const showProduct = (product) => {
     const view = displayedProduct(product);
     const hasDraft = Boolean(editDraft(product));
+    const status = researchStatus(product);
+    const progress = researchProgress(product);
     const sources = (view.fuentes || []).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
     productReview.innerHTML = `
       <h3>${escapeHtml(view.nombre)}</h3>
       ${hasDraft ? '<p class="review-error"><strong>Cambios pendientes:</strong> esta es la versión que revisarás. La página pública conserva la versión anterior hasta que pulses “Publicar cambios”.</p>' : ""}
       ${verificationRequested(product) ? '<p class="review-error"><strong>Verificación solicitada:</strong> el bot revisará este código de nuevo; la ficha pública seguirá visible mientras tanto.</p>' : ""}
+      ${status ? `<p class="review-progress"><strong>Estado de búsqueda: ${escapeHtml(status.label)}.</strong> ${escapeHtml(status.detail)}${researchTime(progress.investigacion_iniciada_en || progress.investigacion_solicitada_en || progress.ultima_verificacion) ? ` <small>${escapeHtml(researchTime(progress.investigacion_iniciada_en || progress.investigacion_solicitada_en || progress.ultima_verificacion))}</small>` : ""}</p>` : ""}
       <p><strong>Código:</strong> ${escapeHtml(view.codigo)} · <strong>Marca:</strong> ${escapeHtml(view.marca || "No indicada")} · <strong>Confianza:</strong> ${escapeHtml(view.confianza || "Pendiente")}</p>
       <p><strong>Cantidad:</strong> ${escapeHtml(view.cantidad)} · <strong>Precio:</strong> ${escapeHtml(priceText(view))} · <strong>Categoría:</strong> ${escapeHtml(view.categoria || "Sin categoría")} · <strong>Fotos:</strong> ${view.fotos?.length || 0}</p>
       ${view.descripcion_corta ? `<p><strong>Resumen para clientes:</strong> ${escapeHtml(view.descripcion_corta)}</p>` : ""}
@@ -662,6 +677,8 @@
       const result = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
       result.verificacion_solicitada = true;
       result.verificacion_solicitada_en = new Date().toISOString();
+      result.estado_investigacion = "en_cola";
+      result.investigacion_solicitada_en = result.verificacion_solicitada_en;
       try {
         await request(`/rest/v1/productos_admin?id=eq.${product.id}`, {
           method: "PATCH", headers: { Prefer: "return=minimal" },
@@ -746,7 +763,8 @@
           showNotice(`${code} fue actualizado y quedó listo para revisar.`, "success");
         }
       } else {
-        const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, revision: "investigar" }) });
+        const queuedAt = new Date().toISOString();
+        const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...payload, revision: "investigar", resultado_bot: { estado_investigacion: "en_cola", investigacion_solicitada_en: queuedAt } }) });
         const photoPaths = [];
         for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, index, { preserveTransparency: photo.preserveTransparency }));
         await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ fotos: photoPaths }) });

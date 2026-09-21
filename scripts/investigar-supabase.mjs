@@ -190,6 +190,11 @@ for (const product of pending) {
   let isRecheck = false;
   try {
     isRecheck = product.revision === "publicado" && verificationRequested(product);
+    const queuedResult = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
+    await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
+      method: "PATCH", headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ resultado_bot: { ...queuedResult, estado_investigacion: "investigando", investigacion_iniciada_en: new Date().toISOString() }, actualizado: new Date().toISOString() })
+    });
     let vision;
     try { vision = await inspectPhoto(product); } catch (error) { vision = { codigo_visible: "", confianza: "Baja", error: error.message }; }
     const sourceCode = baseCodeForCeramicBrakePad(product, vision) || product.codigo;
@@ -248,6 +253,7 @@ for (const product of pending) {
       ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks,
       codigo_consultado: sourceCode,
       variante_ceramica_verificada_por_empaque: usesCeramicBaseCode,
+      estado_investigacion: ready ? "lista_para_revisar" : "requiere_atencion",
       ultima_verificacion: new Date().toISOString()
     };
     // Si el usuario ya estaba revisando cambios, una verificación que no alcanza el umbral
@@ -273,8 +279,8 @@ for (const product of pending) {
     await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
       method: "PATCH", headers: { Prefer: "return=minimal" },
       body: JSON.stringify(isRecheck
-        ? { resultado_bot: previousResult, error_investigacion: error.message, revision: "publicado", actualizado: new Date().toISOString() }
-        : { error_investigacion: error.message, actualizado: new Date().toISOString() })
+        ? { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, error_investigacion: error.message, revision: "publicado", actualizado: new Date().toISOString() }
+        : { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, error_investigacion: error.message, actualizado: new Date().toISOString() })
     });
     console.error(`${product.codigo}: ${error.message}`);
   }
