@@ -46,6 +46,7 @@
     .screen { padding:26px; }
     .screen-head { margin-bottom:20px; display:flex; justify-content:space-between; gap:16px; align-items:center; }
     .screen-head p { margin:4px 0 0; color:var(--muted); font-size:.82rem; }
+    .screen-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
     .primary { color:#fff; background:var(--red); }
     .secondary { color:#181818; background:#ece9e4; }
     .product-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -97,7 +98,7 @@
         </div>
       </section>
       <section class="screen" id="screen-inventory" hidden>
-        <div class="screen-head"><div><h2>Productos</h2><p>Captura lo básico; el bot completará lo técnico.</p></div><button class="primary" id="new-product" type="button">+ Nuevo</button></div>
+        <div class="screen-head"><div><h2>Productos</h2><p>Captura lo básico; el bot completará lo técnico.</p></div><div class="screen-actions"><button class="secondary" id="import-legacy" type="button">Importar catálogo previo</button><button class="primary" id="new-product" type="button">+ Nuevo</button></div></div>
         <form id="product-form" hidden>
           <input id="product-id" type="hidden">
           <div class="product-grid">

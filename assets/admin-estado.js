@@ -9,6 +9,7 @@
   const productForm = document.querySelector("#product-form");
   const productList = document.querySelector("#inventory-list");
   const productReview = document.querySelector("#product-review");
+  const importLegacy = document.querySelector("#import-legacy");
   let productsCache = [];
   let token = sessionStorage.getItem("keikoAdminToken") || "";
 
@@ -43,6 +44,7 @@
   };
 
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
+  const normalizedCode = (value) => String(value ?? "").trim().toUpperCase();
 
   const publicProductUrl = (product) => {
     const url = new URL("./", document.baseURI);
@@ -90,6 +92,27 @@
     context.drawImage(image, x + (width - renderedWidth) / 2, y + (height - renderedHeight) / 2, renderedWidth, renderedHeight);
   };
 
+  const drawCoverImage = (context, image, x, y, width, height) => {
+    const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+    const renderedWidth = image.naturalWidth * scale;
+    const renderedHeight = image.naturalHeight * scale;
+    context.drawImage(image, x + (width - renderedWidth) / 2, y + (height - renderedHeight) / 2, renderedWidth, renderedHeight);
+  };
+
+  const drawPromotionImage = (context, image, x, y, width, height) => {
+    context.save();
+    context.beginPath();
+    context.rect(x, y, width, height);
+    context.clip();
+    context.filter = "blur(26px) brightness(.38)";
+    drawCoverImage(context, image, x - 28, y - 28, width + 56, height + 56);
+    context.filter = "none";
+    context.fillStyle = "rgba(0,0,0,.18)";
+    context.fillRect(x, y, width, height);
+    drawContainedImage(context, image, x, y, width, height);
+    context.restore();
+  };
+
   const drawWrappedText = (context, value, x, y, maxWidth, lineHeight, maxLines = 2) => {
     const words = value.split(/\s+/);
     const lines = [];
@@ -133,12 +156,10 @@
     context.textAlign = "right";
     context.fillText("REPUESTO DISPONIBLE", 1026, 67);
     context.textAlign = "left";
-    context.fillStyle = "#0d0d0d";
-    context.fillRect(54, 172, 972, 650);
-    drawContainedImage(context, image, 54, 172, 972, 650);
+    drawPromotionImage(context, image, 54, 172, 972, 620);
     context.fillStyle = "#ffffff";
     context.font = "700 54px Oswald, Arial Narrow, sans-serif";
-    const textBottom = drawWrappedText(context, product.nombre.toUpperCase(), 54, 900, 972, 62, 2);
+    const textBottom = drawWrappedText(context, product.nombre.toUpperCase(), 54, 860, 972, 62, 2);
     context.fillStyle = "#e9a927";
     context.font = "800 30px Inter, Arial, sans-serif";
     context.fillText(`CÓDIGO: ${product.codigo}`, 54, textBottom + 26);
@@ -147,17 +168,18 @@
     context.textAlign = "right";
     context.fillText(priceText(product), 1026, textBottom + 26);
     context.textAlign = "left";
+    const footerY = Math.max(1010, Math.min(1125, textBottom + 100));
     context.fillStyle = "#2a2a2a";
-    context.fillRect(0, 1194, 1080, 156);
+    context.fillRect(0, footerY, 1080, 1350 - footerY);
     context.fillStyle = "#ffffff";
     context.font = "800 27px Inter, Arial, sans-serif";
-    context.fillText("VER FOTOS Y DETALLES EN LA WEB", 54, 1254);
+    context.fillText("VER FOTOS Y DETALLES EN LA WEB", 54, footerY + 60);
     context.fillStyle = "#c9c9c9";
     context.font = "700 23px Inter, Arial, sans-serif";
-    context.fillText("ARCHIDONA · NAPO", 54, 1302);
+    context.fillText("ARCHIDONA · NAPO", 54, footerY + 108);
     context.fillStyle = "#50d47d";
     context.textAlign = "right";
-    context.fillText("WHATSAPP 098 938 1059", 1026, 1302);
+    context.fillText("WHATSAPP 098 938 1059", 1026, footerY + 108);
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
     return blob ? new File([blob], `${product.codigo || product.id}-mecanica-keiko.jpg`, { type: "image/jpeg" }) : null;
   };
@@ -273,6 +295,78 @@
     productList.hidden = true;
     document.querySelector("#product-code").focus();
   });
+
+  const legacyPhotoFile = async (medium) => {
+    const response = await fetch(new URL(medium.src, document.baseURI));
+    if (!response.ok) throw new Error(`No se encontró la foto ${medium.nombre || medium.src}.`);
+    const blob = await response.blob();
+    return new File([blob], medium.nombre || medium.src.split("/").at(-1) || "foto.jpg", { type: blob.type || "image/jpeg" });
+  };
+
+  const importLegacyCatalog = async () => {
+    importLegacy.disabled = true;
+    try {
+      showNotice("Leyendo el catálogo anterior…");
+      const response = await fetch(new URL("data/catalogo.json", document.baseURI));
+      if (!response.ok) throw new Error("No se pudo leer el catálogo anterior.");
+      const source = await response.json();
+      const legacyProducts = (source.productos || []).filter((product) => product.publicado !== false);
+      const knownCodes = new Set(productsCache.map((product) => normalizedCode(product.codigo)));
+      const pending = legacyProducts.filter((product) => !knownCodes.has(normalizedCode(product.codigo)));
+      if (!pending.length) {
+        showNotice("El catálogo anterior ya está en el panel; no se duplicó nada.", "success");
+        return;
+      }
+      const errors = [];
+      let imported = 0;
+      for (const [index, legacy] of pending.entries()) {
+        const code = normalizedCode(legacy.codigo);
+        showNotice(`Importando ${index + 1} de ${pending.length}: ${code}…`);
+        try {
+          const files = await Promise.all((legacy.medios || []).filter((item) => item.tipo === "imagen").map(legacyPhotoFile));
+          if (!files.length) throw new Error("No tiene fotografías para importar.");
+          const payload = {
+            codigo: code,
+            nombre: legacy.nombre,
+            cantidad: Number(legacy.stock || 0),
+            precio: typeof legacy.precio === "number" ? legacy.precio : null,
+            marca: legacy.marca || "",
+            observaciones: legacy.estado || "Importado del catálogo anterior.",
+            categoria: legacy.categoria || "Repuesto disponible",
+            descripcion_corta: legacy.descripcionCorta || "Consulta disponibilidad y compatibilidad.",
+            descripcion: legacy.descripcion || legacy.descripcionCorta || "Consulta disponibilidad y compatibilidad.",
+            compatibilidad: legacy.compatibilidad || [],
+            referencias: legacy.referencias || [],
+            fuentes: (legacy.fuentes || []).map((source) => typeof source === "string" ? { url: source, titulo: source, tipo: "Referencia" } : source),
+            confianza: legacy.confianza || "",
+            fotos: [],
+            revision: "revisar",
+            actualizado: new Date().toISOString()
+          };
+          const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
+          const photoPaths = [];
+          for (const [photoIndex, file] of files.entries()) photoPaths.push(await uploadPhoto(file, code, photoIndex));
+          await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ fotos: photoPaths, revision: "publicado", actualizado: new Date().toISOString() })
+          });
+          knownCodes.add(code);
+          imported += 1;
+        } catch (error) {
+          errors.push(`${code}: ${error.message || "no se pudo importar"}`);
+        }
+      }
+      await loadProducts();
+      showNotice(errors.length ? `Se importaron ${imported} productos. Revisa estos casos: ${errors.join(" · ")}` : `Catálogo anterior importado: ${imported} productos con sus fotos.`, errors.length ? "error" : "success");
+    } catch (error) {
+      showNotice(error.message || "No se pudo importar el catálogo anterior.", "error");
+    } finally {
+      importLegacy.disabled = false;
+    }
+  };
+
+  importLegacy.addEventListener("click", importLegacyCatalog);
 
   document.querySelector("#cancel-product").addEventListener("click", () => {
     productForm.hidden = true;

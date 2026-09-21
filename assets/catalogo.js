@@ -152,6 +152,27 @@
     context.drawImage(image, x + (width - renderedWidth) / 2, y + (height - renderedHeight) / 2, renderedWidth, renderedHeight);
   };
 
+  const drawCoverImage = (context, image, x, y, width, height) => {
+    const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+    const renderedWidth = image.naturalWidth * scale;
+    const renderedHeight = image.naturalHeight * scale;
+    context.drawImage(image, x + (width - renderedWidth) / 2, y + (height - renderedHeight) / 2, renderedWidth, renderedHeight);
+  };
+
+  const drawPromotionImage = (context, image, x, y, width, height) => {
+    context.save();
+    context.beginPath();
+    context.rect(x, y, width, height);
+    context.clip();
+    context.filter = "blur(26px) brightness(.38)";
+    drawCoverImage(context, image, x - 28, y - 28, width + 56, height + 56);
+    context.filter = "none";
+    context.fillStyle = "rgba(0,0,0,.18)";
+    context.fillRect(x, y, width, height);
+    drawContainedImage(context, image, x, y, width, height);
+    context.restore();
+  };
+
   const drawWrappedText = (context, value, x, y, maxWidth, lineHeight, maxLines = 2) => {
     const words = value.split(/\s+/);
     const lines = [];
@@ -202,13 +223,11 @@
     context.fillText("REPUESTO DISPONIBLE", 1026, 67);
     context.textAlign = "left";
 
-    context.fillStyle = "#0d0d0d";
-    context.fillRect(54, 172, 972, 650);
-    drawContainedImage(context, image, 54, 172, 972, 650);
+    drawPromotionImage(context, image, 54, 172, 972, 620);
 
     context.fillStyle = "#ffffff";
     context.font = "700 54px Oswald, Arial Narrow, sans-serif";
-    const textBottom = drawWrappedText(context, product.nombre.toUpperCase(), 54, 900, 972, 62, 2);
+    const textBottom = drawWrappedText(context, product.nombre.toUpperCase(), 54, 860, 972, 62, 2);
     context.fillStyle = "#e9a927";
     context.font = "800 30px Inter, Arial, sans-serif";
     context.fillText(`CÓDIGO: ${product.codigo}`, 54, textBottom + 26);
@@ -218,17 +237,18 @@
     context.fillText(priceText(product), 1026, textBottom + 26);
     context.textAlign = "left";
 
+    const footerY = Math.max(1010, Math.min(1125, textBottom + 100));
     context.fillStyle = "#2a2a2a";
-    context.fillRect(0, 1194, 1080, 156);
+    context.fillRect(0, footerY, 1080, 1350 - footerY);
     context.fillStyle = "#ffffff";
     context.font = "800 27px Inter, Arial, sans-serif";
-    context.fillText("VER FOTOS Y DETALLES EN LA WEB", 54, 1254);
+    context.fillText("VER FOTOS Y DETALLES EN LA WEB", 54, footerY + 60);
     context.fillStyle = "#c9c9c9";
     context.font = "700 23px Inter, Arial, sans-serif";
-    context.fillText("ARCHIDONA · NAPO", 54, 1302);
+    context.fillText("ARCHIDONA · NAPO", 54, footerY + 108);
     context.fillStyle = "#50d47d";
     context.textAlign = "right";
-    context.fillText("WHATSAPP 098 938 1059", 1026, 1302);
+    context.fillText("WHATSAPP 098 938 1059", 1026, footerY + 108);
 
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
     return blob ? new File([blob], `${product.id}-mecanica-keiko.jpg`, { type: "image/jpeg" }) : null;
@@ -531,7 +551,7 @@
   ])
     .then(([data, panelProducts]) => {
       const staticProducts = (data.productos || [])
-        .filter((product) => product.publicado !== false)
+        .filter((product) => product.publicado !== false && !panelProducts.some((panelProduct) => String(panelProduct.codigo || "").trim().toUpperCase() === String(product.codigo || "").trim().toUpperCase()))
         .sort((a, b) => Number(Boolean(b.destacado)) - Number(Boolean(a.destacado)) || (a.orden || 99) - (b.orden || 99));
       products = [...panelProducts, ...staticProducts];
       renderFilters();
