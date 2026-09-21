@@ -197,6 +197,25 @@ for (const product of pending) {
       compatibilidad: unique(result.compatibilidad), referencias: unique(result.referencias), fuentes: sources,
       confianza: text(result.confianza)
     };
+    // El texto visible en el empaque es evidencia primaria. Se puede proponer como ajuste manual,
+    // pero nunca desbloquea compatibilidades ni equivalencias que no se hayan comprobado en fuentes técnicas.
+    const ceramicVisibleOnPackage = codeKey(vision.codigo_visible) === codeKey(product.codigo) && /\bceramic\b/i.test(text(vision.tipo_visible));
+    const visualProposal = ceramicVisibleOnPackage ? {
+      nombre: product.nombre,
+      marca: product.marca,
+      categoria: product.categoria,
+      descripcion_corta: /cer[aá]mic/i.test(text(product.descripcion_corta))
+        ? product.descripcion_corta
+        : `${product.nombre}. Pastillas de freno de compuesto cerámico; compatibilidad por confirmar según vehículo.`,
+      descripcion: /cer[aá]mic/i.test(text(product.descripcion))
+        ? product.descripcion
+        : `${text(product.descripcion) || product.nombre}. En el empaque se lee CERAMIC. Antes de la entrega se confirma compatibilidad por año, modelo y versión.`,
+      compatibilidad: product.compatibilidad || [],
+      referencias: product.referencias || [],
+      fuentes: product.fuentes || [],
+      confianza: product.confianza || "Media",
+      observaciones: unique([product.observaciones, "Dato visible en el empaque: CERAMIC."]).join(" ")
+    } : null;
     // Una propuesta bloqueada se conserva solo como evidencia del bot: nunca reemplaza la ficha del producto.
     const safeDetails = ready ? proposal : {
       nombre: product.nombre, marca: product.marca, categoria: product.categoria,
@@ -208,7 +227,7 @@ for (const product of pending) {
     delete previousResult.verificacion_solicitada;
     delete previousResult.verificacion_solicitada_en;
     const resultData = { ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks, ultima_verificacion: new Date().toISOString() };
-    if (isRecheck && ready) resultData.edicion_pendiente = proposal;
+    if (isRecheck && (ready || visualProposal)) resultData.edicion_pendiente = ready ? proposal : visualProposal;
     const update = isRecheck ? {
       resultado_bot: resultData,
       error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "),
