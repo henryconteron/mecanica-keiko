@@ -16,6 +16,7 @@
   let activeProduct = null;
   let activeMediaIndex = 0;
   let touchStartX = null;
+  let imageZoomScale = 1;
   let savedScrollY = 0;
   let pageScrollLocked = false;
   let toastTimer;
@@ -46,6 +47,13 @@
       }).format(product.precio);
     }
     return product.precio || "Consultar";
+  };
+
+  const compactText = (value, limit = 240) => {
+    const source = String(value || "").trim();
+    if (source.length <= limit) return source;
+    const cut = source.slice(0, limit).replace(/\s+\S*$/, "").trim();
+    return `${cut}…`;
   };
 
   const mediaElement = (medium, alt, options = {}) => {
@@ -371,6 +379,33 @@
     if (counter) counter.textContent = `${activeMediaIndex + 1} / ${total}`;
   };
 
+  const closeImageZoom = () => {
+    const zoom = dialogContent.querySelector("[data-image-zoom]");
+    if (!zoom) return;
+    zoom.hidden = true;
+    imageZoomScale = 1;
+  };
+
+  const updateImageZoom = () => {
+    const image = dialogContent.querySelector("[data-image-zoom] img");
+    const label = dialogContent.querySelector("[data-zoom-level]");
+    if (image) image.style.transform = `scale(${imageZoomScale})`;
+    if (label) label.textContent = `${Math.round(imageZoomScale * 100)}%`;
+  };
+
+  const openImageZoom = () => {
+    const medium = activeProduct?.medios?.[activeMediaIndex];
+    if (!medium || medium.tipo === "video") return;
+    const zoom = dialogContent.querySelector("[data-image-zoom]");
+    const image = zoom?.querySelector("img");
+    if (!zoom || !image) return;
+    image.src = medium.src;
+    image.alt = productLabel(activeProduct);
+    imageZoomScale = 1;
+    zoom.hidden = false;
+    updateImageZoom();
+  };
+
   const stepMedia = (step) => {
     if (!activeProduct?.medios?.length) return;
     setMainMedia(activeProduct, activeMediaIndex + step);
@@ -381,13 +416,11 @@
     activeMediaIndex = 0;
     const compatibility = product.compatibilidad || [];
     const references = product.referencias || [];
-    const details = [
-      ...compatibility.map((item) => `Compatible con: ${item}`),
-      ...references.map((item) => `Referencia: ${item}`),
-      product.estado ? `Estado: ${product.estado}` : "",
-      typeof product.stock === "number" ? `Stock registrado: ${product.stock}` : ""
-    ].filter(Boolean);
     const media = product.medios || [];
+    const fullDescription = product.descripcion || "Consulta disponibilidad y compatibilidad antes de comprar.";
+    const summarySource = product.descripcionCorta || fullDescription;
+    const summary = compactText(summarySource);
+    const hasMoreDescription = fullDescription !== summarySource || summarySource.length > summary.length;
 
     dialogContent.innerHTML = `
       <div class="dialog-layout">
@@ -402,15 +435,23 @@
             <button class="dialog-thumb${index === 0 ? " is-active" : ""}" type="button" data-media-index="${index}" aria-label="Ver archivo ${index + 1}" aria-pressed="${index === 0}">
               ${mediaElement(medium, "", { controls: false })}
             </button>`).join("")}</div>` : ""}
+          ${media[0] && media[0].tipo !== "video" ? `<button class="dialog-zoom-trigger" type="button" data-open-image-zoom aria-label="Ampliar foto">⌕ <span>Ampliar</span></button>` : ""}
+          <section class="dialog-image-zoom" data-image-zoom hidden aria-label="Foto ampliada">
+            <button class="dialog-image-zoom-close" type="button" data-close-image-zoom aria-label="Cerrar ampliación">×</button>
+            <div class="dialog-image-zoom-canvas"><img src="" alt=""></div>
+            <div class="dialog-image-zoom-controls"><button type="button" data-zoom-step="-0.25" aria-label="Alejar">−</button><span data-zoom-level>100%</span><button type="button" data-zoom-step="0.25" aria-label="Acercar">+</button></div>
+          </section>
         </div>
         <div class="dialog-copy">
           <div class="dialog-copy-scroll">
             <p class="eyebrow">${escapeHtml(product.categoria || "Repuesto disponible")}</p>
             <h2 id="dialog-title">${escapeHtml(product.nombre)}</h2>
-            <p><strong>Código:</strong> ${escapeHtml(product.codigo)}</p>
+            <div class="dialog-key-facts"><span><strong>Código</strong>${escapeHtml(product.codigo)}</span>${product.marca ? `<span><strong>Marca</strong>${escapeHtml(product.marca)}</span>` : ""}${typeof product.stock === "number" ? `<span><strong>Stock</strong>${escapeHtml(product.stock)}</span>` : ""}</div>
             <div class="dialog-price">${escapeHtml(priceText(product))}</div>
-            <p>${escapeHtml(product.descripcion || "Consulta el estado y la compatibilidad antes de comprar.")}</p>
-            ${details.length ? `<ul class="dialog-list">${details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : ""}
+            <p class="dialog-summary">${escapeHtml(summary)}</p>
+            ${compatibility.length ? `<details class="dialog-accordion" open><summary>Compatibilidad <span>${compatibility.length}</span></summary><ul>${compatibility.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}
+            ${references.length ? `<details class="dialog-accordion"><summary>Referencias y equivalencias <span>${references.length}</span></summary><ul>${references.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}
+            ${hasMoreDescription ? `<details class="dialog-accordion"><summary>Descripción del repuesto</summary><p>${escapeHtml(fullDescription)}</p></details>` : ""}
             <div class="dialog-buttons">
               <button class="button button-red" type="button" data-share-current>Compartir promoción</button>
               <button class="button button-light" type="button" data-download-promotion>Descargar imagen promocional</button>
@@ -428,6 +469,12 @@
     dialogContent.querySelectorAll("[data-media-step]").forEach((button) => {
       button.addEventListener("click", () => stepMedia(Number(button.dataset.mediaStep)));
     });
+    dialogContent.querySelector("[data-open-image-zoom]")?.addEventListener("click", openImageZoom);
+    dialogContent.querySelector("[data-close-image-zoom]")?.addEventListener("click", closeImageZoom);
+    dialogContent.querySelectorAll("[data-zoom-step]").forEach((button) => button.addEventListener("click", () => {
+      imageZoomScale = Math.max(1, Math.min(3, imageZoomScale + Number(button.dataset.zoomStep)));
+      updateImageZoom();
+    }));
     const mainMedia = dialogContent.querySelector("#dialog-main-media");
     mainMedia?.addEventListener("touchstart", (event) => {
       touchStartX = event.changedTouches[0]?.clientX ?? null;
@@ -529,6 +576,11 @@
 
   closeDialog?.addEventListener("click", () => dialog.close());
   dialog.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !dialogContent.querySelector("[data-image-zoom]")?.hidden) {
+      event.preventDefault();
+      closeImageZoom();
+      return;
+    }
     if (event.key === "ArrowLeft") stepMedia(-1);
     if (event.key === "ArrowRight") stepMedia(1);
   });
@@ -536,6 +588,7 @@
     activeProduct = null;
     activeMediaIndex = 0;
     touchStartX = null;
+    imageZoomScale = 1;
     unlockPageScroll();
   });
   dialog.addEventListener("click", (event) => {

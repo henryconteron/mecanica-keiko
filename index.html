@@ -506,6 +506,14 @@
     .dialog-thumb { width: 66px; height: 54px; flex: 0 0 auto; overflow: hidden; border: 2px solid transparent; border-radius: 8px; background: #333; cursor: pointer; }
     .dialog-thumb.is-active { border-color: var(--gold); }
     .dialog-thumb img, .dialog-thumb video { width: 100%; height: 100%; object-fit: cover; }
+    .dialog-zoom-trigger { position:absolute; z-index:3; left:12px; bottom:86px; display:flex; align-items:center; gap:5px; padding:7px 10px; color:var(--white); border:1px solid rgba(255,255,255,.34); border-radius:999px; background:rgba(0,0,0,.7); font:800 .72rem Inter,sans-serif; cursor:pointer; }
+    .dialog-image-zoom { position:absolute; z-index:7; inset:0; display:grid; grid-template-rows:minmax(0,1fr) auto; overflow:hidden; background:#090909; }
+    .dialog-image-zoom[hidden] { display:none; }
+    .dialog-image-zoom-canvas { min-height:0; display:grid; place-items:center; overflow:auto; touch-action:pan-x pan-y; }
+    .dialog-image-zoom img { width:100%; height:100%; object-fit:contain; transform-origin:center; transition:transform .18s ease; }
+    .dialog-image-zoom-close { position:absolute; z-index:2; top:12px; right:12px; width:42px; aspect-ratio:1; color:var(--white); border:1px solid rgba(255,255,255,.35); border-radius:50%; background:rgba(0,0,0,.72); cursor:pointer; font-size:1.3rem; }
+    .dialog-image-zoom-controls { z-index:2; display:flex; justify-content:center; align-items:center; gap:12px; padding:12px; color:var(--white); background:rgba(0,0,0,.75); font-size:.8rem; font-weight:800; }
+    .dialog-image-zoom-controls button { width:42px; height:38px; color:var(--white); border:1px solid #626262; border-radius:10px; background:#242424; cursor:pointer; font-size:1.25rem; }
     .dialog-copy { min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; background: var(--white); }
     .dialog-copy-scroll { min-height: 0; padding: 34px 28px 24px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
     .dialog-primary-action { padding: 14px 24px 18px; border-top: 1px solid var(--line); background: var(--white); box-shadow: 0 -10px 24px rgba(0,0,0,.06); }
@@ -513,10 +521,19 @@
     .dialog-copy .eyebrow { margin-bottom: 8px; }
     .dialog-copy h2 { max-width: calc(100% - 34px); margin-bottom: 12px; font-size: clamp(1.75rem, 3vw, 2.7rem); overflow-wrap: anywhere; }
     .dialog-copy p { color: var(--muted); }
+    .dialog-key-facts { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+    .dialog-key-facts span { display:grid; gap:2px; padding:7px 9px; border:1px solid var(--line); border-radius:9px; color:#343434; font-size:.78rem; }
+    .dialog-key-facts strong { color:var(--muted); font-size:.65rem; text-transform:uppercase; letter-spacing:.04em; }
+    .dialog-summary { margin:0 0 14px; line-height:1.52; }
     .service-dialog-note { margin: 22px 0; padding: 14px 16px; border-left: 4px solid var(--gold); background: #faf6e9; font-size: .85rem; }
     .dialog-price { margin: 20px 0; color: var(--red); font-size: 1.65rem; font-weight: 900; }
-    .dialog-list { margin: 20px 0 26px; padding-left: 20px; }
-    .dialog-list li { margin-bottom: 7px; }
+    .dialog-accordion { margin:10px 0; border-top:1px solid var(--line); }
+    .dialog-accordion:last-of-type { border-bottom:1px solid var(--line); }
+    .dialog-accordion summary { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 1px; font-weight:800; cursor:pointer; }
+    .dialog-accordion summary span { min-width:22px; padding:3px 7px; color:#6a4b00; border-radius:999px; background:#fff0bd; text-align:center; font-size:.7rem; }
+    .dialog-accordion ul { margin:0 0 14px; padding-left:20px; }
+    .dialog-accordion li { margin:0 0 7px; color:var(--muted); font-size:.9rem; }
+    .dialog-accordion p { margin:0 0 14px; line-height:1.55; }
     .dialog-buttons { display: grid; gap: 9px; }
     .dialog-buttons .button { width: 100%; }
     .promotion-note { margin: 12px 0 0; color: var(--muted); font-size: .76rem; line-height: 1.4; }
@@ -610,7 +627,9 @@
       .catalog-grid { grid-template-columns: repeat(2, 1fr); }
       .catalog-toolbar { grid-template-columns: 1fr; }
       .catalog-filters { justify-content: flex-start; }
-      .dialog-layout { grid-template-columns: 1fr; grid-template-rows: minmax(245px, 44%) minmax(0, 1fr); }
+      .dialog-layout { display:flex; flex-direction:column; }
+      .dialog-gallery { flex:0 0 clamp(230px, 39dvh, 355px); }
+      .dialog-copy { flex:1 1 auto; min-height:0; }
       .dialog-gallery, .dialog-main-media { min-height: 0; }
     }
     @media (max-width: 610px) {
@@ -643,8 +662,9 @@
       .catalog-dialog { width: calc(100% - 16px); height: calc(100dvh - 16px); max-height: calc(100dvh - 16px); border-radius: 18px; }
       .dialog-copy-scroll { padding: 24px 20px 18px; }
       .dialog-primary-action { padding: 11px 18px 14px; }
-      .dialog-copy h2 { font-size: clamp(1.65rem, 9vw, 2.25rem); }
+      .dialog-copy h2 { max-width:calc(100% - 28px); font-size:clamp(1.55rem, 7.5vw, 2rem); line-height:1.02; }
       .dialog-nav { width: 40px; height: 48px; }
+      .dialog-zoom-trigger { bottom:74px; }
       .service-card, .service-body, .service-card.has-media .service-body { min-height: auto; }
       .contact-info, .compat-copy, .checklist { padding: 27px 22px; }
       .footer-inner { flex-direction: column; }
