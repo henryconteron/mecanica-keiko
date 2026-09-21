@@ -21,6 +21,18 @@ const codeAppearsExactly = (page, code) => {
   const pattern = new RegExp(`(^|[^A-Z0-9])${escaped.join("[\\s._-]*")}(?=$|[^A-Z0-9])`, "i");
   return pattern.test(String(page || "").normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
 };
+// Algunos fabricantes añaden una C al código de una pastilla para indicar el compuesto
+// cerámico. Solo se usa la referencia base cuando esa condición está confirmada en la foto;
+// no se eliminan letras de códigos de otros tipos de repuesto.
+const baseCodeForCeramicBrakePad = (product, vision) => {
+  const productCode = text(product.codigo).toUpperCase();
+  const isBrakePad = /pastill|balata|brake\s*pad/i.test(`${text(product.nombre)} ${text(product.categoria)}`);
+  const matchesLabel = codeKey(vision.codigo_visible) === codeKey(productCode);
+  const saysCeramic = /\bceramic\b/i.test(text(vision.tipo_visible));
+  if (!isBrakePad || !matchesLabel || !saysCeramic || !/^[A-Z0-9][A-Z0-9._-]*C$/.test(productCode)) return "";
+  const baseCode = productCode.slice(0, -1).replace(/[-._]+$/, "");
+  return baseCode.length >= 3 ? baseCode : "";
+};
 const textValue = (value) => {
   if (value && typeof value === "object") return text(value.referencia || value.codigo || value.numero || value.valor || value.nombre || "");
   return text(value);
@@ -109,11 +121,13 @@ const inspectPhoto = async (product) => {
   return parseJson(result.choices?.[0]?.message?.content);
 };
 
-const research = async (product, vision) => {
+const research = async (product, vision, sourceCode = product.codigo) => {
+  const usesCeramicBaseCode = codeKey(sourceCode) !== codeKey(product.codigo);
   const prompt = `Investiga un repuesto automotriz para venta en Ecuador.
-Datos capturados: código ${product.codigo}; nombre ${product.nombre}; marca ${product.marca || "no indicada"}. Lectura fotográfica: ${JSON.stringify(vision)}.
+Datos capturados: código de venta/etiqueta ${product.codigo}; nombre ${product.nombre}; marca ${product.marca || "no indicada"}. Lectura fotográfica: ${JSON.stringify(vision)}.
+${usesCeramicBaseCode ? `La etiqueta muestra ${product.codigo} y también dice CERAMIC. Para comprobar la forma y compatibilidad, consulta la referencia base exacta ${sourceCode}. Esta es únicamente una variante cerámica de esa referencia para este producto: conserva ${product.codigo} como código de venta y no atribuyas esta regla a otros repuestos.` : `Código que se debe comprobar en fuentes: ${sourceCode}.`}
 Reglas obligatorias:
-- Busca el código exacto, no uno parecido. Si el código no aparece literalmente en la fuente, responde codigo_coincide:false.
+- Busca el código exacto ${sourceCode}, no uno parecido. Si ese código no aparece literalmente en la fuente, responde codigo_coincide:false.
 - La ficha debe describir el mismo tipo de pieza que el nombre capturado y, si existe, que la etiqueta leída. Si hay duda, responde producto_coincide:false.
 - No inventes compatibilidades, medidas, equivalencias ni marca. Omite los datos que no estén sustentados.
 - Usa solamente enlaces HTTPS directos de fabricante, catálogo técnico o distribuidor automotriz reconocido. Nunca uses redes sociales, PDFs compartidos, Scribd, PDFCoffee, marketplaces ni páginas genéricas de resultados.
@@ -127,7 +141,7 @@ Reglas obligatorias:
   return parseJson(result.choices?.[0]?.message?.content);
 };
 
-const verifySource = async (source, product) => {
+const verifySource = async (source, product, sourceCode = product.codigo) => {
   const parsed = sourceUrl(source?.url);
   if (!parsed) return { source, ok: false, reason: "La fuente no tiene una URL HTTPS pública y directa." };
   if (isBlockedSource(parsed.hostname)) return { source, ok: false, reason: `La fuente ${parsed.hostname} no es aceptable para información técnica.` };
@@ -145,8 +159,8 @@ const verifySource = async (source, product) => {
       return { source, ok: false, reason: "La fuente no es una página técnica legible que permita comprobar el código." };
     }
     const page = (await response.text()).slice(0, 1_500_000);
-    if (!codeAppearsExactly(page, product.codigo)) {
-      return { source, ok: false, reason: `La fuente no muestra el código exacto ${product.codigo}.` };
+    if (!codeAppearsExactly(page, sourceCode)) {
+      return { source, ok: false, reason: `La fuente no muestra el código exacto ${sourceCode}.` };
     }
     return {
       ok: true,
@@ -156,6 +170,7 @@ const verifySource = async (source, product) => {
         tipo: text(source.tipo) || "Fuente técnica",
         dominio: finalUrl.hostname,
         codigo_verificado: true,
+        codigo_consultado: sourceCode,
         fuente_tecnica_reconocida: isKnownTechnicalSource(finalUrl.hostname)
       }
     };
@@ -177,17 +192,19 @@ for (const product of pending) {
     isRecheck = product.revision === "publicado" && verificationRequested(product);
     let vision;
     try { vision = await inspectPhoto(product); } catch (error) { vision = { codigo_visible: "", confianza: "Baja", error: error.message }; }
-    const result = await research(product, vision);
-    const sourceChecks = await Promise.all((result.fuentes || []).slice(0, 5).map((source) => verifySource(source, product)));
+    const sourceCode = baseCodeForCeramicBrakePad(product, vision) || product.codigo;
+    const usesCeramicBaseCode = codeKey(sourceCode) !== codeKey(product.codigo);
+    const result = await research(product, vision, sourceCode);
+    const sourceChecks = await Promise.all((result.fuentes || []).slice(0, 5).map((source) => verifySource(source, product, sourceCode)));
     const sources = [...new Map(sourceChecks.filter((check) => check.ok).map((check) => [check.source.dominio, check.source])).values()];
     const sourceProblems = sourceChecks.filter((check) => !check.ok).map((check) => check.reason);
     const independentDomains = new Set(sources.map((source) => source.dominio)).size;
     const reasons = [];
     if (vision.error) reasons.push(vision.error);
     if (vision.codigo_visible && codeKey(vision.codigo_visible) !== codeKey(product.codigo)) reasons.push(`El código visible ${vision.codigo_visible} no coincide con ${product.codigo}.`);
-    if (result.codigo_coincide !== true) reasons.push("La investigación no confirmó el código exacto del producto.");
+    if (result.codigo_coincide !== true) reasons.push(`La investigación no confirmó el código de referencia ${sourceCode}.`);
     if (result.producto_coincide !== true) reasons.push("La investigación no confirmó que la descripción corresponde al mismo producto.");
-    if (!sources.length) reasons.push("No se obtuvo una fuente directa donde aparezca el código exacto.");
+    if (!sources.length) reasons.push(`No se obtuvo una fuente directa donde aparezca el código exacto ${sourceCode}.`);
     if (!result.compatibilidad?.length) reasons.push("No se obtuvo compatibilidad verificable.");
     if (text(result.confianza).toLowerCase() === "alta" && independentDomains < 2) reasons.push("La confianza Alta exige dos fuentes verificadas de dominios distintos.");
     const ready = !reasons.length && result.listo_para_revisar === true;
@@ -226,7 +243,12 @@ for (const product of pending) {
     const previousResult = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
     delete previousResult.verificacion_solicitada;
     delete previousResult.verificacion_solicitada_en;
-    const resultData = { ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks, ultima_verificacion: new Date().toISOString() };
+    const resultData = {
+      ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks,
+      codigo_consultado: sourceCode,
+      variante_ceramica_verificada_por_empaque: usesCeramicBaseCode,
+      ultima_verificacion: new Date().toISOString()
+    };
     if (isRecheck && (ready || visualProposal)) resultData.edicion_pendiente = ready ? proposal : visualProposal;
     const update = isRecheck ? {
       resultado_bot: resultData,
