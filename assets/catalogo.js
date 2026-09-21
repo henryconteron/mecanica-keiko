@@ -61,7 +61,10 @@
     if (medium.tipo === "video") {
       return `<video src="${escapeHtml(medium.src)}" ${options.controls ? "controls" : "muted playsinline preload=\"metadata\""} aria-label="${escapeHtml(alt)}"></video>`;
     }
-    return `<img src="${escapeHtml(medium.src)}" alt="${escapeHtml(alt)}" loading="lazy">`;
+    const fitStyle = options.fit === "contain"
+      ? ' style="width:auto!important;height:auto!important;max-width:calc(100% - 28px)!important;max-height:calc(100% - 28px)!important;object-fit:contain!important"'
+      : "";
+    return `<img src="${escapeHtml(medium.src)}" alt="${escapeHtml(alt)}" loading="lazy"${fitStyle}>`;
   };
 
   const normalizeSearch = (value = "") => String(value)
@@ -369,7 +372,7 @@
     const total = product.medios.length;
     activeMediaIndex = ((index % total) + total) % total;
     const medium = product.medios[activeMediaIndex];
-    target.innerHTML = mediaElement(medium, productLabel(product), { controls: true });
+    target.innerHTML = mediaElement(medium, productLabel(product), { controls: true, fit: "contain" });
     dialogContent.querySelectorAll(".dialog-thumb").forEach((thumb, thumbIndex) => {
       const selected = thumbIndex === activeMediaIndex;
       thumb.classList.toggle("is-active", selected);
@@ -425,7 +428,7 @@
     dialogContent.innerHTML = `
       <div class="dialog-layout">
         <div class="dialog-gallery">
-          <div class="dialog-main-media" id="dialog-main-media">${mediaElement(media[0], productLabel(product), { controls: true })}</div>
+          <div class="dialog-main-media" id="dialog-main-media">${mediaElement(media[0], productLabel(product), { controls: true, fit: "contain" })}</div>
           ${media.length > 1 ? `
             <button class="dialog-nav dialog-nav-prev" type="button" data-media-step="-1" aria-label="Ver imagen anterior">‹</button>
             <button class="dialog-nav dialog-nav-next" type="button" data-media-step="1" aria-label="Ver imagen siguiente">›</button>
@@ -449,9 +452,9 @@
             <p class="dialog-summary">${escapeHtml(summary)}</p>
             <div class="dialog-key-facts"><span><strong>Código</strong>${escapeHtml(product.codigo)}</span>${product.marca ? `<span><strong>Marca</strong>${escapeHtml(product.marca)}</span>` : ""}${typeof product.stock === "number" ? `<span><strong>Stock</strong>${escapeHtml(product.stock)}</span>` : ""}</div>
             <div class="dialog-price">${escapeHtml(priceText(product))}</div>
+            ${hasMoreDescription ? `<details class="dialog-accordion" open><summary>Descripción del repuesto</summary><p>${escapeHtml(fullDescription)}</p></details>` : ""}
             ${compatibility.length ? `<details class="dialog-accordion" open><summary>Compatibilidad <span>${compatibility.length}</span></summary><ul>${compatibility.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}
             ${references.length ? `<details class="dialog-accordion"><summary>Referencias y equivalencias <span>${references.length}</span></summary><ul>${references.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}
-            ${hasMoreDescription ? `<details class="dialog-accordion"><summary>Descripción del repuesto</summary><p>${escapeHtml(fullDescription)}</p></details>` : ""}
             <div class="dialog-buttons">
               <button class="button button-red" type="button" data-share-current>Compartir promoción</button>
               <button class="button button-light" type="button" data-download-promotion>Descargar imagen promocional</button>
