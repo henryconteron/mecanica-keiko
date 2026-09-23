@@ -96,6 +96,10 @@
     .empty { padding:28px; border-radius:16px; color:var(--muted); background:#f5f3ef; text-align:center; }
     [hidden] { display:none!important; }
     .screen-head > div { min-width:0; }
+    .inventory-tools { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .inventory-list { max-height:65vh; overflow:auto; }
+    #existing-photos img { height:130px; object-fit:contain; }
+    #existing-photos a { display:block; }
     .review a { overflow-wrap:anywhere; }
     button:disabled { opacity:.6; cursor:wait; }
     @media(max-width:600px) { .screen-head{align-items:stretch;flex-direction:column}.screen-actions{justify-content:flex-start}.product-grid{grid-template-columns:1fr}#product-form{padding:0}.product-row{flex-wrap:wrap} }
@@ -125,7 +129,8 @@
         </div>
       </section>
       <section class="screen" id="screen-inventory" hidden>
-        <div class="screen-head"><div><h2>Productos</h2><p>Captura lo básico; el bot completará lo técnico.</p></div><div class="screen-actions"><button class="secondary" id="clean-published-photos" type="button">Limpiar fotos publicadas</button><button class="secondary" id="import-legacy" type="button">Importar catálogo previo</button><button class="primary" id="new-product" type="button">+ Nuevo</button></div></div>
+        <div class="screen-head"><div><h2>Productos</h2><p>Busca y administra tu inventario.</p></div><button class="primary" id="new-product" type="button">+ Nuevo</button></div>
+        <div class="inventory-tools"><label>Buscar<input id="inventory-search" type="search" placeholder="Código, nombre o marca"></label><label>Categoría<select id="inventory-category"><option value="">Todas las categorías</option></select></label></div>
         <form id="product-form" hidden>
           <input id="product-id" type="hidden">
           <h3 class="form-title" id="product-form-title">Nuevo producto</h3>
@@ -146,7 +151,8 @@
             <label class="wide">Resultado que verificaste personalmente (solo respaldo privado)<textarea id="product-manual-research" maxlength="5000" placeholder="Pega aquí la respuesta completa de Google. El panel organizará una propuesta que podrás revisar antes de publicar."></textarea></label>
             <button class="secondary wide" id="organize-manual-research" type="button">Organizar información encontrada</button>
             <label class="wide">Observaciones<textarea id="product-notes" maxlength="500" placeholder="Cualquier detalle visible o duda"></textarea></label>
-            <label class="wide photo-box">📷 Fotos del artículo<input id="product-photos" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple></label>
+            <section class="wide"><h3>Fotos actuales</h3><p>Quita una foto o elige la portada. Los cambios se aplican al guardar y publicar.</p><div id="existing-photos" class="photo-queue"></div></section>
+            <label class="wide photo-box">📷 Añadir fotos<input id="product-photos" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple></label>
             <label class="gallery-picker">O elegir fotos desde la galería<input id="product-photos-gallery" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
             <div class="photo-queue" id="product-photo-queue" hidden></div>
             <section class="background-removal" aria-live="polite">

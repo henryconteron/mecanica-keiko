@@ -18,6 +18,8 @@
   const backgroundStatus = document.querySelector("#product-background-status");
   const backgroundPreview = document.querySelector("#product-background-preview");
   let productsCache = [];
+  let existingPhotoPaths = [];
+  let photoRenderId = 0;
   let token = sessionStorage.getItem("keikoAdminToken") || "";
   let refreshToken = sessionStorage.getItem("keikoAdminRefresh") || "";
   let refreshPromise;
@@ -337,6 +339,18 @@
   const loadProducts = async () => {
     const products = await request("/rest/v1/productos_admin?select=*&order=actualizado.desc");
     productsCache = products;
+    renderInventory();
+  };
+  const renderInventory = () => {
+    const category = document.querySelector("#inventory-category");
+    const chosen = category.value;
+    category.innerHTML = '<option value="">Todas las categorías</option>' + [...new Set(productsCache.map(p => displayedProduct(p).categoria || "Sin categoría"))].sort().map(c => `<option>${escapeHtml(c)}</option>`).join("");
+    category.value = chosen;
+    const query = document.querySelector("#inventory-search").value.trim().toLocaleLowerCase("es");
+    const products = productsCache.filter(p => {
+      const v = displayedProduct(p);
+      return (!category.value || (v.categoria || "Sin categoría") === category.value) && `${v.codigo} ${v.nombre} ${v.marca}`.toLocaleLowerCase("es").includes(query);
+    });
     productList.innerHTML = products.length ? products.map((product) => `
       <article class="product-row">
         <div><strong>${escapeHtml(displayedProduct(product).nombre)}</strong><span>${escapeHtml(displayedProduct(product).codigo)} · ${displayedProduct(product).cantidad} unidad${displayedProduct(product).cantidad === 1 ? "" : "es"}</span><small>${displayedProduct(product).fotos?.length || 0} foto${displayedProduct(product).fotos?.length === 1 ? "" : "s"}</small><button class="secondary" data-product="${product.id}" type="button">Ver detalles</button></div>
@@ -366,7 +380,6 @@
       ${product.error_investigacion ? `<p class="review-error"><strong>Requiere atención:</strong> ${escapeHtml(product.error_investigacion)}</p>` : ""}
       <div class="review-actions">
         <button class="secondary" data-review-action="editar" type="button">Editar producto</button>
-        <button class="secondary" data-review-action="manual" type="button">Ingresar información verificada</button>
         ${product.revision === "revisar" ? '<button class="primary" data-review-action="aprobar" type="button">Aprobar información</button>' : ""}
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
         ${product.revision === "publicado" && hasDraft ? '<button class="primary" data-review-action="publicar-cambios" type="button">Publicar cambios</button>' : ""}
@@ -565,13 +578,14 @@
         const blob = result?.blob || result;
         if (!(blob instanceof Blob)) throw new Error("La edición no produjo una imagen válida.");
         const cleanName = `${file.name.replace(/\.[^.]+$/, "") || "producto"}-sin-fondo.png`;
-        prepared.push({ originalFile: file, cleanedFile: new File([blob], cleanName, { type: "image/png" }), useClean: true, protected: false });
+        const usable = await validCutout(blob);
+        prepared.push({ originalFile: file, cleanedFile: usable ? new File([blob], cleanName, { type: "image/png" }) : file, useClean: usable, protected: !usable });
       }
       if (preparationId !== backgroundPreparationId) return [];
       backgroundPreparedPhotos = prepared;
       backgroundPreparedSignature = signature;
       renderBackgroundPreview();
-      backgroundStatus.textContent = "Listo. Puedes usar la versión limpia o volver a la original en cada foto.";
+      backgroundStatus.textContent = prepared.some(p => p.protected) ? "Una limpieza dejó la foto casi vacía: conservamos su original. Revisa las demás antes de guardar." : "Listo. Revisa cada foto; puedes volver a la original antes de guardar.";
       return prepared;
     } catch (error) {
       backgroundPreparedPhotos = [];
@@ -627,8 +641,41 @@
 
   const formValue = (selector) => document.querySelector(selector).value;
   const setFormValue = (selector, value) => { document.querySelector(selector).value = value ?? ""; };
+  document.querySelector("#inventory-search").addEventListener("input", renderInventory);
+  document.querySelector("#inventory-category").addEventListener("change", renderInventory);
+  const renderExistingPhotos = async () => {
+    const target = document.querySelector("#existing-photos");
+    const renderId = ++photoRenderId;
+    target.textContent = existingPhotoPaths.length ? "Cargando fotos…" : "Sin fotos guardadas.";
+    const cards = await Promise.all(existingPhotoPaths.map(async (path, index) => {
+      const url = await signedPhotoUrl(path).catch(() => null);
+      return `<article class="photo-queue-card">${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="Foto ${index+1}"></a>` : '<p>No se pudo cargar</p>'}<p>${index === 0 ? "Portada" : `Foto ${index+1}`}</p>${index ? `<button type="button" data-cover-photo="${index}">Usar de portada</button>` : ""}<button type="button" data-remove-existing="${index}">Quitar foto</button></article>`;
+    }));
+    if (renderId === photoRenderId && cards.length) target.innerHTML = cards.join("");
+  };
+  document.querySelector("#existing-photos").addEventListener("click", event => {
+    const remove = event.target.closest("[data-remove-existing]");
+    const cover = event.target.closest("[data-cover-photo]");
+    if (remove) existingPhotoPaths.splice(Number(remove.dataset.removeExisting), 1);
+    if (cover) existingPhotoPaths.unshift(...existingPhotoPaths.splice(Number(cover.dataset.coverPhoto), 1));
+    if (remove || cover) renderExistingPhotos();
+  });
+  const validCutout = async (blob) => {
+    const bitmap = await createImageBitmap(blob);
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 128;
+    const ctx = canvas.getContext("2d", { willReadFrequently:true });
+    ctx.drawImage(bitmap,0,0,128,128);
+    bitmap.close();
+    const pixels = ctx.getImageData(0,0,128,128).data;
+    let visible = 0;
+    for (let i=3;i<pixels.length;i+=4) if (pixels[i]>64) visible++;
+    return visible / (128*128) >= 0.03;
+  };
 
   const openNewProduct = () => {
+    existingPhotoPaths = [];
+    renderExistingPhotos();
     clearBackgroundPreview();
     clearPhotoQueue();
     productForm.reset();
@@ -645,6 +692,8 @@
 
   const openEditProduct = (product, { manual = false } = {}) => {
     const view = displayedProduct(product);
+    existingPhotoPaths = [...(view.fotos || [])];
+    renderExistingPhotos();
     clearBackgroundPreview();
     clearPhotoQueue();
     productForm.reset();
@@ -667,7 +716,7 @@
     document.querySelector("#product-form-intro").textContent = manual
       ? "Pega el resultado que comprobaste como respaldo y completa solo los datos que confirmaste. Al guardar será un borrador: tú decides cuándo publicarlo."
       : (product.revision === "publicado" ? "Revisa la información. Al guardar quedará como borrador hasta que pulses “Publicar cambios”." : "Al guardar, el producto volverá a revisión antes de publicarse.");
-    document.querySelector("#product-photo-help").textContent = `${view.fotos?.length || 0} fotos actuales. Las fotos nuevas se añadirán a las existentes. Máximo 8 fotos nuevas, de 10 MB cada una.`;
+    document.querySelector("#product-photo-help").textContent = `${view.fotos?.length || 0} fotos actuales. Puedes quitar una, cambiar la portada o añadir hasta 8 fotos nuevas, de 10 MB cada una.`;
     document.querySelector("#product-save").textContent = product.revision === "publicado" ? "Guardar cambios para revisar" : "Guardar cambios";
     productForm.hidden = false;
     productReview.hidden = true;
@@ -677,7 +726,7 @@
 
   document.querySelector("#new-product").addEventListener("click", openNewProduct);
   document.querySelector("#organize-manual-research").addEventListener("click", organizeManualResearch);
-  cleanPublishedPhotosButton.addEventListener("click", cleanPublishedPhotos);
+  cleanPublishedPhotosButton?.addEventListener("click", cleanPublishedPhotos);
 
   const enqueueSelectedPhotos = async (added) => {
     if (!added.length) return;
@@ -809,7 +858,7 @@
     }
   };
 
-  importLegacy.addEventListener("click", importLegacyCatalog);
+  importLegacy?.addEventListener("click", importLegacyCatalog);
 
   document.querySelector("#cancel-product").addEventListener("click", () => {
     clearBackgroundPreview();
@@ -896,6 +945,7 @@
     const code = normalizedCode(formValue("#product-code"));
     let files = queuedPhotoFiles;
     if (!productId && !files.length) return showNotice("Añade al menos una foto donde se vea el código.", "error");
+    if (productId && !existingPhotoPaths.length && !files.length) return showNotice("Conserva o añade al menos una foto del producto.", "error");
     if (files.some((file) => file.size > 10 * 1024 * 1024)) return showNotice("Cada fotografía debe pesar menos de 10 MB.", "error");
     savingProduct = true;
     document.querySelector("#product-save").disabled = true;
@@ -922,7 +972,7 @@
       if (formValue("#product-sources").trim() && !payload.fuentes.length) throw new Error("Las fuentes deben empezar con http:// o https://.");
       const manualResearch = formValue("#product-manual-research").trim();
       if (existing) {
-        const photoPaths = [...(displayedProduct(existing).fotos || [])];
+        const photoPaths = [...existingPhotoPaths];
         for (const [index, photo] of files.entries()) photoPaths.push(await uploadPhoto(photo.file, code, photoPaths.length + index, { preserveTransparency: photo.preserveTransparency }));
         const update = { ...payload, fotos: photoPaths };
         if (existing.revision === "publicado") {

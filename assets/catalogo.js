@@ -12,7 +12,7 @@
   if (!grid || !status || !search || !filters || !dialog || !dialogContent) return;
 
   let products = [];
-  let activeCategory = "Todos";
+  let activeCategory = "Destacados";
   let activeProduct = null;
   let activeMediaIndex = 0;
   let touchStartX = null;
@@ -106,12 +106,13 @@
 
   const visibleProducts = () => {
     const terms = normalizeSearch(search.value).trim().split(/\s+/).filter(Boolean);
-    return products.filter((product) => {
-      const categoryMatches = activeCategory === "Todos" || product.categoria === activeCategory;
+    const matches = products.filter((product) => {
+      const categoryMatches = activeCategory === "Todos" || activeCategory === "Destacados" || product.categoria === activeCategory;
       const haystack = searchableText(product);
       const searchMatches = terms.every((term) => haystack.includes(term));
       return categoryMatches && searchMatches;
     });
+    return activeCategory === "Destacados" && !terms.length ? [...matches].sort((a,b) => Number(Boolean(b.destacado)) - Number(Boolean(a.destacado))).slice(0,5) : matches;
   };
 
   const showToast = (message) => {
@@ -316,7 +317,7 @@
   };
 
   const renderFilters = () => {
-    const categories = ["Todos", ...new Set(products.map((product) => product.categoria).filter(Boolean))];
+    const categories = ["Destacados", "Todos", ...new Set(products.map((product) => product.categoria).filter(Boolean))];
     filters.innerHTML = categories.map((category) => `
       <button class="filter-button${category === activeCategory ? " is-active" : ""}" type="button" data-category="${escapeHtml(category)}" aria-pressed="${category === activeCategory}">
         ${escapeHtml(category)}
@@ -355,7 +356,9 @@
 
   const renderProducts = () => {
     const result = visibleProducts();
-    status.textContent = result.length === 1 ? "1 producto encontrado" : `${result.length} productos encontrados`;
+    status.textContent = activeCategory === "Destacados" && !search.value.trim()
+      ? `${result.length} destacados · Elige una categoría o busca para ver más`
+      : (result.length === 1 ? "1 producto encontrado" : `${result.length} productos encontrados`);
     if (!result.length) {
       grid.innerHTML = `<div class="catalog-empty">No encontramos esa referencia. Escríbenos por WhatsApp y la revisamos.</div>`;
       return;

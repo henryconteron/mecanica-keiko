@@ -46,4 +46,27 @@ try {
     console.log(`Gallery and dialog passed: ${width}x${height}`);
     await page.close();
   }
+  const admin = await browser.newPage({viewport:{width:390,height:844}});
+  const errors = [];
+  admin.on('pageerror', e => errors.push(e.message));
+  await admin.addInitScript(() => sessionStorage.setItem('keikoAdminToken','test-session'));
+  await admin.route('https://**/*', route => {
+    const url = route.request().url();
+    if (url.includes('/rest/v1/productos_admin')) return route.fulfill({json:[{id:'test',codigo:'TEST-1',nombre:'Filtro prueba',categoria:'Filtros',cantidad:2,revision:'publicado',fotos:['one.jpg','two.jpg']}]});
+    if (url.includes('/rest/v1/estado_taller')) return route.fulfill({json:[{estado:'automatico'}]});
+    if (url.includes('/storage/v1/object/sign')) return route.fulfill({json:{signedURL:'/photo.jpg'}});
+    return route.abort();
+  });
+  await admin.goto(`http://127.0.0.1:${server.address().port}/admin-estado.html`);
+  await admin.locator('[data-screen="inventory"]').click();
+  await admin.locator('#inventory-search').fill('TEST-1');
+  await admin.locator('[data-product="test"]').click();
+  assert.equal(await admin.locator('[data-review-action="manual"]').count(),0);
+  await admin.locator('[data-review-action="editar"]').click();
+  await admin.locator('[data-remove-existing="1"]').click();
+  await admin.waitForFunction(()=>document.querySelectorAll('[data-remove-existing]').length===1);
+  assert.equal(await admin.locator('#existing-photos .photo-queue-card').count(),1);
+  assert.deepEqual(errors,[]);
+  console.log('Admin: search, edit and individual photo removal passed');
+  await admin.close();
 } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
