@@ -317,6 +317,7 @@
   };
 
   const sharePromotion = async (product) => {
+    if (window.KEIKO_PROMOTION) return window.KEIKO_PROMOTION.open({name:product.nombre,code:product.codigo,price:priceText(product),url:publicProductUrl(product),text:promotionText(product),photos:product.fotos||[],resolvePhoto:index=>signedPhotoUrl(product.fotos?.[index])});
     try {
       const promotionFile = await createPromotionFile(product);
       if (!promotionFile) throw new Error("Este producto aún no tiene una foto para promocionar.");

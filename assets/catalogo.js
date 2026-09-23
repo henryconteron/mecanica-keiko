@@ -297,6 +297,7 @@
   };
 
   const shareProduct = async (product) => {
+    if (window.KEIKO_PROMOTION) return window.KEIKO_PROMOTION.open({name:product.nombre,code:product.codigo,price:priceText(product),url:productUrl(product),text:promotionText(product),photos:(product.medios||[]).filter(m=>m.tipo==='imagen'),resolvePhoto:async index=>(product.medios||[]).filter(m=>m.tipo==='imagen')[index]?.src});
     const shareData = { title: productLabel(product), text: promotionText(product), url: productUrl(product) };
     try {
       const promotionFile = await createPromotionFile(product);
@@ -491,7 +492,7 @@
       if (Math.abs(distance) >= 45) stepMedia(distance < 0 ? 1 : -1);
     }, { passive: true });
     dialogContent.querySelector("[data-share-current]")?.addEventListener("click", () => shareProduct(product));
-    dialogContent.querySelector("[data-download-promotion]")?.addEventListener("click", () => downloadPromotion(product));
+    dialogContent.querySelector("[data-download-promotion]")?.addEventListener("click", () => shareProduct(product));
     lockPageScroll();
     dialog.showModal();
   };

@@ -39,6 +39,20 @@ try {
     assert.equal(fit.fits, true, `Image outside gallery at ${width}x${height}`);
     assert.equal(fit.mode, 'contain');
     assert(await page.locator('.dialog-primary-action a').isVisible());
+    if(width===390){
+      await page.locator('[data-share-current]').click();
+      await page.waitForFunction(()=>!document.querySelector('.keiko-share [data-download]').disabled);
+      const preview=page.locator('.keiko-share [data-preview]');
+      await preview.evaluate(img=>img.decode());
+      assert.equal(await preview.evaluate(img=>img.naturalWidth),1080);
+      assert.equal(await preview.evaluate(img=>img.naturalHeight),1350);
+      await page.locator('.keiko-share [data-format]').selectOption('story');
+      await page.waitForFunction(()=>!document.querySelector('.keiko-share [data-download]').disabled);
+      await preview.evaluate(img=>img.decode());
+      assert.equal(await preview.evaluate(img=>img.naturalHeight),1920);
+      await page.locator('.keiko-share [data-close]').click();
+      console.log('Promotion preview passed: publication and story');
+    }
     await page.locator('#dialog-close').click();
     await page.waitForFunction(() => document.body.style.position !== 'fixed');
     assert.equal(await page.evaluate(() => document.body.style.position), '');
