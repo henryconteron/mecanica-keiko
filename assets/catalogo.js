@@ -21,6 +21,17 @@
   let pageScrollLocked = false;
   let toastTimer;
 
+  // Solo se envían el código y el tipo de clic: sin cookies, IP propia ni datos de clientes.
+  const registerCatalogClick = (product, eventType) => {
+    const config = window.KEIKO_CONFIG || {};
+    if (!product?.codigo || !config.supabaseUrl || !config.supabaseAnonKey) return;
+    fetch(`${config.supabaseUrl}/rest/v1/catalogo_eventos`, {
+      method: "POST", keepalive: true,
+      headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ codigo: String(product.codigo).slice(0, 80), evento: eventType })
+    }).catch(() => { /* Las métricas no deben interrumpir la compra ni la navegación. */ });
+  };
+
   const escapeHtml = (value = "") => String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -297,6 +308,7 @@
   };
 
   const shareProduct = async (product) => {
+    registerCatalogClick(product, "compartir");
     if (window.KEIKO_PROMOTION) return window.KEIKO_PROMOTION.open({name:product.nombre,code:product.codigo,price:priceText(product),url:productUrl(product),text:promotionText(product),photos:(product.medios||[]).filter(m=>m.tipo==='imagen'),resolvePhoto:async index=>(product.medios||[]).filter(m=>m.tipo==='imagen')[index]?.src});
     const shareData = { title: productLabel(product), text: promotionText(product), url: productUrl(product) };
     try {
@@ -418,6 +430,7 @@
   };
 
   const openProduct = (product) => {
+    registerCatalogClick(product, "ver_ficha");
     activeProduct = product;
     activeMediaIndex = 0;
     const compatibility = product.compatibilidad || [];
@@ -569,6 +582,14 @@
       const product = productById(opener.dataset.openProduct);
       if (product) openProduct(product);
     }
+  });
+
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest('a.button-whatsapp');
+    if (!link) return;
+    const card = link.closest("[data-product-id]");
+    const product = card ? productById(card.dataset.productId) : activeProduct;
+    if (product) registerCatalogClick(product, "whatsapp");
   });
 
   grid.addEventListener("keydown", (event) => {

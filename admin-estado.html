@@ -40,7 +40,7 @@
     .notice[data-type="error"] { color:#7e181c; background:#ffe0e1; }
     .panel-footer { margin-top:20px; display:flex; justify-content:space-between; gap:15px; align-items:center; }
     .panel-footer a,.panel-footer button { padding:0; min-height:auto; border:0; color:var(--muted); background:none; font-size:.78rem; }
-    .app-nav { padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#eeeae4; }
+    .app-nav { padding:10px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; background:#eeeae4; }
     .app-nav button { min-height:44px; background:transparent; }
     .app-nav button.is-current { color:#fff; background:#202020; }
     .screen { padding:26px; }
@@ -101,8 +101,22 @@
     #existing-photos img { height:130px; object-fit:contain; }
     #existing-photos a { display:block; }
     .review a { overflow-wrap:anywhere; }
+    .metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+    .metric { padding:16px; border:1px solid #ded9d1; border-radius:15px; background:#faf9f7; }
+    .metric strong { display:block; margin-top:7px; font:700 1.8rem Oswald,sans-serif; }
+    .metric span { font-size:.72rem; color:#666; }
+    .marketing-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .marketing-card { padding:18px; border:1px solid #ded9d1; border-radius:16px; }
+    .marketing-card h3 { margin:0 0 12px; }
+    .marketing-card p,.marketing-card li { font-size:.8rem; line-height:1.5; }
+    .marketing-card ul { padding-left:20px; }
+    .plan-item { padding:12px 0; border-top:1px solid #e7e2dc; }
+    .plan-item strong,.plan-item small { display:block; }
+    .plan-item small { margin:5px 0; color:#666; }
+    .plan-item button { min-height:34px; padding:6px 10px; font-size:.7rem; }
+    .marketing-help { color:#666; font-size:.72rem; line-height:1.5; }
     button:disabled { opacity:.6; cursor:wait; }
-    @media(max-width:600px) { .screen-head{align-items:stretch;flex-direction:column}.screen-actions{justify-content:flex-start}.product-grid{grid-template-columns:1fr}#product-form{padding:0}.product-row{flex-wrap:wrap} }
+    @media(max-width:600px) { .screen-head{align-items:stretch;flex-direction:column}.screen-actions{justify-content:flex-start}.product-grid,.marketing-grid{grid-template-columns:1fr}#product-form{padding:0}.product-row{flex-wrap:wrap}.metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.metric{padding:10px}.metric strong{font-size:1.4rem}.app-nav button{padding:9px 5px;font-size:.75rem} }
     @media(max-width:430px) { body{padding:0;background:#fff} main{min-height:100dvh;border-radius:0}.states{grid-template-columns:1fr} .automatic{grid-column:auto} }
   </style>
 </head>
@@ -118,7 +132,7 @@
       <button class="login-button" type="submit">Ingresar</button>
     </form>
     <div id="admin-panel" hidden>
-      <nav class="app-nav"><button class="is-current" data-screen="workshop" type="button">Estado del taller</button><button data-screen="inventory" type="button">Productos</button></nav>
+      <nav class="app-nav"><button class="is-current" data-screen="workshop" type="button">Estado del taller</button><button data-screen="inventory" type="button">Productos</button><button data-screen="marketing" type="button">Publicaciones</button></nav>
       <section class="screen" id="screen-workshop">
         <p class="current">Estado publicado: <strong id="admin-current">cargando…</strong></p>
         <label>Mensaje opcional<textarea id="admin-message" maxlength="180" placeholder="Ej.: Tenemos espacio desde las 15:30"></textarea></label>
@@ -168,13 +182,39 @@
         <div class="inventory-list" id="inventory-list"><p class="empty">Cargando productos…</p></div>
         <article class="review" id="product-review" hidden></article>
       </section>
+      <section class="screen" id="screen-marketing" hidden>
+        <div class="screen-head"><div><h2>Publicaciones</h2><p>Comprueba qué interesa y organiza qué compartirás.</p></div><button class="secondary" id="refresh-marketing" type="button">Actualizar datos</button></div>
+        <div class="metric-grid" aria-live="polite">
+          <div class="metric"><span>Fichas abiertas · 30 días</span><strong id="metric-views">—</strong></div>
+          <div class="metric"><span>Clics a WhatsApp · 30 días</span><strong id="metric-whatsapp">—</strong></div>
+          <div class="metric"><span>Compartir · 30 días</span><strong id="metric-shares">—</strong></div>
+        </div>
+        <p class="marketing-help">Son clics dentro de la web, no conversaciones, publicaciones completadas ni ventas. Las visitas anteriores a esta función no se contabilizan.</p>
+        <div class="marketing-grid">
+          <section class="marketing-card"><h3>Productos con más interés</h3><div id="marketing-top">Cargando…</div></section>
+          <section class="marketing-card"><h3>Próximas publicaciones</h3><div id="publication-list">Cargando…</div></section>
+        </div>
+        <section class="marketing-card" style="margin-top:18px"><h3>Planear una publicación</h3><p>La agenda sirve como recordatorio. No publica automáticamente en Facebook ni Instagram.</p>
+          <form id="publication-form" style="padding:0">
+            <label>Título de la idea<input id="publication-title" maxlength="120" required placeholder="Ej.: Mostrar pastillas cerámicas nuevas"></label>
+            <div class="product-grid">
+              <label>Fecha y hora<input id="publication-date" type="datetime-local" required></label>
+              <label>Producto opcional<select id="publication-product"><option value="">Sin producto concreto</option></select></label>
+              <label>Red social<select id="publication-channel"><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="ambos">Facebook e Instagram</option><option value="otro">Otra</option></select></label>
+              <label>Formato<select id="publication-format"><option value="publicacion">Publicación</option><option value="historia">Historia</option><option value="reel">Reel o vídeo</option></select></label>
+              <label class="wide">Nota opcional<textarea id="publication-note" maxlength="500" placeholder="Qué foto usar, texto o idea para revisar"></textarea></label>
+            </div>
+            <button class="primary" type="submit">Guardar en agenda</button>
+          </form>
+        </section>
+      </section>
       <div class="panel-footer" style="padding:0 26px 24px"><a href="./" target="_blank">Ver página pública</a><button id="admin-logout" type="button">Cerrar sesión</button></div>
     </div>
     <p class="notice" id="admin-notice" hidden></p>
   </main>
   <script src="assets/config.js"></script>
   <script src="assets/promocion.js?v=20260923"></script>
-  <script src="assets/admin-estado.js"></script>
+  <script src="assets/admin-estado.js?v=20260929"></script>
   <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js");</script>
 </body>
 </html>

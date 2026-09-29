@@ -618,6 +618,93 @@
     try { await loadState(); } catch (error) { showNotice(error.message, "error"); }
   };
 
+  const loadMarketing = async () => {
+    const since = new Date(Date.now() - 30 * 86400000).toISOString();
+    const [events, plans] = await Promise.all([
+      request(`/rest/v1/catalogo_eventos?select=codigo,evento,creado&creado=gte.${encodeURIComponent(since)}&order=creado.desc&limit=10000`),
+      request("/rest/v1/plan_publicaciones?select=*&order=programado.desc&limit=100")
+    ]);
+    const count = (type) => events.filter((event) => event.evento === type).length;
+    document.querySelector("#metric-views").textContent = count("ver_ficha").toLocaleString("es-EC");
+    document.querySelector("#metric-whatsapp").textContent = count("whatsapp").toLocaleString("es-EC");
+    document.querySelector("#metric-shares").textContent = count("compartir").toLocaleString("es-EC");
+    const ranked = new Map();
+    for (const event of events) {
+      const entry = ranked.get(event.codigo) || { views: 0, whatsapp: 0, shares: 0 };
+      if (event.evento === "ver_ficha") entry.views++;
+      if (event.evento === "whatsapp") entry.whatsapp++;
+      if (event.evento === "compartir") entry.shares++;
+      ranked.set(event.codigo, entry);
+    }
+    const top = [...ranked].sort((a, b) => b[1].whatsapp - a[1].whatsapp || b[1].views - a[1].views).slice(0, 5);
+    document.querySelector("#marketing-top").innerHTML = top.length
+      ? `<ol>${top.map(([code, item]) => `<li><strong>${escapeHtml(code)}</strong> · ${item.whatsapp} WhatsApp, ${item.views} fichas, ${item.shares} compartir</li>`).join("")}</ol>`
+      : '<p>Aún no hay clics registrados. Los datos empezarán al publicar esta actualización.</p>';
+    const productSelect = document.querySelector("#publication-product");
+    const selected = productSelect.value;
+    productSelect.innerHTML = '<option value="">Sin producto concreto</option>' + productsCache.map((item) => {
+      const product = displayedProduct(item);
+      return `<option value="${escapeHtml(product.codigo)}">${escapeHtml(product.codigo)} · ${escapeHtml(product.nombre)}</option>`;
+    }).join("");
+    productSelect.value = selected;
+    plans.sort((a, b) => Number(a.estado === "publicado") - Number(b.estado === "publicado") || new Date(a.programado) - new Date(b.programado));
+    document.querySelector("#publication-list").innerHTML = plans.length ? plans.map((plan) => `
+      <div class="plan-item"><strong>${escapeHtml(plan.titulo)}</strong>
+      <small>${escapeHtml(new Date(plan.programado).toLocaleString("es-EC", { dateStyle: "medium", timeStyle: "short" }))} · ${escapeHtml(plan.canal)} · ${escapeHtml(plan.formato)}${plan.codigo_producto ? ` · ${escapeHtml(plan.codigo_producto)}` : ""}</small>
+      ${plan.nota ? `<p>${escapeHtml(plan.nota)}</p>` : ""}
+      ${plan.codigo_producto && productsCache.some((item) => item.revision === "publicado" && displayedProduct(item).codigo === plan.codigo_producto) ? `<button class="secondary" type="button" data-plan-share="${escapeHtml(plan.codigo_producto)}">Preparar promoción</button>` : ""}
+      ${plan.estado === "publicado" ? '<span class="badge">Publicado</span>' : `<button class="secondary" type="button" data-plan-done="${escapeHtml(plan.id)}">Marcar publicada</button>`}
+      <button type="button" data-plan-delete="${escapeHtml(plan.id)}" aria-label="Quitar de agenda">Quitar</button></div>`).join("") : '<p>No hay publicaciones planeadas.</p>';
+  };
+
+  document.querySelector("#refresh-marketing").addEventListener("click", async () => {
+    try { await loadMarketing(); showNotice("Datos actualizados.", "success"); }
+    catch (error) { showNotice(error.message, "error"); }
+  });
+  document.querySelector("#publication-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const date = new Date(document.querySelector("#publication-date").value);
+    if (Number.isNaN(date.getTime())) return showNotice("Elige una fecha y hora válidas.", "error");
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+      await request("/rest/v1/plan_publicaciones", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({
+        titulo: document.querySelector("#publication-title").value.trim(),
+        programado: date.toISOString(),
+        codigo_producto: document.querySelector("#publication-product").value,
+        canal: document.querySelector("#publication-channel").value,
+        formato: document.querySelector("#publication-format").value,
+        nota: document.querySelector("#publication-note").value.trim()
+      }) });
+      form.reset();
+      await loadMarketing();
+      showNotice("Idea guardada en la agenda. No se publicó automáticamente.", "success");
+    } catch (error) { showNotice(error.message, "error"); }
+    finally { button.disabled = false; }
+  });
+  document.querySelector("#publication-list").addEventListener("click", async (event) => {
+    const share = event.target.closest("[data-plan-share]");
+    if (share) {
+      const product = productsCache.find((item) => item.revision === "publicado" && displayedProduct(item).codigo === share.dataset.planShare);
+      if (product) await sharePromotion(displayedProduct(product));
+      return;
+    }
+    const done = event.target.closest("[data-plan-done]");
+    const remove = event.target.closest("[data-plan-delete]");
+    if (!done && !remove) return;
+    const button = done || remove;
+    button.disabled = true;
+    try {
+      await request(`/rest/v1/plan_publicaciones?id=eq.${encodeURIComponent(done?.dataset.planDone || remove.dataset.planDelete)}`, {
+        method: done ? "PATCH" : "DELETE", headers: { Prefer: "return=minimal" },
+        ...(done ? { body: JSON.stringify({ estado: "publicado" }) } : {})
+      });
+      await loadMarketing();
+      showNotice(done ? "Marcada como publicada en la agenda." : "Quitada de la agenda.", "success");
+    } catch (error) { button.disabled = false; showNotice(error.message, "error"); }
+  });
+
   // Actualiza el progreso visible sin tocar el formulario que se está editando.
   window.setInterval(async () => {
     if (!token || document.hidden || panel.hidden || !productForm.hidden || savingProduct || refreshingProducts || document.querySelector("#screen-inventory").hidden) return;
@@ -635,8 +722,12 @@
     document.querySelectorAll("[data-screen]").forEach((item) => item.classList.toggle("is-current", item === button));
     document.querySelector("#screen-workshop").hidden = button.dataset.screen !== "workshop";
     document.querySelector("#screen-inventory").hidden = button.dataset.screen !== "inventory";
+    document.querySelector("#screen-marketing").hidden = button.dataset.screen !== "marketing";
     if (button.dataset.screen === "inventory") {
       try { await loadProducts(); } catch (error) { showNotice(error.message, "error"); }
+    }
+    if (button.dataset.screen === "marketing") {
+      try { await loadProducts(); await loadMarketing(); } catch (error) { showNotice(error.message, "error"); }
     }
   }));
 

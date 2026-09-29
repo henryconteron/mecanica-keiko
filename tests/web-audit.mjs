@@ -22,15 +22,19 @@ try {
   for (const [width, height] of [[360,640], [390,844], [844,390], [1440,900]]) {
     const page = await browser.newPage({ viewport: { width, height } });
     const errors = [];
+    const tracked = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('https://**/*', route => {
       const url = route.request().url();
       if (url.includes('/rest/v1/productos_admin')) return route.fulfill({ json: [] });
       if (url.includes('/rest/v1/estado_taller')) return route.fulfill({ json: [{ estado: 'automatico' }] });
+      if (url.includes('/rest/v1/catalogo_eventos')) { tracked.push(route.request().postDataJSON()); return route.fulfill({status:204,body:''}); }
       return route.abort();
     });
     await page.goto(`http://127.0.0.1:${server.address().port}`);
     await page.locator('[data-open-product]').first().click();
+    await page.waitForFunction(() => document.querySelector('#product-dialog')?.open);
+    assert(tracked.some(event => event.evento === 'ver_ficha'));
     await page.locator('#dialog-main-media img').waitFor();
     const fit = await page.locator('#dialog-main-media img').evaluate(img => {
       const a = img.getBoundingClientRect(), b = img.parentElement.getBoundingClientRect();
@@ -41,6 +45,8 @@ try {
     assert(await page.locator('.dialog-primary-action a').isVisible());
     if(width===390){
       await page.locator('[data-share-current]').click();
+      await page.waitForFunction(() => document.querySelector('.keiko-share'));
+      assert(tracked.some(event => event.evento === 'compartir'));
       await page.waitForFunction(()=>!document.querySelector('.keiko-share [data-download]').disabled);
       const preview=page.locator('.keiko-share [data-preview]');
       await preview.evaluate(img=>img.decode());
@@ -62,12 +68,18 @@ try {
   }
   const admin = await browser.newPage({viewport:{width:390,height:844}});
   const errors = [];
+  let savedPlan;
   admin.on('pageerror', e => errors.push(e.message));
   await admin.addInitScript(() => sessionStorage.setItem('keikoAdminToken','test-session'));
   await admin.route('https://**/*', route => {
     const url = route.request().url();
     if (url.includes('/rest/v1/productos_admin')) return route.fulfill({json:[{id:'test',codigo:'TEST-1',nombre:'Filtro prueba',categoria:'Filtros',cantidad:2,revision:'publicado',fotos:['one.jpg','two.jpg']}]});
     if (url.includes('/rest/v1/estado_taller')) return route.fulfill({json:[{estado:'automatico'}]});
+    if (url.includes('/rest/v1/catalogo_eventos')) return route.fulfill({json:[{codigo:'TEST-1',evento:'ver_ficha'},{codigo:'TEST-1',evento:'whatsapp'}]});
+    if (url.includes('/rest/v1/plan_publicaciones')) {
+      if (route.request().method()==='POST') { savedPlan=route.request().postDataJSON(); return route.fulfill({status:201,json:{}}); }
+      return route.fulfill({json:[]});
+    }
     if (url.includes('/storage/v1/object/sign')) return route.fulfill({json:{signedURL:'/photo.jpg'}});
     return route.abort();
   });
@@ -80,7 +92,19 @@ try {
   await admin.locator('[data-remove-existing="1"]').click();
   await admin.waitForFunction(()=>document.querySelectorAll('[data-remove-existing]').length===1);
   assert.equal(await admin.locator('#existing-photos .photo-queue-card').count(),1);
+  await admin.locator('[data-screen="marketing"]').click();
+  await admin.waitForFunction(() => document.querySelector('#metric-views')?.textContent === '1');
+  assert.equal(await admin.locator('#metric-views').textContent(),'1');
+  assert.equal(await admin.locator('#metric-whatsapp').textContent(),'1');
+  assert(await admin.locator('#marketing-top').getByText('TEST-1').isVisible());
+  assert(await admin.locator('#publication-product option').count()>1);
+  await admin.locator('#publication-title').fill('Publicación de prueba');
+  await admin.locator('#publication-date').fill('2026-10-01T10:00');
+  await admin.locator('#publication-product').selectOption('TEST-1');
+  await admin.locator('#publication-form button[type="submit"]').click();
+  await admin.waitForFunction(() => document.querySelector('#admin-notice')?.textContent.includes('Idea guardada'));
+  assert.equal(savedPlan.codigo_producto,'TEST-1');
   assert.deepEqual(errors,[]);
-  console.log('Admin: search, edit and individual photo removal passed');
+  console.log('Admin: search, photo editing, publication dashboard passed');
   await admin.close();
 } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
