@@ -4,6 +4,7 @@ import process from "node:process";
 import { pathToFileURL } from "node:url";
 import ExcelJS from "exceljs";
 import XLSX from "xlsx";
+import { verifySource, verifyEvidence, sourceCheckSummary } from "./verificar-fuentes.mjs";
 
 const root = process.cwd();
 const inventoryDir = path.join(root, "inventario");
@@ -167,6 +168,7 @@ REGLAS OBLIGATORIAS
 4. Cada compatibilidad debe indicar marca, modelo, motor y años solo cuando estén respaldados. Si falta precisión, usa "según versión; confirmar por código/VIN".
 5. Devuelve enlaces directos, no páginas de resultados de búsqueda.
 6. No inventes referencias. No incluyas precio, cantidad ni ubicación.
+Para cada compatibilidad y referencia entrega una evidencia con campo, valor, URL y cita literal de hasta 500 caracteres que contenga ese mismo valor y el código escrito. Si no hay evidencia literal, omite el valor. No inventes citas.
 7. Responde exclusivamente como JSON válido con esta forma:
 {
   "codigo_investigado":"string",
@@ -179,6 +181,7 @@ REGLAS OBLIGATORIAS
   "compatibilidad":["string"],
   "referencias":["string"],
   "fuentes":[{"titulo":"string","url":"https://...","tipo":"Fabricante|Catálogo técnico|Distribuidor"}],
+  "evidencias":[{"campo":"compatibilidad|referencias","valor":"valor propuesto literal","url":"https://...","cita":"fragmento literal con código y valor"}],
   "confianza":"Alta|Media|Baja",
   "observaciones":"string",
   "listo_para_revisar":true
@@ -209,16 +212,6 @@ REGLAS OBLIGATORIAS
     return parseJson(formatted.choices?.[0]?.message?.content);
   }
 };
-
-const validUrls = (sources) => unique((Array.isArray(sources) ? sources : []).map((source) => {
-  const value = typeof source === "string" ? source : source?.url;
-  try {
-    const url = new URL(value);
-    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
-  } catch {
-    return "";
-  }
-}));
 
 const writeStableReport = async (report) => {
   await mkdir(researchDir, { recursive: true });
@@ -290,14 +283,19 @@ const main = async () => {
       }
       const proposal = await researchProduct(row, vision);
       const visibleCode = text(vision.codigo_visible);
-      const programmaticMatch = !visibleCode || codeKey(visibleCode) === codeKey(row.codigo);
-      const sources = validUrls(proposal.fuentes);
+      const programmaticMatch = Boolean(codeKey(visibleCode)) && codeKey(visibleCode) === codeKey(row.codigo);
+      const sourceChecks = await Promise.all((Array.isArray(proposal.fuentes) ? proposal.fuentes : []).slice(0, 5).map((source) => verifySource(source, row.codigo)));
+      const sources = unique(sourceChecks.filter((check) => check.ok).map((check) => check.source.url));
       const compatibility = unique(Array.isArray(proposal.compatibilidad) ? proposal.compatibilidad : splitList(proposal.compatibilidad));
       const references = unique(Array.isArray(proposal.referencias) ? proposal.referencias : splitList(proposal.referencias));
-      const blockedReasons = [];
+      const evidence = verifyEvidence({ ...proposal, compatibilidad: compatibility, referencias: references }, sourceChecks, row.codigo);
+      const sourceEvidence = { verificacionFuentes: sourceChecks.map(sourceCheckSummary), evidenciasVerificadas: evidence.verified };
+      const blockedReasons = [...evidence.reasons, ...sourceChecks.filter((check) => !check.ok).map((check) => check.reason)];
       if (selected.approximate) blockedReasons.push(`Las fotos se encontraron por código parecido, no exacto.`);
       if (vision.error) blockedReasons.push("No se pudieron leer las fotografías con el modelo visual.");
-      if (!programmaticMatch || proposal.codigo_coincide === false) blockedReasons.push(`El código visible (${visibleCode || "no identificado"}) no coincide con ${row.codigo}.`);
+      if (!codeKey(visibleCode)) blockedReasons.push("No se pudo leer el código en la fotografía. Añade una foto nítida de la etiqueta antes de solicitar otra investigación.");
+      else if (!programmaticMatch) blockedReasons.push(`El código visible ${visibleCode} no coincide con ${row.codigo}.`);
+      if (proposal.codigo_coincide !== true) blockedReasons.push(`La investigación no confirmó el código exacto ${row.codigo}.`);
       if (!sources.length) blockedReasons.push("No se obtuvo una fuente web directa verificable.");
       if (!compatibility.length) blockedReasons.push("No se obtuvo compatibilidad estructurada.");
 
@@ -308,7 +306,7 @@ const main = async () => {
       ]).join(" ");
 
       if (blockedReasons.length || proposal.listo_para_revisar !== true) {
-        results.push({ codigo: row.codigo, estado: "Bloqueado", codigoVisible: visibleCode, observaciones: observation, fuentes: sources });
+        results.push({ codigo: row.codigo, estado: "Bloqueado", codigoVisible: visibleCode, observaciones: observation, fuentes: sources, ...sourceEvidence });
         continue;
       }
 
@@ -328,7 +326,7 @@ const main = async () => {
       };
       for (const [name, value] of Object.entries(updates)) setCell(row, name, value);
       workbookChanged = true;
-      results.push({ codigo: row.codigo, estado: "Revisar", codigoVisible: visibleCode, observaciones: observation, fuentes: sources });
+      results.push({ codigo: row.codigo, estado: "Revisar", codigoVisible: visibleCode, observaciones: observation, fuentes: sources, ...sourceEvidence });
     } catch (error) {
       results.push({ codigo: row.codigo, estado: "Error", observaciones: error.message, fuentes: [] });
       console.error(`${row.codigo}: ${error.message}`);
