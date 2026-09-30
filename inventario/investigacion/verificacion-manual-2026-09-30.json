@@ -334,7 +334,8 @@
     {
       "codigo": "AFT-7864",
       "publicado": false,
-      "motivo": "No se verificó el código completo ni la marca. Resultados AF-7864 no bastan para AFT-7864. Revisar etiqueta."
+      "motivo": "La foto del empaque Shogun muestra AF7864, sin T. La captura AFT-7864 tiene una diferencia de código. Se mantiene sin publicar hasta corregir esa captura y contrastar las aplicaciones del código AF7864 para Shogun; no basta usar un filtro de otra marca con código parecido.",
+      "codigo_visible": "AF7864"
     }
   ]
 }
