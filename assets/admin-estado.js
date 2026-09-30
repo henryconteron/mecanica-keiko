@@ -365,6 +365,9 @@
     const status = researchStatus(product);
     const progress = researchProgress(product);
     const sources = (view.fuentes || []).filter((source) => /^https?:\/\//i.test(source?.url || "")).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
+    const evidence = (Array.isArray(progress.evidencias_verificadas) ? progress.evidencias_verificadas : [])
+      .filter((item) => item && ["compatibilidad", "referencias"].includes(item.campo) && /^https:\/\//i.test(item.url || ""))
+      .map((item) => `<li><strong>${item.campo === "compatibilidad" ? "Compatibilidad" : "Referencia"}: ${escapeHtml(item.valor)}</strong><blockquote>${escapeHtml(item.cita)}</blockquote><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">Comprobar en la fuente</a></li>`).join("");
     productReview.innerHTML = `
       <h3>${escapeHtml(view.nombre)}</h3>
       ${hasDraft ? '<p class="review-error"><strong>Cambios pendientes:</strong> esta es la versión que revisarás. La página pública conserva la versión anterior hasta que pulses “Publicar cambios”.</p>' : ""}
@@ -377,6 +380,7 @@
       ${view.compatibilidad?.length ? `<p><strong>Compatibilidad</strong></p><ul>${view.compatibilidad.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
       ${view.referencias?.length ? `<p><strong>Referencias</strong></p><ul>${view.referencias.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
       ${sources ? `<p><strong>Fuentes para comprobar</strong></p><ul>${sources}</ul>` : ""}
+      ${evidence ? `<details><summary><strong>Evidencia de la última investigación</strong></summary><p>Código consultado: ${escapeHtml(progress.codigo_consultado || product.codigo)}. Confirma la aplicación en la fuente antes de aprobar. Los cambios manuales necesitan su propia comprobación.</p><ul>${evidence}</ul></details>` : ""}
       ${researchProgress(product).investigacion_manual ? `<details><summary><strong>Información que verificaste personalmente</strong></summary><p class="manual-research">${escapeHtml(researchProgress(product).investigacion_manual)}</p></details>` : ""}
       ${product.error_investigacion ? `<p class="review-error"><strong>Requiere atención:</strong> ${escapeHtml(product.error_investigacion)}</p>` : ""}
       <div class="review-actions">

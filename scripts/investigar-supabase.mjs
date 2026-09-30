@@ -1,4 +1,5 @@
 import process from "node:process";
+import { verifySource, verifyEvidence, sourceCheckSummary } from "./verificar-fuentes.mjs";
 
 const required = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GROQ_API_KEY"];
 for (const name of required) if (!process.env[name]) throw new Error(`Falta el secreto ${name}.`);
@@ -13,14 +14,6 @@ const serviceHeaders = (headers = {}) => ({
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
 const text = (value) => String(value ?? "").trim();
 const codeKey = (value) => text(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const codeAppearsExactly = (page, code) => {
-  const parts = text(code).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean);
-  if (!parts.length) return false;
-  const escaped = parts.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-  // Permite guiones, espacios y puntos entre bloques del mismo código, pero nunca letras o números extra.
-  const pattern = new RegExp(`(^|[^A-Z0-9])${escaped.join("[\\s._-]*")}(?=$|[^A-Z0-9])`, "i");
-  return pattern.test(String(page || "").normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-};
 // Algunos fabricantes añaden una C al código de una pastilla para indicar el compuesto
 // cerámico. Solo se usa la referencia base cuando esa condición está confirmada en la foto;
 // no se eliminan letras de códigos de otros tipos de repuesto.
@@ -38,30 +31,6 @@ const textValue = (value) => {
   return text(value);
 };
 const unique = (items) => [...new Set((items || []).map(textValue).filter(Boolean))];
-const blockedSourceDomains = [
-  "facebook.com", "instagram.com", "tiktok.com", "pinterest.com", "youtube.com",
-  "scribd.com", "pdfcoffee.com", "docplayer", "manualzz", "studocu", "slideshare.net",
-  "mercadolibre.", "amazon.", "aliexpress.", "ebay.", "wikipedia.org"
-];
-const knownTechnicalDomains = [
-  "advancefilters.com", "mann-filter.com", "hengst-filter.com", "mahle-aftermarket.com",
-  "boschaftermarket.com", "denso.com", "ngkntk.com", "wixfilters.com", "fram.com",
-  "hyundai.com", "kia.com", "toyota.com", "distripartes", "maxcar"
-];
-
-const sourceUrl = (value) => {
-  try {
-    const parsed = new URL(text(value));
-    const hostname = parsed.hostname.toLowerCase();
-    const privateHost = hostname === "localhost" || hostname.endsWith(".local") || /^(127|10|0|192\.168|172\.(1[6-9]|2\d|3[01]))\./.test(hostname);
-    if (parsed.protocol !== "https:" || privateHost || !hostname.includes(".")) return null;
-    return parsed;
-  } catch { return null; }
-};
-
-const isBlockedSource = (hostname) => blockedSourceDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`) || hostname.includes(domain));
-const isKnownTechnicalSource = (hostname) => knownTechnicalDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`) || hostname.includes(domain));
-const titleFromHtml = (html) => text(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]).replace(/\s+/g, " ").slice(0, 160);
 
 const parseJson = (value) => {
   const raw = text(value).replace(/^```json\s*/i, "").replace(/\s*```$/, "");
@@ -130,53 +99,16 @@ Reglas obligatorias:
 - Busca el código exacto ${sourceCode}, no uno parecido. Si ese código no aparece literalmente en la fuente, responde codigo_coincide:false.
 - La ficha debe describir el mismo tipo de pieza que el nombre capturado y, si existe, que la etiqueta leída. Si hay duda, responde producto_coincide:false.
 - No inventes compatibilidades, medidas, equivalencias ni marca. Omite los datos que no estén sustentados.
+- Para cada valor de compatibilidad y referencias entrega una evidencia: campo, valor, URL y cita literal de hasta 500 caracteres que contenga ese mismo valor y el código consultado. Si no hay evidencia literal, omite ese valor. No inventes citas.
 - Usa solamente enlaces HTTPS directos de fabricante, catálogo técnico o distribuidor automotriz reconocido. Nunca uses redes sociales, PDFs compartidos, Scribd, PDFCoffee, marketplaces ni páginas genéricas de resultados.
 - Para confianza Alta usa dos fuentes directas de dominios distintos. No repitas la misma URL ni el mismo dominio. Para Media basta una fuente directa. Devuelve únicamente JSON válido, sin explicación antes o después:
-{"codigo_coincide":true,"producto_coincide":true,"nombre_sugerido":"","marca":"","categoria":"","descripcion_corta":"máximo 180 caracteres","descripcion":"máximo 500 caracteres","compatibilidad":[""],"referencias":[""],"fuentes":[{"titulo":"","url":"https://...","tipo":"Fabricante|Catálogo técnico|Distribuidor"}],"confianza":"Alta|Media|Baja","observaciones":"","listo_para_revisar":true}`;
+{"codigo_coincide":true,"producto_coincide":true,"nombre_sugerido":"","marca":"","categoria":"","descripcion_corta":"máximo 180 caracteres","descripcion":"máximo 500 caracteres","compatibilidad":[],"referencias":[],"fuentes":[{"titulo":"","url":"https://...","tipo":"Fabricante|Catálogo técnico|Distribuidor"}],"evidencias":[{"campo":"compatibilidad|referencias","valor":"valor propuesto literal","url":"https://...","cita":"fragmento literal con código y valor"}],"confianza":"Alta|Media|Baja","observaciones":"","listo_para_revisar":true}`;
   const result = await groq({
     model: "openai/gpt-oss-20b", messages: [{ role: "user", content: prompt }],
     tools: [{ type: "browser_search" }], tool_choice: "required", reasoning_effort: "low",
     temperature: 0.1, max_completion_tokens: 1800
   });
   return parseJson(result.choices?.[0]?.message?.content);
-};
-
-const verifySource = async (source, product, sourceCode = product.codigo) => {
-  const parsed = sourceUrl(source?.url);
-  if (!parsed) return { source, ok: false, reason: "La fuente no tiene una URL HTTPS pública y directa." };
-  if (isBlockedSource(parsed.hostname)) return { source, ok: false, reason: `La fuente ${parsed.hostname} no es aceptable para información técnica.` };
-  try {
-    const response = await fetch(parsed, {
-      redirect: "follow", signal: AbortSignal.timeout(20000),
-      headers: { "User-Agent": "MecanicaKeikoCatalogBot/1.0 (+https://henryconteron.github.io/mecanica-keiko/)" }
-    });
-    const finalUrl = sourceUrl(response.url);
-    if (!response.ok || !finalUrl || isBlockedSource(finalUrl.hostname)) {
-      return { source, ok: false, reason: `No se pudo verificar una página técnica directa (${response.status}).` };
-    }
-    const contentType = response.headers.get("content-type") || "";
-    if (!/text\/html|application\/xhtml\+xml/i.test(contentType)) {
-      return { source, ok: false, reason: "La fuente no es una página técnica legible que permita comprobar el código." };
-    }
-    const page = (await response.text()).slice(0, 1_500_000);
-    if (!codeAppearsExactly(page, sourceCode)) {
-      return { source, ok: false, reason: `La fuente no muestra el código exacto ${sourceCode}.` };
-    }
-    return {
-      ok: true,
-      source: {
-        titulo: text(source.titulo) || titleFromHtml(page) || finalUrl.hostname,
-        url: finalUrl.toString(),
-        tipo: text(source.tipo) || "Fuente técnica",
-        dominio: finalUrl.hostname,
-        codigo_verificado: true,
-        codigo_consultado: sourceCode,
-        fuente_tecnica_reconocida: isKnownTechnicalSource(finalUrl.hostname)
-      }
-    };
-  } catch (error) {
-    return { source, ok: false, reason: `No se pudo comprobar la fuente: ${error.message}` };
-  }
 };
 
 const candidates = await api("/rest/v1/productos_admin?select=*&order=actualizado.asc&limit=500");
@@ -200,17 +132,19 @@ for (const product of pending) {
     const sourceCode = baseCodeForCeramicBrakePad(product, vision) || product.codigo;
     const usesCeramicBaseCode = codeKey(sourceCode) !== codeKey(product.codigo);
     const result = await research(product, vision, sourceCode);
-    const sourceChecks = await Promise.all((result.fuentes || []).slice(0, 5).map((source) => verifySource(source, product, sourceCode)));
+    const sourceChecks = await Promise.all((Array.isArray(result.fuentes) ? result.fuentes : []).slice(0, 5).map((source) => verifySource(source, sourceCode)));
     const sources = [...new Map(sourceChecks.filter((check) => check.ok).map((check) => [check.source.dominio, check.source])).values()];
     const sourceProblems = sourceChecks.filter((check) => !check.ok).map((check) => check.reason);
     const independentDomains = new Set(sources.map((source) => source.dominio)).size;
-    const reasons = [];
+    const evidence = verifyEvidence(result, sourceChecks, sourceCode);
+    const reasons = [...evidence.reasons];
     if (vision.error) reasons.push(vision.error);
-    if (vision.codigo_visible && codeKey(vision.codigo_visible) !== codeKey(product.codigo)) reasons.push(`El código visible ${vision.codigo_visible} no coincide con ${product.codigo}.`);
+    if (!codeKey(vision.codigo_visible)) reasons.push("No se pudo leer el código en la fotografía. Añade una foto nítida de la etiqueta antes de solicitar otra investigación.");
+    else if (codeKey(vision.codigo_visible) !== codeKey(product.codigo)) reasons.push(`El código visible ${vision.codigo_visible} no coincide con ${product.codigo}.`);
     if (result.codigo_coincide !== true) reasons.push(`La investigación no confirmó el código de referencia ${sourceCode}.`);
     if (result.producto_coincide !== true) reasons.push("La investigación no confirmó que la descripción corresponde al mismo producto.");
     if (!sources.length) reasons.push(`No se obtuvo una fuente directa donde aparezca el código exacto ${sourceCode}.`);
-    if (!result.compatibilidad?.length) reasons.push("No se obtuvo compatibilidad verificable.");
+    if (!Array.isArray(result.compatibilidad) || !unique(result.compatibilidad).length) reasons.push("No se obtuvo compatibilidad verificable.");
     if (text(result.confianza).toLowerCase() === "alta" && independentDomains < 2) reasons.push("La confianza Alta exige dos fuentes verificadas de dominios distintos.");
     const ready = !reasons.length && result.listo_para_revisar === true;
     const proposal = {
@@ -250,7 +184,7 @@ for (const product of pending) {
     delete previousResult.verificacion_solicitada_en;
     const pendingDraft = previousResult.edicion_pendiente;
     const resultData = {
-      ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks,
+      ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks.map(sourceCheckSummary), evidencias_verificadas: evidence.verified,
       codigo_consultado: sourceCode,
       variante_ceramica_verificada_por_empaque: usesCeramicBaseCode,
       estado_investigacion: ready ? "lista_para_revisar" : "requiere_atencion",
