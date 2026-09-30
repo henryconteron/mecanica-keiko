@@ -160,6 +160,7 @@
     ? product.resultado_bot : {};
   const researchStatus = (product) => {
     const result = researchProgress(product);
+    if (result.estado_investigacion === "verificada_manualmente") return { label: "Revisada con fuentes", detail: result.verificacion_manual?.limitaciones || "Datos contrastados manualmente. Comprueba la aplicación exacta antes de vender." };
     if (result.estado_investigacion === "investigando") return { label: "Investigando ahora", detail: "El bot está revisando la etiqueta y las fuentes." };
     if (result.estado_investigacion === "lista_para_revisar") return { label: "Lista para revisar", detail: "La propuesta está lista para que la compruebes." };
     if (result.estado_investigacion === "requiere_atencion") return { label: "Requiere atención", detail: "La búsqueda terminó, pero necesita tu revisión antes de publicar." };
@@ -364,12 +365,15 @@
     const hasDraft = Boolean(editDraft(product));
     const status = researchStatus(product);
     const progress = researchProgress(product);
+    const progressDate = researchTime(progress.estado_investigacion === "verificada_manualmente"
+      ? progress.ultima_verificacion
+      : progress.investigacion_iniciada_en || progress.investigacion_solicitada_en || progress.ultima_verificacion);
     const sources = (view.fuentes || []).filter((source) => /^https?:\/\//i.test(source?.url || "")).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
     productReview.innerHTML = `
       <h3>${escapeHtml(view.nombre)}</h3>
       ${hasDraft ? '<p class="review-error"><strong>Cambios pendientes:</strong> esta es la versión que revisarás. La página pública conserva la versión anterior hasta que pulses “Publicar cambios”.</p>' : ""}
       ${verificationRequested(product) ? '<p class="review-error"><strong>Verificación solicitada:</strong> el bot revisará este código de nuevo; la ficha pública seguirá visible mientras tanto.</p>' : ""}
-      ${status ? `<p class="review-progress"><strong>Estado de búsqueda: ${escapeHtml(status.label)}.</strong> ${escapeHtml(status.detail)}${researchTime(progress.investigacion_iniciada_en || progress.investigacion_solicitada_en || progress.ultima_verificacion) ? ` <small>${escapeHtml(researchTime(progress.investigacion_iniciada_en || progress.investigacion_solicitada_en || progress.ultima_verificacion))}</small>` : ""}</p>` : ""}
+      ${status ? `<p class="review-progress"><strong>Estado de búsqueda: ${escapeHtml(status.label)}.</strong> ${escapeHtml(status.detail)}${progressDate ? ` <small>${escapeHtml(progressDate)}</small>` : ""}</p>` : ""}
       <p><strong>Código:</strong> ${escapeHtml(view.codigo)} · <strong>Marca:</strong> ${escapeHtml(view.marca || "No indicada")} · <strong>Confianza:</strong> ${escapeHtml(view.confianza || "Pendiente")}</p>
       <p><strong>Cantidad:</strong> ${escapeHtml(view.cantidad)} · <strong>Precio:</strong> ${escapeHtml(priceText(view))} · <strong>Categoría:</strong> ${escapeHtml(view.categoria || "Sin categoría")} · <strong>Fotos:</strong> ${view.fotos?.length || 0}</p>
       ${view.descripcion_corta ? `<p><strong>Resumen para clientes:</strong> ${escapeHtml(view.descripcion_corta)}</p>` : ""}
@@ -377,7 +381,7 @@
       ${view.compatibilidad?.length ? `<p><strong>Compatibilidad</strong></p><ul>${view.compatibilidad.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
       ${view.referencias?.length ? `<p><strong>Referencias</strong></p><ul>${view.referencias.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
       ${sources ? `<p><strong>Fuentes para comprobar</strong></p><ul>${sources}</ul>` : ""}
-      ${researchProgress(product).investigacion_manual ? `<details><summary><strong>Información que verificaste personalmente</strong></summary><p class="manual-research">${escapeHtml(researchProgress(product).investigacion_manual)}</p></details>` : ""}
+      ${progress.investigacion_manual ? `<details><summary><strong>${progress.verificacion_manual ? "Notas de la revisión de fuentes" : "Información que verificaste personalmente"}</strong></summary><p class="manual-research">${escapeHtml(progress.investigacion_manual)}</p></details>` : ""}
       ${product.error_investigacion ? `<p class="review-error"><strong>Requiere atención:</strong> ${escapeHtml(product.error_investigacion)}</p>` : ""}
       <div class="review-actions">
         <button class="secondary" data-review-action="editar" type="button">Editar producto</button>

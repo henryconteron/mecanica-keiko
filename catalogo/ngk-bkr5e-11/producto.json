@@ -7,16 +7,19 @@
   "moneda": "USD",
   "estado": "Nuevo, antiguo stock",
   "stock": 10,
-  "descripcionCorta": "Bujías NGK código BKR5E-11, disponibles por unidad o por juego.",
-  "descripcion": "Bujías NGK BKR5E-11. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+  "descripcionCorta": "Bujía NGK BKR5E-11: rosca M14, alcance de 19 mm, hexágono de 16 mm y separación nominal de 1,1 mm.",
+  "descripcion": "Bujía NGK BKR5E-11. El catálogo NGK especifica rosca de 14 mm, alcance de 19 mm, hexágono de 16 mm y separación nominal de electrodos de 1,1 mm. El código completo, incluido el sufijo -11, debe coincidir con la recomendación para el motor. Confirmamos la aplicación en catálogo antes de la entrega.",
   "compatibilidad": [
-    "Aplicación por confirmar con código de la bujía anterior"
+    "Aplicación por confirmar con modelo y código de motor en catálogo NGK; no se asigna a un vehículo solo por la rosca."
   ],
   "referencias": [
-    "Código regional visible: 94100"
+    "NGK BKR5E-11",
+    "NGK 6953 (identificador del catálogo consultado; verificar etiqueta regional)"
   ],
-  "fuentes": [],
-  "confianza": "",
+  "fuentes": [
+    "https://www.ngkntk.com/de/produktfinder/motoren/zuendkerze/kohler/th-14-4-stroke-2-cyl-ohc-bkr5e-11/"
+  ],
+  "confianza": "Media",
   "ubicacionInventario": "",
   "destacado": false,
   "publicado": true,

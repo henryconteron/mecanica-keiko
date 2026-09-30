@@ -7,17 +7,19 @@
   "moneda": "USD",
   "estado": "Nuevo, antiguo stock",
   "stock": 1,
-  "descripcionCorta": "Juego delantero de 4 pastillas para Toyota Corolla E12, según versión.",
-  "descripcion": "Juego completo de 4 pastillas de freno delanteras Hi-Q, fabricadas por Sangsin Brake. Se confirma compatibilidad antes de la entrega.",
+  "descripcionCorta": "Juego delantero Hi-Q / Sangsin SP1502, catalogado para determinadas versiones de Toyota Corolla IX E120/E130.",
+  "descripcion": "Juego de 4 pastillas de freno delanteras Hi-Q / Sangsin, código SP1502. El catálogo del fabricante incluye determinadas versiones de Toyota Corolla IX E120/E130 del período 2001–2006. Comprobamos forma, medidas y sistema de freno antes de la entrega; el modelo o el año por sí solos no garantizan ajuste.",
   "compatibilidad": [
-    "Toyota Corolla E12, 2001–2007, según versión"
+    "Toyota Corolla IX E120/E130, 2001–2006: determinadas versiones incluidas en el catálogo Sangsin; confirmar motor y sistema de freno."
   ],
   "referencias": [
-    "SDB1714",
-    "FMSI D1215-8335"
+    "Sangsin / Hi-Q SP1502"
   ],
-  "fuentes": [],
-  "confianza": "",
+  "fuentes": [
+    "https://www.sangsin.com/kor/product/search_pad?page=340&pr_category=001&sc_field=&sc_keyword=&sc_pi_model=&sc_pr_depth1=&sc_pr_depth2=&sc_pr_no=",
+    "https://www.e-sangsin.com/eng/product_view?pr_id=0000000541"
+  ],
+  "confianza": "Media",
   "ubicacionInventario": "",
   "destacado": true,
   "publicado": true,

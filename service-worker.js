@@ -1,5 +1,5 @@
-const CACHE = "keiko-panel-v4";
-const SHELL = ["./admin-estado.html", "./assets/admin-estado.js?v=20260929", "./assets/config.js", "./assets/marca/logo/logo.png"];
+const CACHE = "keiko-panel-v5";
+const SHELL = ["./admin-estado.html", "./assets/admin-estado.js?v=20260930", "./assets/config.js", "./assets/marca/logo/logo.png"];
 
 const shellUrls = new Set(SHELL.map((path) => new URL(path, self.location.href).href));
 self.addEventListener("install", (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())));

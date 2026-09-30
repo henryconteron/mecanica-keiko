@@ -11,9 +11,15 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
       - "scripts/importar-inventario.mjs"
+      - "scripts/verificacion-manual-inventario.mjs"
       - "scripts/investigar-inventario.mjs"
       - "scripts/generar-catalogo.mjs"
   workflow_dispatch:
+    inputs:
+      importar_fotos:
+        description: "Reemplazar fotos del catálogo con las de inventario/fotos"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -24,6 +30,8 @@ jobs:
     steps:
       - name: Descargar archivos del sitio
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Preparar Node.js
         uses: actions/setup-node@v4
@@ -39,7 +47,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Validar e importar inventario
-        run: node scripts/importar-inventario.mjs
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          IMPORT_PHOTOS: ${{ inputs.importar_fotos || false }}
+        run: |
+          args=(--conservar-fotos)
+          if [ "$EVENT_NAME" = "push" ] && [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            changed_photos="$(git diff --name-only "$BEFORE_SHA" HEAD -- inventario/fotos/)"
+            if [ -n "$changed_photos" ]; then args=(); fi
+          fi
+          if [ "$IMPORT_PHOTOS" = "true" ]; then args=(); fi
+          node scripts/importar-inventario.mjs "${args[@]}"
 
       - name: Generar productos y galerías de servicios
         run: node scripts/generar-catalogo.mjs

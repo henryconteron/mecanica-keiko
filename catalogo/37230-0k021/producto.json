@@ -7,14 +7,20 @@
   "moneda": "USD",
   "estado": "Nuevo, antiguo stock",
   "stock": 1,
-  "descripcionCorta": "Soporte central de cardán para Toyota Hilux, según versión.",
-  "descripcion": "Rulimán o soporte central de cardán. La anotación de inventario indica Toyota Hilux; antes de vender se confirma año, motor y tipo de tracción.",
+  "descripcionCorta": "Soporte central de cardán J&R Rubber 37230-0K021, catalogado para Hilux, Fortuner e Innova según versión.",
+  "descripcion": "Soporte central del eje de transmisión o cardán J&R Rubber, referencia 37230-0K021. El fabricante lo incluye en su catálogo de soportes para Toyota Hilux, Fortuner e Innova. Confirma la referencia, las medidas del soporte y la configuración del cardán de tu vehículo antes de comprar; los años del catálogo no garantizan ajuste en todas las versiones.",
   "compatibilidad": [
-    "Toyota Hilux, aplicación exacta por confirmar"
+    "Toyota Hilux: el catálogo J&R indica desde 2004; confirmar versión y cardán.",
+    "Toyota Fortuner: el catálogo J&R indica desde 2005; confirmar versión y cardán.",
+    "Toyota Innova: el catálogo J&R indica desde 2003; confirmar versión y cardán."
   ],
-  "referencias": [],
-  "fuentes": [],
-  "confianza": "",
+  "referencias": [
+    "37230-0K021 (referencia de aplicación Toyota, pieza de reemplazo J&R)"
+  ],
+  "fuentes": [
+    "https://www.jrrubberparts.com/product/37230-0k021/"
+  ],
+  "confianza": "Media",
   "ubicacionInventario": "",
   "destacado": false,
   "publicado": true,

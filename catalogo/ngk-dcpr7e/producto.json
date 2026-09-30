@@ -7,16 +7,19 @@
   "moneda": "USD",
   "estado": "Nuevo, antiguo stock",
   "stock": 5,
-  "descripcionCorta": "Bujías NGK DCPR7E, stock visible 3932.",
-  "descripcion": "Bujías NGK DCPR7E. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+  "descripcionCorta": "Bujía NGK DCPR7E de níquel: rosca M12 × 1,25, alcance de 19 mm, hexágono de 16 mm y grado térmico 7.",
+  "descripcion": "Bujía NGK DCPR7E, identificada como stock NGK 3932 en el catálogo consultado. Sus especificaciones son rosca M12 × 1,25, alcance de 19 mm, hexágono de 16 mm, grado térmico 7 y separación nominal de 0,8 mm. Confirmamos su aplicación por motor antes de entregar; 3932 es un identificador de catálogo, no la cantidad disponible.",
   "compatibilidad": [
-    "Aplicación por confirmar con código de la bujía anterior"
+    "Aplicación por confirmar con modelo y código de motor en catálogo NGK; conservar el código completo DCPR7E."
   ],
   "referencias": [
-    "NGK stock 3932"
+    "NGK DCPR7E",
+    "NGK 3932 (identificador de catálogo)"
   ],
-  "fuentes": [],
-  "confianza": "",
+  "fuentes": [
+    "https://www.whitesmoto.com.au/products/ngkdcpr7e"
+  ],
+  "confianza": "Media",
   "ubicacionInventario": "",
   "destacado": false,
   "publicado": true,

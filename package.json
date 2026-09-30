@@ -8,7 +8,7 @@
     "inventario:investigar": "node scripts/investigar-inventario.mjs",
     "panel:investigar": "node scripts/investigar-supabase.mjs",
     "catalogo:generar": "node scripts/generar-catalogo.mjs",
-    "test:inventario": "node tests/importar-inventario.test.mjs"
+    "test:inventario": "node tests/importar-inventario.test.mjs && node tests/verificacion-manual-inventario.test.mjs"
   },
   "dependencies": {
     "exceljs": "^4.4.0",

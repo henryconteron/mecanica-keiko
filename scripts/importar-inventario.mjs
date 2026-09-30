@@ -2,6 +2,7 @@ import { copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promi
 import path from "node:path";
 import process from "node:process";
 import XLSX from "xlsx";
+import { correccionVerificada } from "./verificacion-manual-inventario.mjs";
 
 const root = process.cwd();
 const inventoryDir = path.join(root, "inventario");
@@ -9,6 +10,7 @@ const workbookFile = path.join(inventoryDir, "Inventario_Keiko.xlsx");
 const photosDir = path.join(inventoryDir, "fotos");
 const catalogDir = path.join(root, "catalogo");
 const validateOnly = process.argv.includes("--validar");
+const preservePhotos = process.argv.includes("--conservar-fotos");
 const mediaExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 
 const text = (value) => String(value ?? "").trim();
@@ -34,6 +36,14 @@ const numberOrText = (value, fallback = "Consultar") => {
 
 const inventoryBuffer = await readFile(workbookFile);
 const workbook = XLSX.read(inventoryBuffer, { type: "buffer", cellDates: true });
+let manualReviews = [];
+try {
+  const audit = JSON.parse(await readFile(path.join(inventoryDir, "investigacion", "verificacion-manual-2026-09-30.json"), "utf8"));
+  if (!Array.isArray(audit.productos)) throw new Error("El registro de verificación manual necesita una lista de productos.");
+  manualReviews = audit.productos;
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+}
 const sheet = workbook.Sheets.Inventario;
 if (!sheet) throw new Error("El archivo necesita una hoja llamada Inventario.");
 
@@ -83,7 +93,8 @@ const seen = new Map();
 const staged = [];
 const pending = [];
 
-for (const row of rows) {
+for (const capturedRow of rows) {
+  const row = { ...capturedRow, ...correccionVerificada(capturedRow, manualReviews) };
   const code = text(row.codigo);
   const key = codeKey(code);
   if (seen.has(key)) {
@@ -96,7 +107,7 @@ for (const row of rows) {
   const current = existing?.product ?? {};
   const review = text(row.revision) || "Capturado";
   const publishChoice = text(row.publicar) || "No";
-  const incomingPhotos = await photosFor(code);
+  const incomingPhotos = preservePhotos ? [] : await photosFor(code);
   const targetId = existing?.id || slug(code);
   const targetFolder = path.join(catalogDir, targetId);
   let existingMedia = [];

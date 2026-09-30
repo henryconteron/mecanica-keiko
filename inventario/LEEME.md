@@ -22,13 +22,21 @@ pnpm inventario:validar
 Para importar y regenerar la web:
 
 ```powershell
-pnpm inventario:importar
+node scripts/importar-inventario.mjs --conservar-fotos
 pnpm catalogo:generar
 ```
 
 ## Fotografías
 
 Se admiten JPG, JPEG, PNG, WebP y GIF. La primera fotografía se convierte en portada. También se acepta una subcarpeta por código, por ejemplo `inventario/fotos/31911-2E000/`.
+
+Las actualizaciones de GitHub conservan las fotos actuales salvo que cambien archivos de `inventario/fotos`. Para reimportarlas manualmente, activa `importar_fotos` al ejecutar el flujo de actualización. En una importación local, omite `--conservar-fotos` solo cuando quieras reemplazar las copias del catálogo con los originales.
+
+## Revisión de fuentes del 30 de septiembre de 2026
+
+El registro `investigacion/verificacion-manual-2026-09-30.json` contiene textos contrastados, fuentes y límites para los diez productos publicados del panel. Dos códigos del inventario sin confirmar permanecen pendientes y no se publican.
+
+Para las ocho fichas que también existen en este inventario, la importación aplica los textos revisados si la identidad y los datos técnicos del Excel siguen siendo los anteriores. Las cantidades y precios se toman del Excel sin alterarlos. Si editas la marca, el nombre, la categoría o los datos técnicos del Excel, prevalece tu nueva edición y deja de aplicarse esa corrección registrada. No se modifica el archivo Excel ni se bloquean las ediciones del panel.
 
 ## Estados
 

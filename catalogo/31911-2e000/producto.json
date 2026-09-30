@@ -7,15 +7,20 @@
   "moneda": "USD",
   "estado": "Nuevo, antiguo stock",
   "stock": 3,
-  "descripcionCorta": "Filtro de combustible original Mobis; consulta aplicación por año y motor.",
-  "descripcion": "Filtro de combustible Hyundai/Kia Mobis. El código se asocia a determinadas versiones Hyundai Tucson y Kia Sportage; la aplicación se confirma con modelo, año y motor.",
+  "descripcionCorta": "Filtro de gasolina Hyundai/Kia Mobis 31911-2E000 para determinadas versiones de Tucson y Sportage.",
+  "descripcion": "Filtro de combustible Hyundai/Kia Mobis con referencia 31911-2E000. Los catálogos consultados lo identifican como filtro de gasolina para determinadas versiones de Hyundai Tucson y Kia Sportage. Antes de la entrega comprobamos la referencia del filtro instalado o el VIN; no se ofrece como filtro diésel ni para todas las generaciones.",
   "compatibilidad": [
-    "Hyundai Tucson, según versión",
-    "Kia Sportage, según versión"
+    "Hyundai Tucson: versiones de gasolina que utilicen la referencia 31911-2E000; confirmar por VIN.",
+    "Kia Sportage: versiones de gasolina que utilicen la referencia 31911-2E000; confirmar por VIN."
   ],
-  "referencias": [],
-  "fuentes": [],
-  "confianza": "",
+  "referencias": [
+    "Hyundai/Kia 31911-2E000 (también escrito 319112E000)"
+  ],
+  "fuentes": [
+    "https://partsouq.com/en/search/all?q=319112E000",
+    "https://autopartesyrepuestospty.com/products/31911-2e000"
+  ],
+  "confianza": "Media",
   "ubicacionInventario": "",
   "destacado": true,
   "publicado": true,

@@ -1,0 +1,340 @@
+{
+  "fecha": "2026-09-30",
+  "metodo": "Búsqueda en Google, contraste de código en fichas de fabricante o distribuidor. Las equivalencias de otras marcas se etiquetan como referencias para comparación. No se trasladan materiales, garantías o prestaciones de otra pieza.",
+  "productos": [
+    {
+      "codigo": "31911-2E000",
+      "descripcion_corta": "Filtro de gasolina Hyundai/Kia Mobis 31911-2E000 para determinadas versiones de Tucson y Sportage.",
+      "descripcion": "Filtro de combustible Hyundai/Kia Mobis con referencia 31911-2E000. Los catálogos consultados lo identifican como filtro de gasolina para determinadas versiones de Hyundai Tucson y Kia Sportage. Antes de la entrega comprobamos la referencia del filtro instalado o el VIN; no se ofrece como filtro diésel ni para todas las generaciones.",
+      "compatibilidad": [
+        "Hyundai Tucson: versiones de gasolina que utilicen la referencia 31911-2E000; confirmar por VIN.",
+        "Kia Sportage: versiones de gasolina que utilicen la referencia 31911-2E000; confirmar por VIN."
+      ],
+      "referencias": [
+        "Hyundai/Kia 31911-2E000 (también escrito 319112E000)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://partsouq.com/en/search/all?q=319112E000",
+          "titulo": "PartSouq: catálogo de la referencia 319112E000",
+          "tipo": "Distribuidor"
+        },
+        {
+          "url": "https://autopartesyrepuestospty.com/products/31911-2e000",
+          "titulo": "Autopartes y Repuestos PTY: aplicaciones de la referencia 31911-2E000",
+          "tipo": "Distribuidor"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "La segunda fuente comercializa otra marca: se utiliza únicamente para contrastar el código y las aplicaciones, no el fabricante, el origen o la calidad de nuestra pieza.",
+      "inventario_base": {
+        "nombre": "Filtro de combustible Hyundai/Kia Mobis",
+        "marca": "Hyundai Mobis",
+        "categoria": "Filtros",
+        "descripcion corta": "Filtro de combustible original Mobis; consulta aplicación por año y motor.",
+        "descripcion": "Filtro de combustible Hyundai/Kia Mobis. El código se asocia a determinadas versiones Hyundai Tucson y Kia Sportage; la aplicación se confirma con modelo, año y motor.",
+        "compatibilidad": "Hyundai Tucson, según versión | Kia Sportage, según versión",
+        "referencias": "",
+        "fuentes": "",
+        "confianza": ""
+      }
+    },
+    {
+      "codigo": "37230-0K021",
+      "descripcion_corta": "Soporte central de cardán J&R Rubber 37230-0K021, catalogado para Hilux, Fortuner e Innova según versión.",
+      "descripcion": "Soporte central del eje de transmisión o cardán J&R Rubber, referencia 37230-0K021. El fabricante lo incluye en su catálogo de soportes para Toyota Hilux, Fortuner e Innova. Confirma la referencia, las medidas del soporte y la configuración del cardán de tu vehículo antes de comprar; los años del catálogo no garantizan ajuste en todas las versiones.",
+      "compatibilidad": [
+        "Toyota Hilux: el catálogo J&R indica desde 2004; confirmar versión y cardán.",
+        "Toyota Fortuner: el catálogo J&R indica desde 2005; confirmar versión y cardán.",
+        "Toyota Innova: el catálogo J&R indica desde 2003; confirmar versión y cardán."
+      ],
+      "referencias": [
+        "37230-0K021 (referencia de aplicación Toyota, pieza de reemplazo J&R)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://www.jrrubberparts.com/product/37230-0k021/",
+          "titulo": "J&R Rubber Parts: soporte central 37230-0K021",
+          "tipo": "Fabricante"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "Fuente directa de J&R. Los años de inicio se presentan como orientación del catálogo, sin extenderlos a todas las versiones ni afirmar que la pieza es original Toyota.",
+      "inventario_base": {
+        "nombre": "Rulimán central de cardán",
+        "marca": "J&R Rubber",
+        "categoria": "Rulimanes y soportes",
+        "descripcion corta": "Soporte central de cardán para Toyota Hilux, según versión.",
+        "descripcion": "Rulimán o soporte central de cardán. La anotación de inventario indica Toyota Hilux; antes de vender se confirma año, motor y tipo de tracción.",
+        "compatibilidad": "Toyota Hilux, aplicación exacta por confirmar",
+        "referencias": "",
+        "fuentes": "",
+        "confianza": ""
+      }
+    },
+    {
+      "codigo": "AFP-523",
+      "descripcion_corta": "Filtro de combustible Advance AFP-523, catalogado para Chevrolet Grand Vitara y Mazda 323 según versión.",
+      "descripcion": "Filtro de combustible Advance Filters AFP-523. Distripartes LM lo cataloga para Chevrolet Grand Vitara de 3 y 5 puertas y Mazda 323, con referencias cruzadas MF-5982 y ALG 9123. Comprobamos código, conexiones y aplicación por motor antes de la entrega; una equivalencia de catálogo no confirma por sí sola el ajuste.",
+      "compatibilidad": [
+        "Chevrolet Grand Vitara de 3 y 5 puertas: confirmar motor y conexiones.",
+        "Mazda 323: confirmar año, motor y conexiones."
+      ],
+      "referencias": [
+        "MF-5982 (cruce publicado por Distripartes LM)",
+        "MXF5982 (cruce publicado por Distripartes LM)",
+        "ALG 9118 (cruce publicado por Distripartes LM)",
+        "ALG 9123 (cruce publicado por Distripartes LM)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://distriparteslm.ec/producto/otr-afp-523/",
+          "titulo": "Distripartes LM: filtro de combustible AFP-523",
+          "tipo": "Distribuidor"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "Se sustituyen enlaces genéricos a Scribd/PDFCoffee y referencias corruptas [object Object] por una ficha de producto. Se omite la aplicación Kia de un título ambiguo y las promesas no verificadas sobre desgaste o rendimiento."
+    },
+    {
+      "codigo": "AOE-9443",
+      "descripcion_corta": "Filtro de aceite tipo cartucho Advance AOE-9443 con guía, catalogado para Peugeot y Citroën según motor.",
+      "descripcion": "Elemento filtrante de aceite Advance Filters AOE-9443 con guía. La ficha del distribuidor lo relaciona con Peugeot 206 y 307 y Citroën C2, C3 y Xsara, y publica cruces con MANN HU 612 x y Hengst E35H D102. Confirma el motor y la forma del elemento antes de comprar: no corresponde a todas las versiones de esos modelos.",
+      "compatibilidad": [
+        "Peugeot 206 y 307: confirmar motor y versión.",
+        "Citroën C2, C3 y Xsara: confirmar motor y versión."
+      ],
+      "referencias": [
+        "MANN HU 612 x (referencia cruzada de catálogo)",
+        "Hengst E35H D102 (referencia cruzada de catálogo)",
+        "ML-9443 (referencia cruzada de catálogo)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://distriparteslm.ec/producto/otr-aoe-9443/",
+          "titulo": "Distripartes LM: cartucho AOE-9443 con guía",
+          "tipo": "Distribuidor"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "La ficha de código exacto reemplaza una página de categoría. Se retiran códigos OE y SO011 sin evidencia directa suficiente; las equivalencias se presentan para comparación, no como identidad de marca.",
+      "inventario_base": {
+        "nombre": "Filtro de aceite Advance AOE-9443",
+        "marca": "Advance Filters",
+        "categoria": "Filtros",
+        "descripcion corta": "Filtro de aceite tipo cartucho Advance AOE-9443 para aplicaciones Peugeot y Citroën, según motor y versión.",
+        "descripcion": "Filtro de aceite Advance AOE-9443 con guía. Con aplicaciones Peugeot y Citroën y con las equivalencias MANN HU 612 x y Hengst E35H D102. Antes de la entrega se confirma año, motor y versión del vehículo.",
+        "compatibilidad": "Peugeot 206, 307, Citroën C2, C3, Xsara. Según motor y versión",
+        "referencias": "ML-9443, SO011, MANN HU 612 x, Hengst E35H D102, OE 1109 AN, Peugeot 1109 R6, Citroën 1109 R7, Peugeot 9463704780",
+        "fuentes": "https://distriparteslm.ec/categoria-producto/advance-2/page/21/ | https://www.mann-filter.com/en/catalog/search-results/product.html/hu612x_mann-filter.html | https://catalog.hengst.com/de/online-katalog/produkt/649130000-00/my/",
+        "confianza": "Media"
+      }
+    },
+    {
+      "codigo": "BKR5E-11",
+      "descripcion_corta": "Bujía NGK BKR5E-11: rosca M14, alcance de 19 mm, hexágono de 16 mm y separación nominal de 1,1 mm.",
+      "descripcion": "Bujía NGK BKR5E-11. El catálogo NGK especifica rosca de 14 mm, alcance de 19 mm, hexágono de 16 mm y separación nominal de electrodos de 1,1 mm. El código completo, incluido el sufijo -11, debe coincidir con la recomendación para el motor. Confirmamos la aplicación en catálogo antes de la entrega.",
+      "compatibilidad": [
+        "Aplicación por confirmar con modelo y código de motor en catálogo NGK; no se asigna a un vehículo solo por la rosca."
+      ],
+      "referencias": [
+        "NGK BKR5E-11",
+        "NGK 6953 (identificador del catálogo consultado; verificar etiqueta regional)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://www.ngkntk.com/de/produktfinder/motoren/zuendkerze/kohler/th-14-4-stroke-2-cyl-ohc-bkr5e-11/",
+          "titulo": "NGK/NTK: especificaciones BKR5E-11",
+          "tipo": "Fabricante"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "Especificaciones del fabricante. No se traslada la aplicación Kohler a un automóvil. Se elimina el número regional 94100 de equivalencias al no comprobar su correspondencia; permanece recuperable en el respaldo.",
+      "inventario_base": {
+        "nombre": "Bujías NGK BKR5E-11",
+        "marca": "NGK",
+        "categoria": "Bujías",
+        "descripcion corta": "Bujías NGK código BKR5E-11, disponibles por unidad o por juego.",
+        "descripcion": "Bujías NGK BKR5E-11. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+        "compatibilidad": "Aplicación por confirmar con código de la bujía anterior",
+        "referencias": "Código regional visible: 94100",
+        "fuentes": "",
+        "confianza": ""
+      }
+    },
+    {
+      "codigo": "BPR5EY",
+      "descripcion_corta": "Bujía NGK BPR5EY de níquel: rosca M14 × 1,25, alcance de 19 mm y hexágono de 20,8 mm.",
+      "descripcion": "Bujía NGK BPR5EY de níquel, con resistencia interna. La ficha técnica consultada indica rosca M14 × 1,25, alcance de 19 mm y hexágono de 20,8 mm. JAPKO incluye una aplicación en Mazda 121 I 1.3 con motor B3. Confirma código de motor y especificación de bujía: no se sustituye automáticamente por BPR5EY-11 ni por una bujía de iridio.",
+      "compatibilidad": [
+        "Mazda 121 I (DA), 1.3 motor B3, 1987–1991: aplicación del catálogo JAPKO; confirmar versión y código de motor."
+      ],
+      "referencias": [
+        "NGK BPR5EY"
+      ],
+      "fuentes": [
+        {
+          "url": "https://japko.it/en/app/src-cod/?src=BPR5EY",
+          "titulo": "JAPKO: búsqueda exacta BPR5EY",
+          "tipo": "Catálogo técnico"
+        },
+        {
+          "url": "https://www.sparkplugs.co.uk/ngk-spark-plug-bpr5ey-2828-4",
+          "titulo": "Sparkplugs UK: especificaciones BPR5EY",
+          "tipo": "Distribuidor"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "Se eliminan equivalencias no verificadas y el stock regional 94743 como supuesto código universal. El compuesto no se presenta como iridio.",
+      "inventario_base": {
+        "nombre": "Bujías NGK BPR5EY",
+        "marca": "NGK",
+        "categoria": "Bujías",
+        "descripcion corta": "Bujías NGK código BPR5EY, disponibles por unidad o por juego.",
+        "descripcion": "Bujías NGK BPR5EY. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+        "compatibilidad": "Aplicación por confirmar con código de la bujía anterior",
+        "referencias": "Código regional visible: 94743",
+        "fuentes": "",
+        "confianza": ""
+      }
+    },
+    {
+      "codigo": "DCPR7E",
+      "descripcion_corta": "Bujía NGK DCPR7E de níquel: rosca M12 × 1,25, alcance de 19 mm, hexágono de 16 mm y grado térmico 7.",
+      "descripcion": "Bujía NGK DCPR7E, identificada como stock NGK 3932 en el catálogo consultado. Sus especificaciones son rosca M12 × 1,25, alcance de 19 mm, hexágono de 16 mm, grado térmico 7 y separación nominal de 0,8 mm. Confirmamos su aplicación por motor antes de entregar; 3932 es un identificador de catálogo, no la cantidad disponible.",
+      "compatibilidad": [
+        "Aplicación por confirmar con modelo y código de motor en catálogo NGK; conservar el código completo DCPR7E."
+      ],
+      "referencias": [
+        "NGK DCPR7E",
+        "NGK 3932 (identificador de catálogo)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://www.whitesmoto.com.au/products/ngkdcpr7e",
+          "titulo": "Whites Moto: NGK DCPR7E / 3932 y especificaciones",
+          "tipo": "Distribuidor"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "Especificaciones de una ficha exacta del distribuidor. No se inventan aplicaciones automotrices ni se confunde un número de catálogo con el inventario.",
+      "inventario_base": {
+        "nombre": "Bujías NGK DCPR7E",
+        "marca": "NGK",
+        "categoria": "Bujías",
+        "descripcion corta": "Bujías NGK DCPR7E, stock visible 3932.",
+        "descripcion": "Bujías NGK DCPR7E. Para evitar errores se vende por código exacto o después de confirmar los datos completos del vehículo.",
+        "compatibilidad": "Aplicación por confirmar con código de la bujía anterior",
+        "referencias": "NGK stock 3932",
+        "fuentes": "",
+        "confianza": ""
+      }
+    },
+    {
+      "codigo": "D831C",
+      "descripcion_corta": "Pastillas delanteras Double Link Brake D831C, cerámicas según empaque. Referencia base D831 para comprobar aplicación.",
+      "descripcion": "Juego de pastillas de freno delanteras Double Link Brake D831C. El empaque indica CERAMIC, confirmado por el taller. El catálogo de referencia D831 relaciona esta forma con Toyota Yaris P1, Echo y Platz. Estas aplicaciones son orientativas: comparamos forma, medidas y sistema de freno antes de entregar. Las equivalencias D831 no prueban por sí solas el ajuste exacto de esta variante ni una garantía de Double Link.",
+      "compatibilidad": [
+        "Referencia base D831: Toyota Yaris I (P1), 1999–2005; confirmar forma, medidas y sistema de freno.",
+        "Referencia base D831: Toyota Echo sedán (P1), 1999–2006; confirmar forma, medidas y sistema de freno.",
+        "Referencia base D831: Toyota Platz (NCP1/SCP1), 1999–2005; confirmar forma, medidas y sistema de freno."
+      ],
+      "referencias": [
+        "FMSI D831-7704 (referencia base; verificar medidas)",
+        "Toyota 04465-52031 (cruce de la referencia base D831)",
+        "Toyota 04465-52070 (cruce de la referencia base D831)",
+        "Brembo P 83 050 (cruce de la referencia base D831)",
+        "Bosch 0 986 424 535 (cruce de la referencia base D831)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://www.qytauto.com/d831.html",
+          "titulo": "QYT: aplicaciones y referencias de D831; no ficha exacta de Double Link D831C",
+          "tipo": "Fabricante de referencia equivalente"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "No se encontró ficha directa del fabricante para Double Link D831C. Se conserva el código de venta y lo cerámico confirmado por el usuario. Aplicaciones y cruces se contrastan únicamente para la base D831. Se retiran promesas de frenado, baja emisión de polvo, desgaste, garantía y ausencia de devoluciones sin evidencia propia de esta pieza."
+    },
+    {
+      "codigo": "LF-D1574",
+      "descripcion_corta": "Pastillas delanteras Car Shield LF-D1574, catalogadas para Mazda BT-50 y determinadas Ford Ranger diésel 4×4.",
+      "descripcion": "Pastillas de freno delanteras Car Shield LF-D1574. Distripartes LM las incluye para Mazda BT-50 y determinadas Ford Ranger diésel 4×4, y publica el cruce SF-D1574. Antes de la entrega verificamos forma, medidas y cáliper. No se anuncia compatibilidad con todas las generaciones ni se extienden los años del título comercial a cualquier versión.",
+      "compatibilidad": [
+        "Mazda BT-50 diésel 4×4: aplicación publicada por el distribuidor; confirmar generación, forma y cáliper.",
+        "Ford Ranger diésel 4×4: determinadas versiones; confirmar generación, forma y cáliper."
+      ],
+      "referencias": [
+        "SF-D1574 (cruce publicado por Distripartes LM)"
+      ],
+      "fuentes": [
+        {
+          "url": "https://distriparteslm.ec/producto/lf-d1574-pastilla-de-freno/",
+          "titulo": "Distripartes LM: pastilla Car Shield LF-D1574",
+          "tipo": "Distribuidor"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "Se omiten años generalizados del título comercial y el OE UMY1-33-23ZA sin respaldo suficiente. No se presume compuesto cerámico ni garantía a partir de un producto de otra marca.",
+      "inventario_base": {
+        "nombre": "Pastillas de freno delanteras Car Shield",
+        "marca": "Car Shield",
+        "categoria": "Pastillas de freno",
+        "descripcion corta": "Pastillas delanteras para determinadas versiones Mazda BT-50 y Ford Ranger 4×4.",
+        "descripcion": "Juego de pastillas de freno delanteras Car Shield. La caja indica aplicaciones Mazda BT-50 y Ford Ranger diésel 4×4; se debe confirmar el año y la versión.",
+        "compatibilidad": "Mazda BT-50 diésel 4×4, según versión | Ford Ranger diésel 4×4, según versión",
+        "referencias": "FMSI D1574-8784 | OEM UMY1-33-23ZA",
+        "fuentes": "",
+        "confianza": ""
+      }
+    },
+    {
+      "codigo": "SP1502",
+      "descripcion_corta": "Juego delantero Hi-Q / Sangsin SP1502, catalogado para determinadas versiones de Toyota Corolla IX E120/E130.",
+      "descripcion": "Juego de 4 pastillas de freno delanteras Hi-Q / Sangsin, código SP1502. El catálogo del fabricante incluye determinadas versiones de Toyota Corolla IX E120/E130 del período 2001–2006. Comprobamos forma, medidas y sistema de freno antes de la entrega; el modelo o el año por sí solos no garantizan ajuste.",
+      "compatibilidad": [
+        "Toyota Corolla IX E120/E130, 2001–2006: determinadas versiones incluidas en el catálogo Sangsin; confirmar motor y sistema de freno."
+      ],
+      "referencias": [
+        "Sangsin / Hi-Q SP1502"
+      ],
+      "fuentes": [
+        {
+          "url": "https://www.sangsin.com/kor/product/search_pad?page=340&pr_category=001&sc_field=&sc_keyword=&sc_pi_model=&sc_pr_depth1=&sc_pr_depth2=&sc_pr_no=",
+          "titulo": "Sangsin Brake: catálogo de aplicaciones SP1502",
+          "tipo": "Fabricante"
+        },
+        {
+          "url": "https://www.e-sangsin.com/eng/product_view?pr_id=0000000541",
+          "titulo": "Sangsin Brake: ficha de producto SP1502",
+          "tipo": "Fabricante"
+        }
+      ],
+      "confianza": "Media",
+      "nota": "Se limita el rango a lo mostrado por el fabricante, sin asegurar todas las motorizaciones. Se retiran SDB1714 y FMSI D1215-8335 por falta de comprobación directa en las fuentes revisadas.",
+      "inventario_base": {
+        "nombre": "Pastillas de freno delanteras Hi-Q",
+        "marca": "Hi-Q / Sangsin",
+        "categoria": "Pastillas de freno",
+        "descripcion corta": "Juego delantero de 4 pastillas para Toyota Corolla E12, según versión.",
+        "descripcion": "Juego completo de 4 pastillas de freno delanteras Hi-Q, fabricadas por Sangsin Brake. Se confirma compatibilidad antes de la entrega.",
+        "compatibilidad": "Toyota Corolla E12, 2001–2007, según versión",
+        "referencias": "SDB1714 | FMSI D1215-8335",
+        "fuentes": "",
+        "confianza": ""
+      }
+    }
+  ],
+  "pendientes": [
+    {
+      "codigo": "AFE-15017",
+      "publicado": false,
+      "motivo": "No se verificó el código exacto. Google devuelve AFE-1507 y AFE-1509, que no son la misma referencia. Se necesita foto legible del empaque."
+    },
+    {
+      "codigo": "AFT-7864",
+      "publicado": false,
+      "motivo": "No se verificó el código completo ni la marca. Resultados AF-7864 no bastan para AFT-7864. Revisar etiqueta."
+    }
+  ]
+}
