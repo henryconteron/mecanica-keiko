@@ -1,0 +1,18 @@
+{
+  "fecha": "2026-10-01",
+  "estado": "fichas_creadas_pendientes_fotos",
+  "autorizacion": "El taller solicitó revisar y preparar ambos productos en el panel. No solicitó su publicación automática ni ampliar permisos de la extensión.",
+  "productos": [
+    { "codigo": "AFE-1507", "revision_panel": "borrador", "cantidad": 5, "precio": "Consultar", "fotos_panel": 0, "fotos_previstas": ["AFE-1507_01.jpeg", "AFE-1507_02.jpeg", "AFE-1507_03.jpeg"] },
+    { "codigo": "AF7864", "revision_panel": "borrador", "cantidad": 5, "precio": "Consultar", "fotos_panel": 0, "fotos_previstas": ["AFT-7864_01.jpeg", "AFT-7864_02.jpeg", "AFT-7864_03.jpeg"] }
+  ],
+  "comprobaciones": {
+    "duplicados_creados": false,
+    "productos_anteriores_modificados": false,
+    "publicados": 10,
+    "fuentes_y_textos": "Guardados en las dos fichas. Verificación manual; sin nueva consulta de IA.",
+    "permisos": "Sin cambios en RLS, bucket privado ni extensión."
+  },
+  "bloqueo": "fileChooser.setFiles exige habilitar Allow access to file URLs en la extensión ChatGPT de Microsoft Edge. La carpeta privada afe-1507 se creó, pero no se transfirió ninguna fotografía.",
+  "siguiente_paso": "Autorizar el permiso de la extensión o subir las seis fotos manualmente. Comprobar archivo, orden y código en cada portada antes de marcar Aprobado. La publicación requiere decisión del taller."
+}
