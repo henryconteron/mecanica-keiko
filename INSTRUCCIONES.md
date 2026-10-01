@@ -2,6 +2,14 @@
 
 Esta carpeta contiene la página completa lista para GitHub Pages.
 
+## Operación actual — octubre de 2026
+
+El trabajo diario se hace en `admin-estado.html`: productos, fotos, existencias, precios, revisión y publicación. La pestaña Publicaciones muestra clics del catálogo y una agenda de ideas; la agenda no envía publicaciones automáticamente a las redes.
+
+El Excel conserva el inventario anterior y sirve para captura masiva: no refleja automáticamente lo editado en el panel. No editar el mismo producto simultáneamente desde dos computadoras. No volver a importar fotos originales solo para actualizar un precio; la importación habitual conserva las fotos actuales.
+
+Para los pasos pendientes y comprobaciones vigentes, consultar `REVISION-PROYECTO.md`. Los textos de la primera prueba comercial están en `LANZAMIENTO.md`, como borradores para revisar, no anuncios ya publicados.
+
 ## Primera instalación
 
 Sube a la raíz del repositorio todo lo que está aquí:
@@ -46,7 +54,9 @@ Usa `publicado: false` mientras los datos no estén confirmados. Cámbialo a `tr
 
 ## Compartir un repuesto
 
-En la web, abre el producto y pulsa **Compartir enlace** o **Compartir en Facebook**. Cada producto tiene su propia página y su propio enlace. Al compartirlo, Facebook podrá mostrar el nombre, precio y foto principal de esa pieza.
+En la web o en el panel, abre el producto y pulsa **Compartir promoción**. Puedes preparar una imagen para publicación o historia y descargarla; en dispositivos compatibles también se abre el menú para compartir del sistema. Las aplicaciones que aparezcan dependen del dispositivo, navegador y apps instaladas: la web no puede obligar a que Facebook o Instagram aparezcan ni elegir por ellas publicación, historia o mensaje.
+
+Cada ficha tiene un enlace: las del panel usan `?producto=` y las del inventario anterior tienen páginas en `productos/`. Un enlace dinámico no garantiza una vista previa personalizada en Facebook. Para usar exactamente la promoción preparada, subir la imagen descargada y acompañarla con el texto/enlace que entrega el panel. Revisar la foto y precio antes de publicar.
 
 La carpeta `productos` es generada automáticamente. No la edites manualmente.
 

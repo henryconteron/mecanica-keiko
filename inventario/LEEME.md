@@ -36,6 +36,8 @@ Las actualizaciones de GitHub conservan las fotos actuales salvo que cambien arc
 
 El registro `investigacion/verificacion-manual-2026-09-30.json` contiene textos contrastados, fuentes y límites para los diez productos publicados del panel. Dos códigos del inventario sin confirmar permanecen pendientes y no se publican.
 
+La revisión posterior del 1 de octubre identificó en las fotos los códigos `AFE-1507` y `AF7864`, distintos de los capturados como `AFE-15017` y `AFT-7864`. `investigacion/propuestas-pendientes-2026-10-01.json` conserva las correcciones propuestas, fuentes y textos para revisión. Todavía no se aplican ni se incorporan a la biblioteca aprobada: requieren confirmar el cambio de código y la aplicación.
+
 Para las ocho fichas que también existen en este inventario, la importación aplica los textos revisados si la identidad y los datos técnicos del Excel siguen siendo los anteriores. Las cantidades y precios se toman del Excel sin alterarlos. Si editas la marca, el nombre, la categoría o los datos técnicos del Excel, prevalece tu nueva edición y deja de aplicarse esa corrección registrada. No se modifica el archivo Excel ni se bloquean las ediciones del panel.
 
 ## Biblioteca de fuentes para próximas búsquedas

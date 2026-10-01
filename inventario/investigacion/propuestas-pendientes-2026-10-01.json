@@ -1,0 +1,63 @@
+{
+  "fecha": "2026-10-01",
+  "estado": "pendiente_de_confirmacion_del_taller",
+  "metodo": "Lectura visual de las fotos originales del repositorio y contraste en fichas directas de distribuidores. Propuesta documental, no aplicada al Excel, al panel ni a la web.",
+  "productos": [
+    {
+      "codigo_capturado": "AFE-15017",
+      "codigo_leido_en_foto": "AFE-1507",
+      "foto_original": "inventario/fotos/AFE-1507_01.jpeg",
+      "accion_requerida": "Confirmar la corrección del código a AFE-1507 y revisar las aplicaciones antes de editar el inventario. No basta aprobar este documento para publicar.",
+      "propuesta": {
+        "codigo": "AFE-1507",
+        "nombre": "Filtro de combustible Advance AFE-1507",
+        "marca": "Advance Filters",
+        "categoria": "Filtros",
+        "descripcion_corta": "Filtro de combustible Advance AFE-1507, catalogado para Hino FC Euro 3 y determinadas Isuzu FTR, FSR y FVR.",
+        "descripcion": "Filtro de combustible Advance Filters AFE-1507. La ficha del distribuidor lo relaciona con Hino FC Euro 3 y determinadas aplicaciones Isuzu FTR, FSR y FVR. Antes de la entrega se confirma la referencia instalada, las conexiones y el motor. No se anuncian aplicaciones Mitsubishi ni años que la fuente no detalla.",
+        "compatibilidad": [
+          "Hino FC Euro 3: aplicación del distribuidor; confirmar motor y referencia instalada.",
+          "Isuzu FTR, FSR y FVR: determinadas aplicaciones; confirmar motor y referencia instalada."
+        ],
+        "referencias": [
+          "MF-20780 (cruce del distribuidor; no identidad de marca)",
+          "Sakura F 1507 (cruce del distribuidor; comprobar conexiones y medidas)"
+        ],
+        "fuentes": [{
+          "url": "https://distriparteslm.ec/producto/otr-afe-1507/",
+          "titulo": "Distripartes LM: Advance OTR-AFE-1507",
+          "tipo": "Distribuidor"
+        }],
+        "confianza": "Media",
+        "publicado": false
+      },
+      "limites": "Una ficha comercial directa y etiqueta coincidente, sin confirmación de motor o VIN. No se trasladan precios, existencias, garantías o prestaciones del distribuidor al negocio. No se encontró respaldo para la aplicación Mitsubishi del nombre anterior."
+    },
+    {
+      "codigo_capturado": "AFT-7864",
+      "codigo_leido_en_foto": "AF7864",
+      "foto_original": "inventario/fotos/AFT-7864_01.jpeg",
+      "accion_requerida": "Confirmar la corrección a AF7864, conservar las fotos y revisar la aplicación antes de editar el inventario.",
+      "propuesta": {
+        "codigo": "AF7864",
+        "nombre": "Filtro de aire Shogun AF7864",
+        "marca": "SHOGUN",
+        "categoria": "Filtros",
+        "descripcion_corta": "Filtro de aire Shogun Classic AF7864, relacionado por el distribuidor con Chevrolet LUV 2.2; confirmar versión.",
+        "descripcion": "Filtro de aire Shogun Classic AF7864, código visible en el empaque. MAXCAR lo incluye en una ficha Shogun/Sakura para LUV 2.2. Se comprueba la referencia del filtro instalado, la forma y las medidas antes de entregar. No se garantiza ajuste en todas las LUV ni se trasladan aplicaciones de otros fabricantes a esta pieza.",
+        "compatibilidad": [
+          "Chevrolet LUV 2.2: aplicación orientativa del distribuidor; confirmar versión, forma y medidas del filtro instalado."
+        ],
+        "referencias": [],
+        "fuentes": [{
+          "url": "https://www.maxcarsumegacentro.com/products/filtro-shogun-af7864-luv-2-2",
+          "titulo": "MAXCAR Ecuador: Shogun/Sakura AF7864 para LUV 2.2",
+          "tipo": "Distribuidor"
+        }],
+        "confianza": "Media",
+        "publicado": false
+      },
+      "limites": "El título comercial mezcla Shogun y Sakura. La marca y la línea Classic se leen en nuestra fotografía; la aplicación es orientativa. No se copia la lista extensa de equivalencias ni se presenta como medida comprobada del producto físico. No se traslada el precio del proveedor."
+    }
+  ]
+}
