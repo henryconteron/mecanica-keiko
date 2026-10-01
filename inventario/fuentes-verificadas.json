@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "revisado_por_taller_en": "2026-10-01",
+  "regla": "Son puntos de partida para contrastar, no una aprobación automática ni permiso para trasladar datos entre productos o marcas.",
+  "productos": [
+    {
+      "codigo": "31911-2E000",
+      "marcas": [
+        "Hyundai Mobis",
+        "Mobis"
+      ],
+      "categoria": "Filtros",
+      "codigo_fuente": "31911-2E000",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "La segunda fuente comercializa otra marca: se utiliza únicamente para contrastar el código y las aplicaciones, no el fabricante, el origen o la calidad de nuestra pieza.",
+      "fuentes": [
+        {
+          "url": "https://partsouq.com/en/search/all?q=319112E000",
+          "titulo": "PartSouq: catálogo de la referencia 319112E000",
+          "tipo": "Distribuidor"
+        },
+        {
+          "url": "https://autopartesyrepuestospty.com/products/31911-2e000",
+          "titulo": "Autopartes y Repuestos PTY: aplicaciones de la referencia 31911-2E000",
+          "tipo": "Distribuidor"
+        }
+      ]
+    },
+    {
+      "codigo": "37230-0K021",
+      "marcas": [
+        "J&R Rubber",
+        "J&R"
+      ],
+      "categoria": "Rulimanes y soportes",
+      "codigo_fuente": "37230-0K021",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "Fuente directa de J&R. Los años de inicio se presentan como orientación del catálogo, sin extenderlos a todas las versiones ni afirmar que la pieza es original Toyota.",
+      "fuentes": [
+        {
+          "url": "https://www.jrrubberparts.com/product/37230-0k021/",
+          "titulo": "J&R Rubber Parts: soporte central 37230-0K021",
+          "tipo": "Fabricante"
+        }
+      ]
+    },
+    {
+      "codigo": "AFP-523",
+      "marcas": [
+        "Advance Filters",
+        "Advance"
+      ],
+      "categoria": "Filtros",
+      "codigo_fuente": "AFP-523",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "Se sustituyen enlaces genéricos a Scribd/PDFCoffee y referencias corruptas [object Object] por una ficha de producto. Se omite la aplicación Kia de un título ambiguo y las promesas no verificadas sobre desgaste o rendimiento.",
+      "fuentes": [
+        {
+          "url": "https://distriparteslm.ec/producto/otr-afp-523/",
+          "titulo": "Distripartes LM: filtro de combustible AFP-523",
+          "tipo": "Distribuidor"
+        }
+      ]
+    },
+    {
+      "codigo": "AOE-9443",
+      "marcas": [
+        "Advance Filters",
+        "Advance"
+      ],
+      "categoria": "Filtros",
+      "codigo_fuente": "AOE-9443",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "La ficha de código exacto reemplaza una página de categoría. Se retiran códigos OE y SO011 sin evidencia directa suficiente; las equivalencias se presentan para comparación, no como identidad de marca.",
+      "fuentes": [
+        {
+          "url": "https://distriparteslm.ec/producto/otr-aoe-9443/",
+          "titulo": "Distripartes LM: cartucho AOE-9443 con guía",
+          "tipo": "Distribuidor"
+        }
+      ]
+    },
+    {
+      "codigo": "BKR5E-11",
+      "marcas": [
+        "NGK"
+      ],
+      "categoria": "Bujías",
+      "codigo_fuente": "BKR5E-11",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "Especificaciones del fabricante. No se traslada la aplicación Kohler a un automóvil. Se elimina el número regional 94100 de equivalencias al no comprobar su correspondencia; permanece recuperable en el respaldo.",
+      "fuentes": [
+        {
+          "url": "https://www.ngkntk.com/de/produktfinder/motoren/zuendkerze/kohler/th-14-4-stroke-2-cyl-ohc-bkr5e-11/",
+          "titulo": "NGK/NTK: especificaciones BKR5E-11",
+          "tipo": "Fabricante"
+        }
+      ]
+    },
+    {
+      "codigo": "BPR5EY",
+      "marcas": [
+        "NGK"
+      ],
+      "categoria": "Bujías",
+      "codigo_fuente": "BPR5EY",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "Se eliminan equivalencias no verificadas y el stock regional 94743 como supuesto código universal. El compuesto no se presenta como iridio.",
+      "fuentes": [
+        {
+          "url": "https://japko.it/en/app/src-cod/?src=BPR5EY",
+          "titulo": "JAPKO: búsqueda exacta BPR5EY",
+          "tipo": "Catálogo técnico"
+        },
+        {
+          "url": "https://www.sparkplugs.co.uk/ngk-spark-plug-bpr5ey-2828-4",
+          "titulo": "Sparkplugs UK: especificaciones BPR5EY",
+          "tipo": "Distribuidor"
+        }
+      ]
+    },
+    {
+      "codigo": "DCPR7E",
+      "marcas": [
+        "NGK"
+      ],
+      "categoria": "Bujías",
+      "codigo_fuente": "DCPR7E",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "Especificaciones de una ficha exacta del distribuidor. No se inventan aplicaciones automotrices ni se confunde un número de catálogo con el inventario.",
+      "fuentes": [
+        {
+          "url": "https://www.whitesmoto.com.au/products/ngkdcpr7e",
+          "titulo": "Whites Moto: NGK DCPR7E / 3932 y especificaciones",
+          "tipo": "Distribuidor"
+        }
+      ]
+    },
+    {
+      "codigo": "D831C",
+      "marcas": [
+        "Double Link Brake",
+        "Double Link"
+      ],
+      "categoria": "Pastillas de freno",
+      "codigo_fuente": "D831",
+      "alcance": "referencia_base",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "No se encontró ficha directa del fabricante para Double Link D831C. Se conserva el código de venta y lo cerámico confirmado por el usuario. Aplicaciones y cruces se contrastan únicamente para la base D831. Se retiran promesas de frenado, baja emisión de polvo, desgaste, garantía y ausencia de devoluciones sin evidencia propia de esta pieza.",
+      "fuentes": [
+        {
+          "url": "https://www.qytauto.com/d831.html",
+          "titulo": "QYT: aplicaciones y referencias de D831; no ficha exacta de Double Link D831C",
+          "tipo": "Fabricante de referencia equivalente"
+        }
+      ]
+    },
+    {
+      "codigo": "LF-D1574",
+      "marcas": [
+        "Car Shield"
+      ],
+      "categoria": "Pastillas de freno",
+      "codigo_fuente": "LF-D1574",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "Se omiten años generalizados del título comercial y el OE UMY1-33-23ZA sin respaldo suficiente. No se presume compuesto cerámico ni garantía a partir de un producto de otra marca.",
+      "fuentes": [
+        {
+          "url": "https://distriparteslm.ec/producto/lf-d1574-pastilla-de-freno/",
+          "titulo": "Distripartes LM: pastilla Car Shield LF-D1574",
+          "tipo": "Distribuidor"
+        }
+      ]
+    },
+    {
+      "codigo": "SP1502",
+      "marcas": [
+        "Hi-Q / Sangsin",
+        "Hi-Q",
+        "Sangsin"
+      ],
+      "categoria": "Pastillas de freno",
+      "codigo_fuente": "SP1502",
+      "alcance": "codigo_de_producto",
+      "contrastado_en": "2026-09-30",
+      "revisado_por_taller_en": "2026-10-01",
+      "limitaciones": "Se limita el rango a lo mostrado por el fabricante, sin asegurar todas las motorizaciones. Se retiran SDB1714 y FMSI D1215-8335 por falta de comprobación directa en las fuentes revisadas.",
+      "fuentes": [
+        {
+          "url": "https://www.sangsin.com/kor/product/search_pad?page=340&pr_category=001&sc_field=&sc_keyword=&sc_pi_model=&sc_pr_depth1=&sc_pr_depth2=&sc_pr_no=",
+          "titulo": "Sangsin Brake: catálogo de aplicaciones SP1502",
+          "tipo": "Fabricante"
+        },
+        {
+          "url": "https://www.e-sangsin.com/eng/product_view?pr_id=0000000541",
+          "titulo": "Sangsin Brake: ficha de producto SP1502",
+          "tipo": "Fabricante"
+        }
+      ]
+    }
+  ]
+}

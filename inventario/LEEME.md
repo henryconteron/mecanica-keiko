@@ -38,6 +38,12 @@ El registro `investigacion/verificacion-manual-2026-09-30.json` contiene textos 
 
 Para las ocho fichas que también existen en este inventario, la importación aplica los textos revisados si la identidad y los datos técnicos del Excel siguen siendo los anteriores. Las cantidades y precios se toman del Excel sin alterarlos. Si editas la marca, el nombre, la categoría o los datos técnicos del Excel, prevalece tu nueva edición y deja de aplicarse esa corrección registrada. No se modifica el archivo Excel ni se bloquean las ediciones del panel.
 
+## Biblioteca de fuentes para próximas búsquedas
+
+`fuentes-verificadas.json` conserva 13 enlaces revisados para los diez productos, asociados a su código, marca y categoría. Los dos investigadores los consultan primero, leen el contenido actual y reciben las advertencias de la revisión. Si una ficha ya no abre o no muestra el código, no sirve como evidencia; el bot debe buscar otra fuente. Recordar un enlace no significa aprobar automáticamente sus datos ni publicarlos.
+
+No hace falta ejecutar nuevamente todos los productos aprobados: la biblioteca se usará en la siguiente solicitud de investigación. En el panel, los cambios de una nueva verificación siguen siendo un borrador hasta que los revises y publiques. Las fotos, precios y cantidades no cambian por guardar estas fuentes. Más detalles en `BOT_INVESTIGACION.md`; pruebas locales con `pnpm test:fuentes`.
+
 ## Estados
 
 - `Capturado`: conteo básico realizado.

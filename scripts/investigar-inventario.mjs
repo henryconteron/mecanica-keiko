@@ -4,6 +4,7 @@ import process from "node:process";
 import { pathToFileURL } from "node:url";
 import ExcelJS from "exceljs";
 import XLSX from "xlsx";
+import { cargarBibliotecaFuentes, consultarFuentesRecordadas, contextoFuentesRecordadas } from "./fuentes-recordadas.mjs";
 
 const root = process.cwd();
 const inventoryDir = path.join(root, "inventario");
@@ -151,6 +152,7 @@ const inspectPhotos = async (row, selected) => {
 };
 
 const researchProduct = async (row, vision) => {
+  const rememberedSources = await consultarFuentesRecordadas(row, await cargarBibliotecaFuentes());
   const prompt = `Investiga este repuesto automotriz para un inventario de Ecuador.
 
 DATOS CAPTURADOS
@@ -159,6 +161,8 @@ DATOS CAPTURADOS
 - Marca escrita: ${row.marca}
 - Categoría escrita: ${row.categoria}
 - Lectura literal de fotografías: ${JSON.stringify(vision)}
+
+${contextoFuentesRecordadas(rememberedSources)}
 
 REGLAS OBLIGATORIAS
 1. Busca el código exacto. Prioriza catálogo oficial del fabricante y confirma con una segunda fuente técnica cuando exista.
@@ -262,6 +266,7 @@ const main = async () => {
     nombre: text(values[column("Nombre")]),
     marca: text(values[column("Marca")]),
     categoria: text(values[column("Categoría")]),
+    fuentes: text(values[column("Fuentes")]),
     revision: text(values[column("Revisión")]),
     observaciones: text(values[column("Observaciones")])
   })).filter((row) => row.codigo && headerKey(row.revision) === "investigar").slice(0, maxProducts);

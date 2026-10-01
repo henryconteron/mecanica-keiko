@@ -1,4 +1,6 @@
 import process from "node:process";
+import { cargarBibliotecaFuentes, consultarFuentesRecordadas, contextoFuentesRecordadas,
+  resumenFuentesRecordadas, comprobarFuenteRecordada, urlFuentePublica } from "./fuentes-recordadas.mjs";
 
 const required = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GROQ_API_KEY"];
 for (const name of required) if (!process.env[name]) throw new Error(`Falta el secreto ${name}.`);
@@ -13,14 +15,6 @@ const serviceHeaders = (headers = {}) => ({
 const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
 const text = (value) => String(value ?? "").trim();
 const codeKey = (value) => text(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const codeAppearsExactly = (page, code) => {
-  const parts = text(code).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split(/[^A-Z0-9]+/).filter(Boolean);
-  if (!parts.length) return false;
-  const escaped = parts.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-  // Permite guiones, espacios y puntos entre bloques del mismo código, pero nunca letras o números extra.
-  const pattern = new RegExp(`(^|[^A-Z0-9])${escaped.join("[\\s._-]*")}(?=$|[^A-Z0-9])`, "i");
-  return pattern.test(String(page || "").normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-};
 // Algunos fabricantes añaden una C al código de una pastilla para indicar el compuesto
 // cerámico. Solo se usa la referencia base cuando esa condición está confirmada en la foto;
 // no se eliminan letras de códigos de otros tipos de repuesto.
@@ -28,8 +22,8 @@ const baseCodeForCeramicBrakePad = (product, vision) => {
   const productCode = text(product.codigo).toUpperCase();
   const isBrakePad = /pastill|balata|brake\s*pad/i.test(`${text(product.nombre)} ${text(product.categoria)}`);
   const matchesLabel = codeKey(vision.codigo_visible) === codeKey(productCode);
-  const saysCeramic = /\bceramic\b/i.test(text(vision.tipo_visible));
-  if (!isBrakePad || !matchesLabel || !saysCeramic || !/^[A-Z0-9][A-Z0-9._-]*C$/.test(productCode)) return "";
+  const saysCeramic = /\bceramic\b/i.test(`${text(vision.tipo_visible)} ${text(vision.marca_visible)}`);
+  if (!isBrakePad || !matchesLabel || !saysCeramic || !/^D\d{3,4}C$/.test(productCode)) return "";
   const baseCode = productCode.slice(0, -1).replace(/[-._]+$/, "");
   return baseCode.length >= 3 ? baseCode : "";
 };
@@ -44,24 +38,17 @@ const blockedSourceDomains = [
   "mercadolibre.", "amazon.", "aliexpress.", "ebay.", "wikipedia.org"
 ];
 const knownTechnicalDomains = [
-  "advancefilters.com", "mann-filter.com", "hengst-filter.com", "mahle-aftermarket.com",
+  "advancefilters.com", "mann-filter.com", "hengst.com", "hengst-filter.com", "mahle-aftermarket.com",
   "boschaftermarket.com", "denso.com", "ngkntk.com", "wixfilters.com", "fram.com",
-  "hyundai.com", "kia.com", "toyota.com", "distripartes", "maxcar"
+  "hyundai.com", "kia.com", "toyota.com", "distriparteslm.ec", "maxcarsumegacentro.com",
+  "jrrubberparts.com", "sangsin.com", "e-sangsin.com", "qytauto.com", "partsouq.com",
+  "autopartesyrepuestospty.com", "japko.it", "sparkplugs.co.uk", "whitesmoto.com.au"
 ];
 
-const sourceUrl = (value) => {
-  try {
-    const parsed = new URL(text(value));
-    const hostname = parsed.hostname.toLowerCase();
-    const privateHost = hostname === "localhost" || hostname.endsWith(".local") || /^(127|10|0|192\.168|172\.(1[6-9]|2\d|3[01]))\./.test(hostname);
-    if (parsed.protocol !== "https:" || privateHost || !hostname.includes(".")) return null;
-    return parsed;
-  } catch { return null; }
-};
+const sourceUrl = urlFuentePublica;
 
 const isBlockedSource = (hostname) => blockedSourceDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`) || hostname.includes(domain));
-const isKnownTechnicalSource = (hostname) => knownTechnicalDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`) || hostname.includes(domain));
-const titleFromHtml = (html) => text(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]).replace(/\s+/g, " ").slice(0, 160);
+const isKnownTechnicalSource = (hostname) => knownTechnicalDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
 
 const parseJson = (value) => {
   const raw = text(value).replace(/^```json\s*/i, "").replace(/\s*```$/, "");
@@ -121,11 +108,12 @@ const inspectPhoto = async (product) => {
   return parseJson(result.choices?.[0]?.message?.content);
 };
 
-const research = async (product, vision, sourceCode = product.codigo) => {
+const research = async (product, vision, sourceCode = product.codigo, rememberedSources = []) => {
   const usesCeramicBaseCode = codeKey(sourceCode) !== codeKey(product.codigo);
   const prompt = `Investiga un repuesto automotriz para venta en Ecuador.
 Datos capturados: código de venta/etiqueta ${product.codigo}; nombre ${product.nombre}; marca ${product.marca || "no indicada"}. Lectura fotográfica: ${JSON.stringify(vision)}.
-${usesCeramicBaseCode ? `La etiqueta muestra ${product.codigo} y también dice CERAMIC. Para comprobar la forma y compatibilidad, consulta la referencia base exacta ${sourceCode}. Esta es únicamente una variante cerámica de esa referencia para este producto: conserva ${product.codigo} como código de venta y no atribuyas esta regla a otros repuestos.` : `Código que se debe comprobar en fuentes: ${sourceCode}.`}
+${usesCeramicBaseCode ? `La etiqueta muestra ${product.codigo} y también dice CERAMIC. Para orientar la comparación de forma y compatibilidad, consulta la referencia base exacta ${sourceCode}. Conserva ${product.codigo} como código de venta. Una ficha de ${sourceCode} de otra marca no confirma el ajuste exacto, el compuesto ni la garantía de esta variante. No atribuyas esta regla a otros repuestos.` : `Código que se debe comprobar en fuentes: ${sourceCode}.`}
+${contextoFuentesRecordadas(rememberedSources)}
 Reglas obligatorias:
 - Busca el código exacto ${sourceCode}, no uno parecido. Si ese código no aparece literalmente en la fuente, responde codigo_coincide:false.
 - La ficha debe describir el mismo tipo de pieza que el nombre capturado y, si existe, que la etiqueta leída. Si hay duda, responde producto_coincide:false.
@@ -146,26 +134,13 @@ const verifySource = async (source, product, sourceCode = product.codigo) => {
   if (!parsed) return { source, ok: false, reason: "La fuente no tiene una URL HTTPS pública y directa." };
   if (isBlockedSource(parsed.hostname)) return { source, ok: false, reason: `La fuente ${parsed.hostname} no es aceptable para información técnica.` };
   try {
-    const response = await fetch(parsed, {
-      redirect: "follow", signal: AbortSignal.timeout(20000),
-      headers: { "User-Agent": "MecanicaKeikoCatalogBot/1.0 (+https://henryconteron.github.io/mecanica-keiko/)" }
-    });
-    const finalUrl = sourceUrl(response.url);
-    if (!response.ok || !finalUrl || isBlockedSource(finalUrl.hostname)) {
-      return { source, ok: false, reason: `No se pudo verificar una página técnica directa (${response.status}).` };
-    }
-    const contentType = response.headers.get("content-type") || "";
-    if (!/text\/html|application\/xhtml\+xml/i.test(contentType)) {
-      return { source, ok: false, reason: "La fuente no es una página técnica legible que permita comprobar el código." };
-    }
-    const page = (await response.text()).slice(0, 1_500_000);
-    if (!codeAppearsExactly(page, sourceCode)) {
-      return { source, ok: false, reason: `La fuente no muestra el código exacto ${sourceCode}.` };
-    }
+    const checked = await comprobarFuenteRecordada(source, sourceCode);
+    if (!checked.ok) return checked;
+    const finalUrl = new URL(checked.source.url);
     return {
       ok: true,
       source: {
-        titulo: text(source.titulo) || titleFromHtml(page) || finalUrl.hostname,
+        titulo: checked.source.titulo,
         url: finalUrl.toString(),
         tipo: text(source.tipo) || "Fuente técnica",
         dominio: finalUrl.hostname,
@@ -179,6 +154,7 @@ const verifySource = async (source, product, sourceCode = product.codigo) => {
   }
 };
 
+const sourceLibrary = await cargarBibliotecaFuentes();
 const candidates = await api("/rest/v1/productos_admin?select=*&order=actualizado.asc&limit=500");
 const verificationRequested = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
   && product.resultado_bot.verificacion_solicitada === true;
@@ -199,7 +175,9 @@ for (const product of pending) {
     try { vision = await inspectPhoto(product); } catch (error) { vision = { codigo_visible: "", confianza: "Baja", error: error.message }; }
     const sourceCode = baseCodeForCeramicBrakePad(product, vision) || product.codigo;
     const usesCeramicBaseCode = codeKey(sourceCode) !== codeKey(product.codigo);
-    const result = await research(product, vision, sourceCode);
+    const rememberedSources = await consultarFuentesRecordadas(product, sourceLibrary, sourceCode);
+    console.log(`${product.codigo}: ${rememberedSources.filter((check) => check.ok).length}/${rememberedSources.length} fuentes recordadas comprobadas.`);
+    const result = await research(product, vision, sourceCode, rememberedSources);
     const sourceChecks = await Promise.all((result.fuentes || []).slice(0, 5).map((source) => verifySource(source, product, sourceCode)));
     const sources = [...new Map(sourceChecks.filter((check) => check.ok).map((check) => [check.source.dominio, check.source])).values()];
     const sourceProblems = sourceChecks.filter((check) => !check.ok).map((check) => check.reason);
@@ -221,7 +199,7 @@ for (const product of pending) {
     };
     // El texto visible en el empaque es evidencia primaria. Se puede proponer como ajuste manual,
     // pero nunca desbloquea compatibilidades ni equivalencias que no se hayan comprobado en fuentes técnicas.
-    const ceramicVisibleOnPackage = codeKey(vision.codigo_visible) === codeKey(product.codigo) && /\bceramic\b/i.test(text(vision.tipo_visible));
+    const ceramicVisibleOnPackage = codeKey(vision.codigo_visible) === codeKey(product.codigo) && /\bceramic\b/i.test(`${text(vision.tipo_visible)} ${text(vision.marca_visible)}`);
     const visualProposal = ceramicVisibleOnPackage ? {
       nombre: product.nombre,
       marca: product.marca,
@@ -251,6 +229,7 @@ for (const product of pending) {
     const pendingDraft = previousResult.edicion_pendiente;
     const resultData = {
       ...previousResult, vision, investigacion: result, verificacion_fuentes: sourceChecks,
+      fuentes_recordadas: resumenFuentesRecordadas(rememberedSources),
       codigo_consultado: sourceCode,
       variante_ceramica_verificada_por_empaque: usesCeramicBaseCode,
       estado_investigacion: ready ? "lista_para_revisar" : "requiere_atencion",
