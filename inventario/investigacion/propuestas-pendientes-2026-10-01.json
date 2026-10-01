@@ -1,7 +1,7 @@
 {
   "fecha": "2026-10-01",
   "estado": "codigos_autorizados_y_borradores_para_revision",
-  "metodo": "Lectura visual de las seis fotos originales y contraste en fichas directas de distribuidores el 1 de octubre de 2026. Códigos corregidos con permiso del taller; información guardada en el Excel y catálogo anterior como borradores sin publicar. Posteriormente se crearon las fichas en el panel, pendientes de subir fotos; el catálogo público sigue sin cambios. Estado del traslado en preparacion-panel-2026-10-01.json.",
+  "metodo": "Lectura visual de las seis fotos originales y contraste en fichas directas de distribuidores el 1 de octubre de 2026. Códigos corregidos con permiso del taller; información guardada en el Excel y catálogo anterior como borradores sin publicar. Posteriormente se completaron las fichas aprobadas del panel con tres fotos originales cada una; el catálogo público sigue sin cambios. Estado del traslado en preparacion-panel-2026-10-01.json.",
   "productos": [
     {
       "codigo_capturado": "AFE-15017",

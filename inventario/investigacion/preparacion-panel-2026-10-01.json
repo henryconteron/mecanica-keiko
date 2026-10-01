@@ -1,18 +1,20 @@
 {
   "fecha": "2026-10-01",
-  "estado": "fichas_creadas_pendientes_fotos",
-  "autorizacion": "El taller solicitó revisar y preparar ambos productos en el panel. No solicitó su publicación automática ni ampliar permisos de la extensión.",
+  "estado": "fichas_aprobadas_con_fotos_sin_publicar",
+  "autorizacion": "El taller solicitó revisar y preparar ambos productos en el panel y habilitó manualmente el acceso a URL de archivo de la extensión de Edge para subir las fotos. No solicitó publicación automática.",
   "productos": [
-    { "codigo": "AFE-1507", "revision_panel": "borrador", "cantidad": 5, "precio": "Consultar", "fotos_panel": 0, "fotos_previstas": ["AFE-1507_01.jpeg", "AFE-1507_02.jpeg", "AFE-1507_03.jpeg"] },
-    { "codigo": "AF7864", "revision_panel": "borrador", "cantidad": 5, "precio": "Consultar", "fotos_panel": 0, "fotos_previstas": ["AFT-7864_01.jpeg", "AFT-7864_02.jpeg", "AFT-7864_03.jpeg"] }
+    { "codigo": "AFE-1507", "revision_panel": "aprobado", "cantidad": 5, "precio": "Consultar", "fotos_panel": 3, "fotos": ["afe-1507/AFE-1507_01.jpeg", "afe-1507/AFE-1507_02.jpeg", "afe-1507/AFE-1507_03.jpeg"], "bytes": [54563, 53453, 52124] },
+    { "codigo": "AF7864", "revision_panel": "aprobado", "cantidad": 5, "precio": "Consultar", "fotos_panel": 3, "fotos": ["af7864/AFT-7864_01.jpeg", "af7864/AFT-7864_02.jpeg", "af7864/AFT-7864_03.jpeg"], "bytes": [169051, 115255, 118243] }
   ],
   "comprobaciones": {
     "duplicados_creados": false,
     "productos_anteriores_modificados": false,
     "publicados": 10,
     "fuentes_y_textos": "Guardados en las dos fichas. Verificación manual; sin nueva consulta de IA.",
-    "permisos": "Sin cambios en RLS, bucket privado ni extensión."
+    "permisos": "Sin cambios en RLS ni bucket privado. El usuario activó el permiso de URL de archivo de Edge.",
+    "archivos": "Seis objetos image/jpeg con tamaño coincidente con los originales locales, en orden 01, 02, 03. Portadas revisadas en Storage.",
+    "guardado": "Actualización condicionada por ID, código, estado, fecha y fotos vacías; ambas fichas actualizadas a las 15:50:25.766098 UTC. Sin reemplazar cambios concurrentes."
   },
-  "bloqueo": "fileChooser.setFiles exige habilitar Allow access to file URLs en la extensión ChatGPT de Microsoft Edge. La carpeta privada afe-1507 se creó, pero no se transfirió ninguna fotografía.",
-  "siguiente_paso": "Autorizar el permiso de la extensión o subir las seis fotos manualmente. Comprobar archivo, orden y código en cada portada antes de marcar Aprobado. La publicación requiere decisión del taller."
+  "bloqueo": null,
+  "siguiente_paso": "Actualizar la lista del panel en cualquiera de las dos computadoras, revisar las fichas aprobadas y publicar cuando el taller lo decida. El Excel no se sincroniza automáticamente con Supabase."
 }
