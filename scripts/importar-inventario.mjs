@@ -3,6 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import XLSX from "xlsx";
 import { correccionVerificada } from "./verificacion-manual-inventario.mjs";
+import { cargarCorreccionesCodigos, correccionCodigo, fotosConCorreccion } from "./correcciones-codigos.mjs";
 
 const root = process.cwd();
 const inventoryDir = path.join(root, "inventario");
@@ -35,6 +36,7 @@ const numberOrText = (value, fallback = "Consultar") => {
 };
 
 const inventoryBuffer = await readFile(workbookFile);
+const codeCorrections = await cargarCorreccionesCodigos(root);
 const workbook = XLSX.read(inventoryBuffer, { type: "buffer", cellDates: true });
 let manualReviews = [];
 try {
@@ -103,17 +105,36 @@ for (const capturedRow of rows) {
   }
   seen.set(key, row.row);
 
-  const existing = existingByCode.get(key);
+  const correction = correccionCodigo(code, row.marca, codeCorrections);
+  const correctedExisting = existingByCode.get(key);
+  const previousExisting = correction && existingByCode.get(codeKey(correction.codigo_anterior));
+  if (previousExisting && (previousExisting.product.publicado === true || correctedExisting)) {
+    errors.push(`Fila ${row.row} (${code}): la corrección intenta migrar una ficha publicada o duplicada; requiere revisión manual.`);
+    continue;
+  }
+  const reverted = codeCorrections.find(item => codeKey(item.codigo_anterior) === key && existingByCode.has(codeKey(item.codigo)));
+  if (reverted) {
+    errors.push(`Fila ${row.row} (${code}): código anterior a una corrección autorizada. Actualiza el Excel a ${reverted.codigo}.`);
+    continue;
+  }
+  const existing = correctedExisting || previousExisting;
   const current = existing?.product ?? {};
   const review = text(row.revision) || "Capturado";
   const publishChoice = text(row.publicar) || "No";
-  const incomingPhotos = preservePhotos ? [] : await photosFor(code);
+  let incomingPhotos = preservePhotos ? [] : (correction
+    ? fotosConCorreccion(code, row.marca, directPhotos.map(name => ({ name, relativeName: name, source: path.join(photosDir, name) })), codeCorrections)
+    : await photosFor(code));
   const targetId = existing?.id || slug(code);
   const targetFolder = path.join(catalogDir, targetId);
   let existingMedia = [];
   try {
     existingMedia = (await readdir(targetFolder)).filter((name) => mediaExtensions.has(path.extname(name).toLowerCase()));
   } catch {}
+  // Una corrección aprobada puede completar un borrador sin fotos, nunca reemplazar fotos revisadas.
+  if (preservePhotos && correction && current.publicado !== true && existingMedia.length === 0) {
+    incomingPhotos = fotosConCorreccion(code, row.marca,
+      directPhotos.map(name => ({ name, relativeName: name, source: path.join(photosDir, name) })), codeCorrections);
+  }
 
   const stockRaw = row.cantidad;
   const stock = stockRaw === "" ? current.stock : Number(stockRaw);

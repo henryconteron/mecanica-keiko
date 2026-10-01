@@ -1,13 +1,13 @@
 {
   "fecha": "2026-10-01",
-  "estado": "pendiente_de_confirmacion_del_taller",
-  "metodo": "Lectura visual de las fotos originales del repositorio y contraste en fichas directas de distribuidores. Propuesta documental, no aplicada al Excel, al panel ni a la web.",
+  "estado": "codigos_autorizados_y_borradores_para_revision",
+  "metodo": "Lectura visual de las seis fotos originales y contraste en fichas directas de distribuidores el 1 de octubre de 2026. Códigos corregidos con permiso del taller; información guardada en el Excel y catálogo anterior como borradores sin publicar. No se modificó el panel ni el catálogo público.",
   "productos": [
     {
       "codigo_capturado": "AFE-15017",
       "codigo_leido_en_foto": "AFE-1507",
       "foto_original": "inventario/fotos/AFE-1507_01.jpeg",
-      "accion_requerida": "Confirmar la corrección del código a AFE-1507 y revisar las aplicaciones antes de editar el inventario. No basta aprobar este documento para publicar.",
+      "accion_requerida": "Código corregido a AFE-1507 y tres fotos vinculadas. Revisar las aplicaciones y la pieza física antes de aprobar y publicar. Este documento no autoriza publicación.",
       "propuesta": {
         "codigo": "AFE-1507",
         "nombre": "Filtro de combustible Advance AFE-1507",
@@ -37,7 +37,7 @@
       "codigo_capturado": "AFT-7864",
       "codigo_leido_en_foto": "AF7864",
       "foto_original": "inventario/fotos/AFT-7864_01.jpeg",
-      "accion_requerida": "Confirmar la corrección a AF7864, conservar las fotos y revisar la aplicación antes de editar el inventario.",
+      "accion_requerida": "Código corregido a AF7864 conservando las tres fotos y su nombre original AFT-7864. Revisar la aplicación y la pieza física antes de aprobar y publicar.",
       "propuesta": {
         "codigo": "AF7864",
         "nombre": "Filtro de aire Shogun AF7864",

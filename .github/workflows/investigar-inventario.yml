@@ -7,6 +7,8 @@ on:
       - "inventario/Inventario_Keiko.xlsx"
       - "inventario/fotos/**"
       - "scripts/investigar-inventario.mjs"
+      - "scripts/correcciones-codigos.mjs"
+      - "inventario/correcciones-codigos.json"
       - ".github/workflows/investigar-inventario.yml"
   workflow_dispatch:
 

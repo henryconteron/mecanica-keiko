@@ -1,18 +1,22 @@
 {
-  "codigo": "AFT-7864",
-  "nombre": "Filtro de Aire",
+  "codigo": "AF7864",
+  "nombre": "Filtro de aire Shogun AF7864",
   "categoria": "Filtros",
   "marca": "SHOGUN",
   "precio": "Consultar",
   "moneda": "USD",
   "estado": "Nuevo, antiguo stock",
   "stock": 5,
-  "descripcionCorta": "Información en proceso de verificación.",
-  "descripcion": "Información en proceso de verificación.",
-  "compatibilidad": [],
+  "descripcionCorta": "Filtro de aire Shogun Classic AF7864, relacionado por el distribuidor con Chevrolet LUV 2.2; confirmar versión.",
+  "descripcion": "Filtro de aire Shogun Classic AF7864, código visible en el empaque. MAXCAR lo incluye en una ficha Shogun/Sakura para LUV 2.2. Se comprueba la referencia del filtro instalado, la forma y las medidas antes de entregar. No se garantiza ajuste en todas las LUV ni se trasladan aplicaciones de otros fabricantes a esta pieza.",
+  "compatibilidad": [
+    "Chevrolet LUV 2.2: aplicación orientativa del distribuidor; confirmar versión, forma y medidas del filtro instalado."
+  ],
   "referencias": [],
-  "fuentes": [],
-  "confianza": "",
+  "fuentes": [
+    "https://www.maxcarsumegacentro.com/products/filtro-shogun-af7864-luv-2-2"
+  ],
+  "confianza": "Media",
   "ubicacionInventario": "",
   "destacado": false,
   "publicado": false,

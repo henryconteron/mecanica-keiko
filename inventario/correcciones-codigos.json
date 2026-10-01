@@ -1,0 +1,20 @@
+{
+  "fecha": "2026-10-01",
+  "motivo": "Código leído en las fotos originales y corrección autorizada por el taller. No autoriza publicación ni confirma compatibilidad universal.",
+  "correcciones": [
+    {
+      "codigo_anterior": "AFE-15017",
+      "codigo": "AFE-1507",
+      "marca": "Advance Filters",
+      "autorizada": true,
+      "fotos": ["AFE-1507_01.jpeg", "AFE-1507_02.jpeg", "AFE-1507_03.jpeg"]
+    },
+    {
+      "codigo_anterior": "AFT-7864",
+      "codigo": "AF7864",
+      "marca": "SHOGUN",
+      "autorizada": true,
+      "fotos": ["AFT-7864_01.jpeg", "AFT-7864_02.jpeg", "AFT-7864_03.jpeg"]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import ExcelJS from "exceljs";
 import XLSX from "xlsx";
 import { cargarBibliotecaFuentes, consultarFuentesRecordadas, contextoFuentesRecordadas } from "./fuentes-recordadas.mjs";
+import { cargarCorreccionesCodigos, fotosConCorreccion } from "./correcciones-codigos.mjs";
 
 const root = process.cwd();
 const inventoryDir = path.join(root, "inventario");
@@ -110,7 +111,10 @@ const listPhotos = async () => {
   return photos;
 };
 
-export const choosePhotos = (code, photos) => {
+export const choosePhotos = (code, photos, corrections = [], brand = "") => {
+  const approved = fotosConCorreccion(code, brand,
+    photos.map(photo => ({ ...photo, relativeName: photo.file ? path.relative(photosDir, photo.file) : "" })), corrections);
+  if (approved) return { photos: approved, approximate: false, correction: true };
   const exact = photos.filter((photo) => codeKey(photo.code) === codeKey(code));
   if (exact.length) return { photos: exact, approximate: false };
   const nearby = photos.filter((photo) => photo.code && editDistance(photo.code, code) === 1);
@@ -272,6 +276,7 @@ const main = async () => {
   })).filter((row) => row.codigo && headerKey(row.revision) === "investigar").slice(0, maxProducts);
 
   const allPhotos = await listPhotos();
+  const codeCorrections = await cargarCorreccionesCodigos(root);
   const results = [];
   const editableWorkbook = new ExcelJS.Workbook();
   await editableWorkbook.xlsx.readFile(workbookFile);
@@ -285,7 +290,7 @@ const main = async () => {
   for (const row of rows) {
     try {
       console.log(`Investigando ${row.codigo}...`);
-      const selected = choosePhotos(row.codigo, allPhotos);
+      const selected = choosePhotos(row.codigo, allPhotos, codeCorrections, row.marca);
       let vision;
       try {
         vision = await inspectPhotos(row, selected);
@@ -301,6 +306,7 @@ const main = async () => {
       const references = unique(Array.isArray(proposal.referencias) ? proposal.referencias : splitList(proposal.referencias));
       const blockedReasons = [];
       if (selected.approximate) blockedReasons.push(`Las fotos se encontraron por código parecido, no exacto.`);
+      if (selected.correction && !visibleCode) blockedReasons.push("La asociación de fotos está autorizada, pero no se pudo confirmar el código real del empaque.");
       if (vision.error) blockedReasons.push("No se pudieron leer las fotografías con el modelo visual.");
       if (!programmaticMatch || proposal.codigo_coincide === false) blockedReasons.push(`El código visible (${visibleCode || "no identificado"}) no coincide con ${row.codigo}.`);
       if (!sources.length) blockedReasons.push("No se obtuvo una fuente web directa verificable.");
