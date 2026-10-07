@@ -1,6 +1,7 @@
 (() => {
   const config = window.KEIKO_CONFIG || {};
-  const configured = /^https:\/\//.test(config.supabaseUrl || "") && Boolean(config.supabaseAnonKey);
+  const localTest = ['localhost','127.0.0.1'].includes(location.hostname) && config.supabaseUrl?.startsWith(location.origin + '/mock');
+  const configured = (/^https:\/\//.test(config.supabaseUrl || "") || localTest) && Boolean(config.supabaseAnonKey);
   const login = document.querySelector("#admin-login");
   const panel = document.querySelector("#admin-panel");
   const notice = document.querySelector("#admin-notice");
@@ -9,8 +10,6 @@
   const productForm = document.querySelector("#product-form");
   const productList = document.querySelector("#inventory-list");
   const productReview = document.querySelector("#product-review");
-  const importLegacy = document.querySelector("#import-legacy");
-  const cleanPublishedPhotosButton = document.querySelector("#clean-published-photos");
   const photosInput = document.querySelector("#product-photos");
   const galleryPhotosInput = document.querySelector("#product-photos-gallery");
   const photoQueue = document.querySelector("#product-photo-queue");
@@ -18,6 +17,8 @@
   const backgroundStatus = document.querySelector("#product-background-status");
   const backgroundPreview = document.querySelector("#product-background-preview");
   let productsCache = [];
+  let socialPageIds = new Set();
+  let editingProduct = null;
   let existingPhotoPaths = [];
   let photoRenderId = 0;
   let token = sessionStorage.getItem("keikoAdminToken") || "";
@@ -59,6 +60,16 @@
   };
 
   const request = async (path, options = {}, retried = false) => {
+    const productPatch = options.method === 'PATCH' && path.startsWith('/rest/v1/productos_admin?');
+    if (productPatch) {
+      const id = new URLSearchParams(path.split('?')[1]).get('id')?.replace(/^eq\./, '');
+      const snapshot = !productForm.hidden && editingProduct?.id === id ? editingProduct : productsCache.find(item => item.id === id);
+      const payload = JSON.parse(options.body);
+      if (!Number.isSafeInteger(snapshot?.version) && !Number.isSafeInteger(payload.version)) throw new Error('Recarga el panel antes de guardar; falta la versión del producto.');
+      if (!Number.isSafeInteger(payload.version)) payload.version = snapshot.version + 1;
+      if (!path.includes('&version=')) path += `&version=eq.${payload.version - 1}`;
+      options = { ...options, headers: { ...options.headers, Prefer: 'return=representation' }, body: JSON.stringify(payload) };
+    }
     const response = await fetch(`${config.supabaseUrl}${path}`, {
       ...options,
       headers: {
@@ -71,6 +82,10 @@
     const body = response.status === 204 ? null : await response.json().catch(() => null);
     if (response.status === 401 && !path.startsWith("/auth/") && !retried && await refreshSession()) return request(path, options, true);
     if (!response.ok) throw new Error(body?.msg || body?.message || body?.error_description || "No se pudo completar la operación.");
+    if (productPatch && (!Array.isArray(body) || !body.length)) throw new Error('Otra computadora o el bot cambió este producto. No se sobrescribió nada: copia tus textos y vuelve a abrirlo antes de guardar.');
+    if (productPatch && JSON.parse(options.body).revision === 'publicado') {
+      request('/functions/v1/activar-investigacion', { method:'POST', body:JSON.stringify({tarea:'publicacion'}) }).catch(() => {});
+    }
     return body;
   };
 
@@ -171,10 +186,8 @@
   const researchTime = (value) => value ? new Intl.DateTimeFormat("es-EC", { dateStyle: "short", timeStyle: "short" }).format(new Date(value)) : "";
 
   const publicProductUrl = (product) => {
-    const url = new URL("./", document.baseURI);
-    url.searchParams.set("producto", product.id);
-    url.hash = "repuestos";
-    return url.toString();
+    if (!socialPageIds.has(product.id)) return new URL(`./?producto=${encodeURIComponent(product.id)}#repuestos`, document.baseURI).toString();
+    return new URL(`productos/panel-${product.id}/`, document.baseURI).toString();
   };
 
   const priceText = (product) => product.precio === null || product.precio === undefined || product.precio === ""
@@ -318,6 +331,10 @@
   };
 
   const sharePromotion = async (product) => {
+    const approved = window.KEIKO_PHOTOS?.approved(product.fotos || []) || product.fotos || [];
+    const photoNotice = window.KEIKO_PHOTOS?.notice(product.fotos || []);
+    if (photoNotice && !approved.length) { showNotice(photoNotice, 'error'); return; }
+    product = { ...product, fotos: approved };
     if (window.KEIKO_PROMOTION) return window.KEIKO_PROMOTION.open({name:product.nombre,code:product.codigo,price:priceText(product),url:publicProductUrl(product),text:promotionText(product),photos:product.fotos||[],resolvePhoto:index=>signedPhotoUrl(product.fotos?.[index])});
     try {
       const promotionFile = await createPromotionFile(product);
@@ -339,6 +356,7 @@
   };
 
   const loadProducts = async () => {
+    try { const response = await fetch('data/catalogo-panel.json', { cache:'no-store' }); if (response.ok) socialPageIds = new Set((await response.json()).productos.map(product => product.panelId)); } catch { /* Enlaces dinámicos seguros mientras se sincronizan fichas. */ }
     const products = await request("/rest/v1/productos_admin?select=*&order=actualizado.desc");
     productsCache = products;
     renderInventory();
@@ -371,6 +389,7 @@
     const sources = (view.fuentes || []).filter((source) => /^https?:\/\//i.test(source?.url || "")).map((source) => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.titulo || source.url)}</a></li>`).join("");
     productReview.innerHTML = `
       <h3>${escapeHtml(view.nombre)}</h3>
+      ${window.KEIKO_PHOTOS?.notice(view.fotos || []) ? `<p class="review-error">${escapeHtml(window.KEIKO_PHOTOS.notice(view.fotos || []))}</p>` : ''}
       ${hasDraft ? '<p class="review-error"><strong>Cambios pendientes:</strong> esta es la versión que revisarás. La página pública conserva la versión anterior hasta que pulses “Publicar cambios”.</p>' : ""}
       ${verificationRequested(product) ? '<p class="review-error"><strong>Verificación solicitada:</strong> el bot revisará este código de nuevo; la ficha pública seguirá visible mientras tanto.</p>' : ""}
       ${status ? `<p class="review-progress"><strong>Estado de búsqueda: ${escapeHtml(status.label)}.</strong> ${escapeHtml(status.detail)}${progressDate ? ` <small>${escapeHtml(progressDate)}</small>` : ""}</p>` : ""}
@@ -434,58 +453,6 @@
     return filePath;
   };
 
-  const localFileFromStoredPhoto = async (path, fallbackName) => {
-    const url = await signedPhotoUrl(path);
-    if (!url) throw new Error("No se pudo abrir una foto almacenada.");
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("No se pudo descargar una foto almacenada.");
-    const blob = await response.blob();
-    return new File([blob], fallbackName, { type: blob.type || "image/jpeg" });
-  };
-
-  const cleanPublishedPhotos = async () => {
-    const products = productsCache.filter((product) => product.revision === "publicado" && product.fotos?.length);
-    if (!products.length) return showNotice("No hay fotos publicadas para limpiar.", "error");
-    const totalPhotos = products.reduce((total, product) => total + product.fotos.length, 0);
-    if (!window.confirm(`Se limpiarán ${totalPhotos} fotos de ${products.length} productos en este dispositivo. Puede tardar varios minutos; mantén el panel abierto. ¿Continuar?`)) return;
-    cleanPublishedPhotosButton.disabled = true;
-    importLegacy.disabled = true;
-    let done = 0;
-    let updated = 0;
-    const errors = [];
-    try {
-      const { removeBackground } = await loadBackgroundRemoval();
-      for (const product of products) {
-        const cleanedPaths = [];
-        try {
-          for (const [index, path] of product.fotos.entries()) {
-            done += 1;
-            showNotice(`Limpiando foto ${done} de ${totalPhotos}: ${product.codigo}…`);
-            const original = await localFileFromStoredPhoto(path, `${product.codigo}-${index + 1}.jpg`);
-            const result = await removeBackground(original, { quality: "fast" });
-            const blob = result?.blob || result;
-            if (!(blob instanceof Blob)) throw new Error("La edición no produjo una imagen válida.");
-            const cleaned = new File([blob], `${product.codigo}-${index + 1}-sin-fondo.png`, { type: "image/png" });
-            cleanedPaths.push(await uploadPhoto(cleaned, product.codigo, index, { preserveTransparency: true }));
-          }
-          await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(product.id)}`, {
-            method: "PATCH", headers: { Prefer: "return=minimal" },
-            body: JSON.stringify({ fotos: cleanedPaths, actualizado: new Date().toISOString() })
-          });
-          updated += 1;
-        } catch (error) {
-          errors.push(`${product.codigo}: ${error.message || "no se pudo limpiar"}`);
-        }
-      }
-      await loadProducts();
-      showNotice(errors.length ? `Se actualizaron ${updated} productos. Revisa: ${errors.join(" · ")}` : `Listo: se limpiaron las fotos de ${updated} productos publicados.`, errors.length ? "error" : "success");
-    } catch (error) {
-      showNotice(error.message || "No se pudo iniciar la limpieza local.", "error");
-    } finally {
-      cleanPublishedPhotosButton.disabled = false;
-      importLegacy.disabled = false;
-    }
-  };
 
   const photosSignature = (files) => files.map((file) => `${file.name}:${file.size}:${file.lastModified}`).join("|");
 
@@ -789,6 +756,7 @@
   };
 
   const openEditProduct = (product, { manual = false } = {}) => {
+    editingProduct = structuredClone(product);
     const view = displayedProduct(product);
     existingPhotoPaths = [...(view.fotos || [])];
     renderExistingPhotos();
@@ -824,7 +792,6 @@
 
   document.querySelector("#new-product").addEventListener("click", openNewProduct);
   document.querySelector("#organize-manual-research").addEventListener("click", organizeManualResearch);
-  cleanPublishedPhotosButton?.addEventListener("click", cleanPublishedPhotos);
 
   const enqueueSelectedPhotos = async (added) => {
     if (!added.length) return;
@@ -886,77 +853,6 @@
     backgroundStatus.textContent = queuedPhotoFiles.length ? `${queuedPhotoFiles.length} foto${queuedPhotoFiles.length === 1 ? "" : "s"} lista${queuedPhotoFiles.length === 1 ? "" : "s"}.` : "";
   });
 
-  const legacyPhotoFile = async (medium) => {
-    const response = await fetch(new URL(medium.src, document.baseURI));
-    if (!response.ok) throw new Error(`No se encontró la foto ${medium.nombre || medium.src}.`);
-    const blob = await response.blob();
-    return new File([blob], medium.nombre || medium.src.split("/").at(-1) || "foto.jpg", { type: blob.type || "image/jpeg" });
-  };
-
-  const importLegacyCatalog = async () => {
-    importLegacy.disabled = true;
-    try {
-      showNotice("Leyendo el catálogo anterior…");
-      const response = await fetch(new URL("data/catalogo.json", document.baseURI));
-      if (!response.ok) throw new Error("No se pudo leer el catálogo anterior.");
-      const source = await response.json();
-      const legacyProducts = (source.productos || []).filter((product) => product.publicado !== false);
-      const knownCodes = new Set(productsCache.map((product) => normalizedCode(product.codigo)));
-      const pending = legacyProducts.filter((product) => !knownCodes.has(normalizedCode(product.codigo)));
-      if (!pending.length) {
-        showNotice("El catálogo anterior ya está en el panel; no se duplicó nada.", "success");
-        return;
-      }
-      const errors = [];
-      let imported = 0;
-      for (const [index, legacy] of pending.entries()) {
-        const code = normalizedCode(legacy.codigo);
-        showNotice(`Importando ${index + 1} de ${pending.length}: ${code}…`);
-        try {
-          const files = await Promise.all((legacy.medios || []).filter((item) => item.tipo === "imagen").map(legacyPhotoFile));
-          if (!files.length) throw new Error("No tiene fotografías para importar.");
-          const payload = {
-            codigo: code,
-            nombre: legacy.nombre,
-            cantidad: Number(legacy.stock || 0),
-            precio: typeof legacy.precio === "number" ? legacy.precio : null,
-            marca: legacy.marca || "",
-            observaciones: legacy.estado || "Importado del catálogo anterior.",
-            categoria: legacy.categoria || "Repuesto disponible",
-            descripcion_corta: legacy.descripcionCorta || "Consulta disponibilidad y compatibilidad.",
-            descripcion: legacy.descripcion || legacy.descripcionCorta || "Consulta disponibilidad y compatibilidad.",
-            compatibilidad: legacy.compatibilidad || [],
-            referencias: legacy.referencias || [],
-            fuentes: (legacy.fuentes || []).map((source) => typeof source === "string" ? { url: source, titulo: source, tipo: "Referencia" } : source),
-            confianza: legacy.confianza || "",
-            fotos: [],
-            revision: "revisar",
-            actualizado: new Date().toISOString()
-          };
-          const created = await request("/rest/v1/productos_admin", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(payload) });
-          const photoPaths = [];
-          for (const [photoIndex, file] of files.entries()) photoPaths.push(await uploadPhoto(file, code, photoIndex));
-          await request(`/rest/v1/productos_admin?id=eq.${encodeURIComponent(created[0].id)}`, {
-            method: "PATCH",
-            headers: { Prefer: "return=minimal" },
-            body: JSON.stringify({ fotos: photoPaths, revision: "publicado", actualizado: new Date().toISOString() })
-          });
-          knownCodes.add(code);
-          imported += 1;
-        } catch (error) {
-          errors.push(`${code}: ${error.message || "no se pudo importar"}`);
-        }
-      }
-      await loadProducts();
-      showNotice(errors.length ? `Se importaron ${imported} productos. Revisa estos casos: ${errors.join(" · ")}` : `Catálogo anterior importado: ${imported} productos con sus fotos.`, errors.length ? "error" : "success");
-    } catch (error) {
-      showNotice(error.message || "No se pudo importar el catálogo anterior.", "error");
-    } finally {
-      importLegacy.disabled = false;
-    }
-  };
-
-  importLegacy?.addEventListener("click", importLegacyCatalog);
 
   document.querySelector("#cancel-product").addEventListener("click", () => {
     clearBackgroundPreview();

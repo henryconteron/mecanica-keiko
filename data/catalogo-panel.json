@@ -1,0 +1,458 @@
+{
+  "total": 16,
+  "productos": [
+    {
+      "id": "panel-8be60005-2fab-4ac6-972b-1289a7be190f",
+      "codigo": "31911-2E000",
+      "nombre": "Filtro de combustible Hyundai/Kia Mobis",
+      "categoria": "Filtros",
+      "marca": "Hyundai Mobis",
+      "precio": 30,
+      "stock": 3,
+      "descripcionCorta": "Filtro de gasolina Hyundai/Kia Mobis 31911-2E000 para determinadas versiones de Tucson y Sportage.",
+      "descripcion": "Filtro de combustible Hyundai/Kia Mobis con referencia 31911-2E000. Los catálogos consultados lo identifican como filtro de gasolina para determinadas versiones de Hyundai Tucson y Kia Sportage. Antes de la entrega comprobamos la referencia del filtro instalado o el VIN; no se ofrece como filtro diésel ni para todas las generaciones.",
+      "compatibilidad": [
+        "Hyundai Tucson: versiones de gasolina que utilicen la referencia 31911-2E000; confirmar por VIN.",
+        "Kia Sportage: versiones de gasolina que utilicen la referencia 31911-2E000; confirmar por VIN."
+      ],
+      "referencias": [
+        "Hyundai/Kia 31911-2E000 (también escrito 319112E000)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "8be60005-2fab-4ac6-972b-1289a7be190f",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-8be60005-2fab-4ac6-972b-1289a7be190f/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-15b61b44-6f32-4046-a575-8423b7fea657",
+      "codigo": "37230-0K021",
+      "nombre": "Rulimán central de cardán",
+      "categoria": "Rulimanes y soportes",
+      "marca": "J&R Rubber",
+      "precio": "Consultar",
+      "stock": 1,
+      "descripcionCorta": "Soporte central de cardán J&R Rubber 37230-0K021, catalogado para Hilux, Fortuner e Innova según versión.",
+      "descripcion": "Soporte central del eje de transmisión o cardán J&R Rubber, referencia 37230-0K021. El fabricante lo incluye en su catálogo de soportes para Toyota Hilux, Fortuner e Innova. Confirma la referencia, las medidas del soporte y la configuración del cardán de tu vehículo antes de comprar; los años del catálogo no garantizan ajuste en todas las versiones.",
+      "compatibilidad": [
+        "Toyota Hilux: el catálogo J&R indica desde 2004; confirmar versión y cardán.",
+        "Toyota Fortuner: el catálogo J&R indica desde 2005; confirmar versión y cardán.",
+        "Toyota Innova: el catálogo J&R indica desde 2003; confirmar versión y cardán."
+      ],
+      "referencias": [
+        "37230-0K021 (referencia de aplicación Toyota, pieza de reemplazo J&R)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "15b61b44-6f32-4046-a575-8423b7fea657",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-15b61b44-6f32-4046-a575-8423b7fea657/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-45235a30-a8d8-453e-a26e-e46768a536c3",
+      "codigo": "AA-1109",
+      "nombre": "Filtro de aire Advance AA-1109",
+      "categoria": "Filtros de aire",
+      "marca": "ADVANCE Filters",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Filtro de aire Advance AA-1109, catalogado para Great Wall M4 2015. Confirmamos referencia y forma del filtro antes de entregar.",
+      "descripcion": "Filtro de aire Advance AA-1109. Dos distribuidores lo catalogan para Great Wall M4 2015; Disproauto lo relaciona con la referencia 1109101XS16XB. Antes de comprar se compara esa referencia, la forma y las medidas con el filtro instalado. La aplicación Voleex C30 2019 aparece en una sola fuente y requiere comprobación adicional; no se extiende la compatibilidad a todos los años o motores.",
+      "compatibilidad": [
+        "Great Wall M4 2015: aplicación publicada por Distripartes LM y Disproauto; confirmar referencia, forma y medidas del filtro instalado."
+      ],
+      "referencias": [
+        "1109101XS16XB: referencia de aplicación indicada por Disproauto; confirmar con la pieza instalada."
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "45235a30-a8d8-453e-a26e-e46768a536c3",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-45235a30-a8d8-453e-a26e-e46768a536c3/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-6dfc8414-59a5-450f-9bb2-4cad25aa2041",
+      "codigo": "AF7864",
+      "nombre": "Filtro de aire Shogun AF7864",
+      "categoria": "Filtros de aire",
+      "marca": "SHOGUN",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Filtro de aire Shogun Classic AF7864, relacionado por el distribuidor con Chevrolet LUV 2.2; confirmar versión.",
+      "descripcion": "Filtro de aire Shogun Classic AF7864, código visible en el empaque. MAXCAR lo incluye en una ficha Shogun/Sakura para LUV 2.2. Se comprueba la referencia del filtro instalado, la forma y las medidas antes de entregar. No se garantiza ajuste en todas las LUV ni se trasladan aplicaciones de otros fabricantes a esta pieza.",
+      "compatibilidad": [
+        "Chevrolet LUV 2.2: aplicación orientativa del distribuidor; confirmar versión, forma y medidas del filtro instalado."
+      ],
+      "referencias": [],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "6dfc8414-59a5-450f-9bb2-4cad25aa2041",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-6dfc8414-59a5-450f-9bb2-4cad25aa2041/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-bcddb9c6-d6e5-45f3-a0b2-f89cbdb598aa",
+      "codigo": "AFE-1507",
+      "nombre": "Filtro de combustible Advance AFE-1507",
+      "categoria": "Filtros de combustible",
+      "marca": "Advance Filters",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Filtro de combustible Advance AFE-1507, catalogado para Hino FC Euro 3 y determinadas Isuzu FTR, FSR y FVR.",
+      "descripcion": "Filtro de combustible Advance Filters AFE-1507. La ficha del distribuidor lo relaciona con Hino FC Euro 3 y determinadas aplicaciones Isuzu FTR, FSR y FVR. Antes de la entrega se confirma la referencia instalada, las conexiones y el motor. No se anuncian aplicaciones Mitsubishi ni años que la fuente no detalla.",
+      "compatibilidad": [
+        "Hino FC Euro 3: aplicación del distribuidor; confirmar motor y referencia instalada.",
+        "Isuzu FTR, FSR y FVR: determinadas aplicaciones; confirmar motor y referencia instalada."
+      ],
+      "referencias": [
+        "MF-20780 (cruce del distribuidor; no identidad de marca)",
+        "Sakura F 1507 (cruce del distribuidor; comprobar conexiones y medidas)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "bcddb9c6-d6e5-45f3-a0b2-f89cbdb598aa",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-bcddb9c6-d6e5-45f3-a0b2-f89cbdb598aa/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-430b582b-c9f5-46eb-a14d-f3f5e9e7b129",
+      "codigo": "AFP-4102",
+      "nombre": "Filtro de combustible Advance AFP-4102",
+      "categoria": "Filtros de combustible",
+      "marca": "ADVANCE Filters",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Filtro de combustible Advance AFP-4102. Consulta por motor y referencia; la aplicación exacta se confirma con el filtro instalado.",
+      "descripcion": "Filtro de combustible Advance AFP-4102. Tire Center lo relaciona con FP586 y FC5704, y JIC también indica CJX40 y LFF3521. Estas son referencias para comparación, no nombres de vehículos. JIC lista determinadas aplicaciones Ford Cargo y Volkswagen Worker, que deben confirmarse por motor, referencia y conexión del filtro instalado. No se atribuyen prestaciones de alta eficiencia ni garantías sin documentación específica.",
+      "compatibilidad": [
+        "Aplicación exacta pendiente de comprobación por motor y referencia del filtro instalado. Las menciones Ford Cargo y Volkswagen Worker de JIC son pistas comerciales, no compatibilidad universal confirmada."
+      ],
+      "referencias": [
+        "FP586 y FC5704: referencias equivalentes indicadas por Tire Center; comparar antes de instalar.",
+        "CJX40, LFF3521 y FC-5704: referencias equivalentes indicadas por JIC; no trasladar prestaciones de otra marca."
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "430b582b-c9f5-46eb-a14d-f3f5e9e7b129",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-430b582b-c9f5-46eb-a14d-f3f5e9e7b129/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-0defa5d6-4cbf-4333-bedb-8c5e95ca586c",
+      "codigo": "AFP-523",
+      "nombre": "Filtro de combustible",
+      "categoria": "Filtros",
+      "marca": "ADVANCE Filters",
+      "precio": 7,
+      "stock": 5,
+      "descripcionCorta": "Filtro de combustible Advance AFP-523, catalogado para Chevrolet Grand Vitara y Mazda 323 según versión.",
+      "descripcion": "Filtro de combustible Advance Filters AFP-523. Distripartes LM lo cataloga para Chevrolet Grand Vitara de 3 y 5 puertas y Mazda 323, con referencias cruzadas MF-5982 y ALG 9123. Comprobamos código, conexiones y aplicación por motor antes de la entrega; una equivalencia de catálogo no confirma por sí sola el ajuste.",
+      "compatibilidad": [
+        "Chevrolet Grand Vitara de 3 y 5 puertas: confirmar motor y conexiones.",
+        "Mazda 323: confirmar año, motor y conexiones."
+      ],
+      "referencias": [
+        "MF-5982 (cruce publicado por Distripartes LM)",
+        "MXF5982 (cruce publicado por Distripartes LM)",
+        "ALG 9118 (cruce publicado por Distripartes LM)",
+        "ALG 9123 (cruce publicado por Distripartes LM)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "0defa5d6-4cbf-4333-bedb-8c5e95ca586c",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-0defa5d6-4cbf-4333-bedb-8c5e95ca586c/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-11d2fee9-db40-4282-bded-1a63be258bb7",
+      "codigo": "AOE-9443",
+      "nombre": "Filtro de aceite Advance AOE-9443",
+      "categoria": "Filtros",
+      "marca": "Advance Filters",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Filtro de aceite tipo cartucho Advance AOE-9443 con guía, catalogado para Peugeot y Citroën según motor.",
+      "descripcion": "Elemento filtrante de aceite Advance Filters AOE-9443 con guía. La ficha del distribuidor lo relaciona con Peugeot 206 y 307 y Citroën C2, C3 y Xsara, y publica cruces con MANN HU 612 x y Hengst E35H D102. Confirma el motor y la forma del elemento antes de comprar: no corresponde a todas las versiones de esos modelos.",
+      "compatibilidad": [
+        "Peugeot 206 y 307: confirmar motor y versión.",
+        "Citroën C2, C3 y Xsara: confirmar motor y versión."
+      ],
+      "referencias": [
+        "MANN HU 612 x (referencia cruzada de catálogo)",
+        "Hengst E35H D102 (referencia cruzada de catálogo)",
+        "ML-9443 (referencia cruzada de catálogo)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "11d2fee9-db40-4282-bded-1a63be258bb7",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-11d2fee9-db40-4282-bded-1a63be258bb7/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-d8616454-a4f0-4b20-934c-86775a93f205",
+      "codigo": "BKR5E-11",
+      "nombre": "Bujías NGK BKR5E-11",
+      "categoria": "Bujías",
+      "marca": "NGK",
+      "precio": "Consultar",
+      "stock": 10,
+      "descripcionCorta": "Bujía NGK BKR5E-11: rosca M14, alcance de 19 mm, hexágono de 16 mm y separación nominal de 1,1 mm.",
+      "descripcion": "Bujía NGK BKR5E-11. El catálogo NGK especifica rosca de 14 mm, alcance de 19 mm, hexágono de 16 mm y separación nominal de electrodos de 1,1 mm. El código completo, incluido el sufijo -11, debe coincidir con la recomendación para el motor. Confirmamos la aplicación en catálogo antes de la entrega.",
+      "compatibilidad": [
+        "Aplicación por confirmar con modelo y código de motor en catálogo NGK; no se asigna a un vehículo solo por la rosca."
+      ],
+      "referencias": [
+        "NGK BKR5E-11",
+        "NGK 6953 (identificador del catálogo consultado; verificar etiqueta regional)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "d8616454-a4f0-4b20-934c-86775a93f205",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-d8616454-a4f0-4b20-934c-86775a93f205/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-574a32b4-0584-4348-8a1d-c9af6492c2ad",
+      "codigo": "BPR5EY",
+      "nombre": "Bujías NGK BPR5EY",
+      "categoria": "Bujías",
+      "marca": "NGK",
+      "precio": "Consultar",
+      "stock": 10,
+      "descripcionCorta": "Bujía NGK BPR5EY de níquel: rosca M14 × 1,25, alcance de 19 mm y hexágono de 20,8 mm.",
+      "descripcion": "Bujía NGK BPR5EY de níquel, con resistencia interna. La ficha técnica consultada indica rosca M14 × 1,25, alcance de 19 mm y hexágono de 20,8 mm. JAPKO incluye una aplicación en Mazda 121 I 1.3 con motor B3. Confirma código de motor y especificación de bujía: no se sustituye automáticamente por BPR5EY-11 ni por una bujía de iridio.",
+      "compatibilidad": [
+        "Mazda 121 I (DA), 1.3 motor B3, 1987–1991: aplicación del catálogo JAPKO; confirmar versión y código de motor."
+      ],
+      "referencias": [
+        "NGK BPR5EY"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "574a32b4-0584-4348-8a1d-c9af6492c2ad",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-574a32b4-0584-4348-8a1d-c9af6492c2ad/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-f0a14032-30b4-4a4b-b442-e0a8198d4096",
+      "codigo": "D831C",
+      "nombre": "Pastillas de freno delanteros Double link brake",
+      "categoria": "Pastillas de freno",
+      "marca": "Double link brake",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Pastillas delanteras Double Link Brake D831C, cerámicas según empaque. Referencia base D831 para comprobar aplicación.",
+      "descripcion": "Juego de pastillas de freno delanteras Double Link Brake D831C. El empaque indica CERAMIC, confirmado por el taller. El catálogo de referencia D831 relaciona esta forma con Toyota Yaris P1, Echo y Platz. Estas aplicaciones son orientativas: comparamos forma, medidas y sistema de freno antes de entregar. Las equivalencias D831 no prueban por sí solas el ajuste exacto de esta variante ni una garantía de Double Link.",
+      "compatibilidad": [
+        "Referencia base D831: Toyota Yaris I (P1), 1999–2005; confirmar forma, medidas y sistema de freno.",
+        "Referencia base D831: Toyota Echo sedán (P1), 1999–2006; confirmar forma, medidas y sistema de freno.",
+        "Referencia base D831: Toyota Platz (NCP1/SCP1), 1999–2005; confirmar forma, medidas y sistema de freno."
+      ],
+      "referencias": [
+        "FMSI D831-7704 (referencia base; verificar medidas)",
+        "Toyota 04465-52031 (cruce de la referencia base D831)",
+        "Toyota 04465-52070 (cruce de la referencia base D831)",
+        "Brembo P 83 050 (cruce de la referencia base D831)",
+        "Bosch 0 986 424 535 (cruce de la referencia base D831)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "f0a14032-30b4-4a4b-b442-e0a8198d4096",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-f0a14032-30b4-4a4b-b442-e0a8198d4096/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-d8cac5be-a865-4eee-b6c9-bac1cb0ce313",
+      "codigo": "DCPR7E",
+      "nombre": "Bujías NGK DCPR7E",
+      "categoria": "Bujías",
+      "marca": "NGK",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Bujía NGK DCPR7E de níquel: rosca M12 × 1,25, alcance de 19 mm, hexágono de 16 mm y grado térmico 7.",
+      "descripcion": "Bujía NGK DCPR7E, identificada como stock NGK 3932 en el catálogo consultado. Sus especificaciones son rosca M12 × 1,25, alcance de 19 mm, hexágono de 16 mm, grado térmico 7 y separación nominal de 0,8 mm. Confirmamos su aplicación por motor antes de entregar; 3932 es un identificador de catálogo, no la cantidad disponible.",
+      "compatibilidad": [
+        "Aplicación por confirmar con modelo y código de motor en catálogo NGK; conservar el código completo DCPR7E."
+      ],
+      "referencias": [
+        "NGK DCPR7E",
+        "NGK 3932 (identificador de catálogo)"
+      ],
+      "avisoFoto": "Foto pendiente de corregir: la etiqueta muestra BKR5E-11, no DCPR7E. Sube una foto real del código correcto; el original se conserva.",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "d8cac5be-a865-4eee-b6c9-bac1cb0ce313",
+      "medios": []
+    },
+    {
+      "id": "panel-3076840b-6250-4a67-86d8-a2fa4f2e3728",
+      "codigo": "LF-D1574",
+      "nombre": "Pastillas de freno delanteras Car Shield",
+      "categoria": "Pastillas de freno",
+      "marca": "Car Shield",
+      "precio": "Consultar",
+      "stock": 1,
+      "descripcionCorta": "Pastillas delanteras Car Shield LF-D1574, catalogadas para Mazda BT-50 y determinadas Ford Ranger diésel 4×4.",
+      "descripcion": "Pastillas de freno delanteras Car Shield LF-D1574. Distripartes LM las incluye para Mazda BT-50 y determinadas Ford Ranger diésel 4×4, y publica el cruce SF-D1574. Antes de la entrega verificamos forma, medidas y cáliper. No se anuncia compatibilidad con todas las generaciones ni se extienden los años del título comercial a cualquier versión.",
+      "compatibilidad": [
+        "Mazda BT-50 diésel 4×4: aplicación publicada por el distribuidor; confirmar generación, forma y cáliper.",
+        "Ford Ranger diésel 4×4: determinadas versiones; confirmar generación, forma y cáliper."
+      ],
+      "referencias": [
+        "SF-D1574 (cruce publicado por Distripartes LM)"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "3076840b-6250-4a67-86d8-a2fa4f2e3728",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-3076840b-6250-4a67-86d8-a2fa4f2e3728/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-2a5c7ddb-5de3-4ee1-81eb-8cb1f7c78a80",
+      "codigo": "SP1502",
+      "nombre": "Pastillas de freno delanteras Hi-Q",
+      "categoria": "Pastillas de freno",
+      "marca": "Hi-Q / Sangsin",
+      "precio": 20,
+      "stock": 1,
+      "descripcionCorta": "Juego delantero Hi-Q / Sangsin SP1502, catalogado para determinadas versiones de Toyota Corolla IX E120/E130.",
+      "descripcion": "Juego de 4 pastillas de freno delanteras Hi-Q / Sangsin, código SP1502. El catálogo del fabricante incluye determinadas versiones de Toyota Corolla IX E120/E130 del período 2001–2006. Comprobamos forma, medidas y sistema de freno antes de la entrega; el modelo o el año por sí solos no garantizan ajuste.",
+      "compatibilidad": [
+        "Toyota Corolla IX E120/E130, 2001–2006: determinadas versiones incluidas en el catálogo Sangsin; confirmar motor y sistema de freno."
+      ],
+      "referencias": [
+        "Sangsin / Hi-Q SP1502"
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "2a5c7ddb-5de3-4ee1-81eb-8cb1f7c78a80",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-2a5c7ddb-5de3-4ee1-81eb-8cb1f7c78a80/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-ff2b15cb-4eb8-4155-994a-f5ca8e079842",
+      "codigo": "WV48B-76.5",
+      "nombre": "Termostato TAMA WV48B-76.5",
+      "categoria": "Termostatos",
+      "marca": "TAMA ENTERPRISES CO., LTD",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Termostato TAMA WV48B-76.5, catalogado para aplicaciones Nissan específicas. Confirmamos motor, referencia y temperatura antes de instalar.",
+      "descripcion": "Termostato TAMA WV48B-76.5 para el sistema de refrigeración, variante nominal 76.5 °C y diámetro principal de 48 mm. TAMA lo cataloga para aplicaciones Nissan con motores GA13, GA15 y GA16 según versión; MAXCAR lo identifica para Sentra 1.6. Antes de instalar se comparan motor, referencia OE, carcasa y sellado. No se ofrece como compatible con cualquier Sentra ni como aplicación confirmada para Toyota Corolla.",
+      "compatibilidad": [
+        "Nissan Sunny B13: GA16DE, GA13DS o GA15DS en las aplicaciones que TAMA relaciona con WV48B-76.5; confirmar referencia OE y versión.",
+        "Nissan Sunny/Lucino B14: GA13DE, GA15DE o GA16DE en las aplicaciones catalogadas por TAMA; no todos los motores B14.",
+        "Nissan Sentra 1.6: aplicación comercial indicada por MAXCAR para WV48B-76.5 / 21200-77A00; confirmar motor y referencia del vehículo."
+      ],
+      "referencias": [
+        "Nissan 21200-77A61 y 21200-77A63: referencias OE asociadas por TAMA al WV48B-76.5 según aplicación.",
+        "Nissan 21200-77A00: referencia indicada por MAXCAR; comprobar contra la pieza retirada."
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "ff2b15cb-4eb8-4155-994a-f5ca8e079842",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-ff2b15cb-4eb8-4155-994a-f5ca8e079842/photo.jpg"
+        }
+      ]
+    },
+    {
+      "id": "panel-d49e0da9-68e5-4e0a-83d9-db5281ba717c",
+      "codigo": "WV54I-82",
+      "nombre": "Termostato TAMA WV54I-82",
+      "categoria": "Termostatos",
+      "marca": "TAMA ENTERPRISES CO., LTD.",
+      "precio": "Consultar",
+      "stock": 5,
+      "descripcionCorta": "Termostato TAMA WV54I-82, variante 82 °C y diámetro principal de 54 mm, para aplicaciones Isuzu específicas según motor y referencia.",
+      "descripcion": "Termostato TAMA WV54I-82 para refrigeración, variante nominal 82 °C, diámetro principal 54 mm y válvula de bypass inferior. TAMA lo relaciona con aplicaciones Isuzu NHR/NKR de motores 4JA1, 4JB1 y 4JG2 según versión. Antes de instalar se comprueban referencia OE, carcasa y sellado. No es un reemplazo universal para todos los ELF o D-Max y no debe confundirse con el WV54IA-82.",
+      "compatibilidad": [
+        "Isuzu ELF 150 NHR: aplicaciones 4JA1 y 4JB1 catalogadas por TAMA para WV54I-82 / OE 8-97361-770-0; confirmar versión.",
+        "Isuzu ELF NKR: aplicaciones 4JB1 o 4JG2 catalogadas por TAMA para WV54I-82; comprobar la referencia OE de la versión.",
+        "Isuzu Bighorn UBS y Mu UCS con 4JG2: aplicaciones del catálogo TAMA / OE 8-97089-891-0; confirmar versión."
+      ],
+      "referencias": [
+        "Isuzu 8-97089-891-0: referencia OE asociada por TAMA a determinadas aplicaciones 4JG2.",
+        "Isuzu 8-97361-770-0: referencia OE asociada por TAMA a otras aplicaciones WV54I-82; confirmar según vehículo."
+      ],
+      "avisoFoto": "",
+      "publicado": true,
+      "origen": "respaldo-panel",
+      "panelId": "d49e0da9-68e5-4e0a-83d9-db5281ba717c",
+      "medios": [
+        {
+          "tipo": "imagen",
+          "src": "productos/panel-d49e0da9-68e5-4e0a-83d9-db5281ba717c/photo.jpg"
+        }
+      ]
+    }
+  ]
+}

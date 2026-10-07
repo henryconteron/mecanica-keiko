@@ -21,6 +21,10 @@ Los productos (incluyendo su descripción, precio, cantidad y fotografías) sigu
 - Ejecutar una sola vez `supabase/pagina-web.sql` en SQL Editor del proyecto. Es repetible, no modifica las tablas anteriores ni el contenido publicado del negocio.
 - Para comprobar seguridad y publicación sin dejar cambios, ejecutar `supabase/pagina-web-pruebas.sql`. Usa una transacción con `rollback`: no publica el texto de prueba ni conserva modificaciones.
 
+## Fotos reales del local y servicios
+
+En 🔒 Página web, confirma tu contraseña y elige **Fotos reales del local y servicios**. Selecciona Local o un servicio; cada grupo permite hasta seis fotos. Sube JPG, PNG o WebP de hasta 5 MB, revisa la vista previa, guarda el borrador y publica solo cuando esté correcto. **Quitar esta imagen** retira únicamente esa referencia del borrador, no otras fotos ni el archivo original. No subir rostros, placas o información privada. Los espacios vacíos permanecen ocultos; no se generan trabajos ficticios.
+
 ## Protección y límites
 
 - Borrador e historial privados por RLS; el visitante solo puede leer `pagina_publica`.
@@ -29,8 +33,8 @@ Los productos (incluyendo su descripción, precio, cantidad y fotografías) sigu
 - Dos computadoras comparten la misma versión. Si una cambia el borrador mientras la otra está editando, se rechaza la sobreescritura; copia tu propuesta y desbloquea nuevamente para recargar.
 - Texto se presenta como texto, no HTML. Fotografías JPG/PNG/WebP hasta 5 MB; no SVG, scripts ni enlaces externos. Las fotos del borrador permanecen privadas; las referencias publicadas pueden obtener enlaces temporales. No se usa una clave de servicio en el navegador.
 - Sin conexión o configuración válida, se conserva la página original. Cambiar un dato no requiere recompilar la web ni ejecutar GitHub Actions.
-- Los títulos y metadatos se actualizan en el navegador. Facebook, WhatsApp y algunos buscadores leen el HTML estático y pueden conservar los metadatos originales: estos campos no garantizan cambiar sus tarjetas. Para ello queda como mejora una sincronización del HTML estático en el despliegue; el aviso también figura dentro de la sección del editor.
-- Las páginas estáticas históricas de `productos/` conservan sus propios metadatos y datos del producto. Reciben los cambios de teléfono, WhatsApp, nombre y logotipo desde el mismo contenido publicado.
+- Los títulos y metadatos se sincronizan también al HTML estático mediante GitHub Actions al publicar; el ciclo de respaldo se programa cada 30 minutos y puede demorarse. Facebook y otras redes pueden mantener su propia caché de una tarjeta anterior.
+- Cada producto publicado tiene una ficha estática individual, metadatos sociales y disponibilidad actualizada desde el panel. Los enlaces históricos redirigen a la ficha vigente. La foto errónea confirmada de DCPR7E se conserva para revisión y se excluye de las promociones hasta sustituirla.
 - Fotos subidas y descartadas se conservan para no romper referencias. Su limpieza administrativa y una auditoría de almacenamiento quedan para mantenimiento; el panel no borra archivos automáticamente.
 
 ## Verificación

@@ -8,10 +8,22 @@ on:
       - "servicios/**"
       - "assets/marca/**"
       - "scripts/generar-catalogo.mjs"
+      - "scripts/sincronizar-publicacion.mjs"
+      - "assets/config.js"
+      - "assets/ficha-publica.*"
+      - "package.json"
+      - "pnpm-lock.yaml"
   workflow_dispatch:
+  schedule:
+    - cron: "13,43 * * * *"
 
 permissions:
   contents: write
+  pages: write
+
+concurrency:
+  group: sincronizar-publicacion
+  cancel-in-progress: false
 
 jobs:
   actualizar:
@@ -28,16 +40,24 @@ jobs:
           node-version: 22.13.1
 
       - name: Generar páginas estáticas y galerías de servicios
-        run: node scripts/generar-catalogo.mjs
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          node scripts/generar-catalogo.mjs --servicios
+          node scripts/sincronizar-publicacion.mjs
 
       - name: Guardar contenido actualizado
         run: |
-          if git diff --quiet data/catalogo.json data/servicios.json productos/; then
+          git add data/catalogo-panel.json data/servicios.json productos/ index.html sitemap.xml assets/social/
+          if git diff --cached --quiet; then
             echo "No hay cambios generados"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/catalogo.json data/servicios.json productos/
           git commit -m "Actualizar catálogo y servicios [skip ci]"
+          git pull --rebase origin main
           git push
+          curl --fail-with-body --retry 2 -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPOSITORY/pages/builds"
+        env:
+          GH_TOKEN: ${{ github.token }}

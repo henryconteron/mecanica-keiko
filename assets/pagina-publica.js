@@ -100,6 +100,27 @@
         structured.textContent = JSON.stringify(data);
       } catch { /* No altera otros datos estructurados si cambia el formato. */ }
     }
+    const gallery = document.querySelector('#local-gallery');
+    const target = document.querySelector('#local-gallery-photos');
+    if (gallery && target) {
+      const photos = await Promise.all(Array.from({ length: 6 }, (_, i) => combined.fields[`localFoto${i}`]).filter(Boolean).map(async value => {
+        try { return media[value] || await imageUrl(value); } catch { return null; }
+      }));
+      if (epoch !== generation) return;
+      target.replaceChildren();
+      for (const [i, src] of photos.filter(Boolean).entries()) {
+        const button = document.createElement('button'); button.type = 'button'; button.setAttribute('aria-label', `Ampliar foto del local ${i + 1}`);
+        const image = document.createElement('img'); image.src = src; image.alt = `Local de ${contact.name}, foto ${i + 1}`; image.loading = 'lazy'; button.append(image);
+        button.onclick = () => {
+          const dialog = document.createElement('dialog'); dialog.className = 'local-photo-dialog';
+          const close = document.createElement('button'); close.type = 'button'; close.textContent = 'Cerrar ×'; close.onclick = () => dialog.close();
+          const full = image.cloneNode(); full.loading = 'eager'; dialog.append(close, full); document.body.append(dialog); dialog.showModal();
+          dialog.onclick = event => { if (event.target === dialog) dialog.close(); }; dialog.onclose = () => dialog.remove();
+        };
+        target.append(button);
+      }
+      gallery.hidden = !target.childElementCount;
+    }
     window.dispatchEvent(new CustomEvent('keiko:pagina', { detail: { content: current, media } }));
   }
   window.addEventListener('keiko:servicios-listos', () => {

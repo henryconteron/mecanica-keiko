@@ -155,6 +155,14 @@ const verifySource = async (source, product, sourceCode = product.codigo) => {
 };
 
 const sourceLibrary = await cargarBibliotecaFuentes();
+const patchProduct = async (product, update) => {
+  if (!Number.isSafeInteger(product.version)) throw new Error('Producto sin versión: instala mejoras-lanzamiento.sql.');
+  const rows = await api(`/rest/v1/productos_admin?id=eq.${product.id}&version=eq.${product.version}`, {
+    method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ ...update, version: product.version + 1 })
+  });
+  if (!Array.isArray(rows) || !rows.length) { const error = new Error('El producto cambió durante la investigación; se conservan los cambios más recientes.'); error.conflict = true; throw error; }
+  product.version = rows[0].version;
+};
 const candidates = await api("/rest/v1/productos_admin?select=*&order=actualizado.asc&limit=500");
 const verificationRequested = (product) => product?.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot)
   && product.resultado_bot.verificacion_solicitada === true;
@@ -167,10 +175,7 @@ for (const product of pending) {
   try {
     isRecheck = product.revision === "publicado" && verificationRequested(product);
     const queuedResult = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
-    await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
-      method: "PATCH", headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ resultado_bot: { ...queuedResult, estado_investigacion: "investigando", investigacion_iniciada_en: new Date().toISOString() }, actualizado: new Date().toISOString() })
-    });
+    await patchProduct(product, { resultado_bot: { ...queuedResult, estado_investigacion: "investigando", investigacion_iniciada_en: new Date().toISOString() } });
     let vision;
     try { vision = await inspectPhoto(product); } catch (error) { vision = { codigo_visible: "", confianza: "Baja", error: error.message }; }
     const sourceCode = baseCodeForCeramicBrakePad(product, vision) || product.codigo;
@@ -247,20 +252,17 @@ for (const product of pending) {
       error_investigacion: unique([...reasons, ...sourceProblems, result.observaciones]).join(" "),
       revision: "revisar", actualizado: new Date().toISOString()
     };
-    await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
-      method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(update)
-    });
+    await patchProduct(product, update);
     console.log(`${product.codigo}: ${ready ? "listo para revisar" : "bloqueado"}${isRecheck ? " sin ocultar la ficha pública" : ""}.`);
   } catch (error) {
+    if (error.conflict) { console.warn(`${product.codigo}: ${error.message}`); continue; }
     const previousResult = product.resultado_bot && typeof product.resultado_bot === "object" && !Array.isArray(product.resultado_bot) ? { ...product.resultado_bot } : {};
     delete previousResult.verificacion_solicitada;
     delete previousResult.verificacion_solicitada_en;
-    await api(`/rest/v1/productos_admin?id=eq.${product.id}`, {
-      method: "PATCH", headers: { Prefer: "return=minimal" },
-      body: JSON.stringify(isRecheck
+    try { await patchProduct(product, isRecheck
         ? { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, error_investigacion: error.message, revision: "publicado", actualizado: new Date().toISOString() }
-        : { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, revision: "revisar", error_investigacion: error.message, actualizado: new Date().toISOString() })
-    });
+        : { resultado_bot: { ...previousResult, estado_investigacion: "error", ultima_verificacion: new Date().toISOString() }, revision: "revisar", error_investigacion: error.message, actualizado: new Date().toISOString() }); }
+    catch (saveError) { if (!saveError.conflict) throw saveError; console.warn(saveError.message); }
     console.error(`${product.codigo}: ${error.message}`);
   }
 }

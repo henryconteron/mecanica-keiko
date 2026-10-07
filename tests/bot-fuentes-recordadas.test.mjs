@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 // Ejecuta el bot real con TODAS sus llamadas de red sustituidas por respuestas locales.
 // No usa credenciales reales, Supabase de producción ni consultas de IA de pago.
-async function runBot({ code = "AFP-523", ceramic = false, unavailable = false, draft = null } = {}) {
+async function runBot({ code = "AFP-523", ceramic = false, unavailable = false, draft = null, conflict = false } = {}) {
   const oldFetch = globalThis.fetch;
   const envNames = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GROQ_API_KEY"];
   const oldEnv = Object.fromEntries(envNames.map((name) => [name, process.env[name]]));
@@ -11,7 +11,7 @@ async function runBot({ code = "AFP-523", ceramic = false, unavailable = false, 
   process.env.SUPABASE_SERVICE_ROLE_KEY = "clave-ficticia-prueba";
   process.env.GROQ_API_KEY = "groq-ficticio-prueba";
   const sourceUrl = code === "D831C" ? "https://www.qytauto.com/d831.html" : "https://distriparteslm.ec/producto/otr-afp-523/";
-  const product = { id: "producto-prueba", codigo: code, marca: code === "D831C" ? "Double link brake" : "Advance Filters",
+  const product = { id: "producto-prueba", version: 1, codigo: code, marca: code === "D831C" ? "Double link brake" : "Advance Filters",
     nombre: code === "D831C" ? "Pastillas de freno delanteras" : "Filtro de combustible",
     categoria: code === "D831C" ? "Pastillas de freno" : "Filtros", revision: "publicado",
     cantidad: 5, precio: "$7", fotos: ["foto-original.png", "foto-2.png"], descripcion: "Descripción pública aprobada",
@@ -27,7 +27,9 @@ async function runBot({ code = "AFP-523", ceramic = false, unavailable = false, 
     if (url.startsWith(process.env.SUPABASE_URL + "/rest/v1/productos_admin")) {
       if (options.method === "PATCH") {
         patches.push(JSON.parse(options.body));
-        return new Response(null, { status: 204 });
+        assert.match(url, /&version=eq\.[12]$/);
+        if (conflict && patches.length === 2) return json([]);
+        return json([{ version: patches.at(-1).version }]);
       }
       return json([product]);
     }
@@ -60,7 +62,7 @@ async function runBot({ code = "AFP-523", ceramic = false, unavailable = false, 
     throw new Error(`Llamada de red no permitida en prueba: ${url}`);
   };
   try {
-    await import(`../scripts/investigar-supabase.mjs?prueba=${encodeURIComponent(JSON.stringify({ code, ceramic, unavailable, draft }))}`);
+    await import(`../scripts/investigar-supabase.mjs?prueba=${encodeURIComponent(JSON.stringify({ code, ceramic, unavailable, draft, conflict }))}`);
     assert.equal(patches.length, 2);
     return { product, patches, researchPrompt, calls, final: patches.at(-1) };
   } finally {
@@ -92,6 +94,13 @@ test("bot: usa evidencia recordada actual, deja borrador y conserva ficha públi
   assert.equal(result.final.resultado_bot.edicion_pendiente.descripcion, "Propuesta nueva según fuente actual");
   assert.match(result.researchPrompt, /Evidencia fresca/);
   assert.match(result.researchPrompt, /Se omite la aplicación Kia/);
+});
+
+test('bot: si otra PC edita durante la búsqueda, no reintenta sobrescribir ni guarda un error sobre la nueva ficha', async () => {
+  const result = await runBot({conflict:true});
+  assert.equal(result.patches.length,2);
+  assert.equal(result.patches[0].version,2);
+  assert.equal(result.patches[1].version,3);
 });
 
 test("bot: D831C conserva código de venta, usa base D831 solo con CERAMIC visible", async () => {

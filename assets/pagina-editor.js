@@ -48,7 +48,7 @@
   function renderFields() {
     const target = q('#website-fields'); target.replaceChildren();
     for (const field of model.fields) {
-      const wrapper = document.createElement('div'); wrapper.className = 'website-field'; wrapper.dataset.section = field.section;
+      const wrapper = document.createElement('div'); wrapper.className = 'website-field'; wrapper.dataset.section = field.section; wrapper.dataset.key = field.key;
       const label = document.createElement('label'); label.htmlFor = `page-field-${field.key}`; label.textContent = field.label;
       const input = document.createElement(field.type === 'boolean' ? 'select' : field.multiline ? 'textarea' : 'input');
       input.id = label.htmlFor; input.dataset.field = field.key; input.required = !!field.required;
@@ -65,6 +65,9 @@
       reset.onclick = () => { input.value = baseline.fields[field.key]; input.dispatchEvent(new Event('input', { bubbles: true })); };
       wrapper.append(reset);
       if (field.type === 'image') {
+        const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Quitar esta imagen';
+        remove.onclick = () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); status('Imagen retirada del borrador. El archivo original y las otras fotos se conservan.'); };
+        wrapper.append(remove);
         const image = document.createElement('img'); image.alt = `Vista actual: ${field.label}`; image.dataset.value = input.value;
         image.onerror = () => { image.hidden = true; }; wrapper.append(image); showImage(input.value, image);
         input.addEventListener('input', () => { image.dataset.value = input.value; showImage(input.value, image); });
@@ -90,10 +93,17 @@
   }
   function filterFields() {
     const search = q('#website-search').value.toLocaleLowerCase('es').trim();
-    q('#website-fields').querySelectorAll('.website-field').forEach(node => { node.hidden = search ? !node.textContent.toLocaleLowerCase('es').includes(search) : node.dataset.section !== activeSection; });
+    const group = q('#website-photo-group');
+    if (group) group.hidden = activeSection !== 'fotos' || !!search;
+    q('#website-fields').querySelectorAll('.website-field').forEach(node => { node.hidden = search ? !node.textContent.toLocaleLowerCase('es').includes(search) : node.dataset.section !== activeSection || activeSection === 'fotos' && !node.dataset.key.startsWith(group?.querySelector('select').value || 'localFoto'); });
     q('#website-sections').querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.section === activeSection && !search)));
   }
   function renderSections() {
+    q('#website-photo-group')?.remove();
+    const group = document.createElement('label'); group.id = 'website-photo-group'; group.textContent = 'Galería que quieres editar';
+    const select = document.createElement('select'); select.add(new Option('Fotos del local', 'localFoto'));
+    model.serviceIds.forEach((id, i) => select.add(new Option(model.fields.find(field => field.key === `servicio${i}Nombre`).label.split(':')[0], `servicio${i}`)));
+    select.onchange = filterFields; group.append(select); q('#website-fields').before(group);
     q('#website-sections').replaceChildren();
     for (const [id, title, explanation] of model.sections) {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = title; button.dataset.section = id;
@@ -184,6 +194,7 @@
       await api.confirmPassword(password);
       await save();
       const result = await api.request('/rest/v1/rpc/pagina_publicar', { method: 'POST', body: JSON.stringify({ p_revision: row.revision }) });
+      api.request('/functions/v1/activar-investigacion', { method:'POST', body:JSON.stringify({tarea:'publicacion'}) }).catch(() => {});
       row.revision = result.revision; row.publicado = structuredClone(content); saved = structuredClone(content);
       window.KEIKO_PAGE_CONTENT = row.publicado;
       q('#website-publish-dialog').close(); updateChanges();

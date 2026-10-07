@@ -1,94 +1,32 @@
 # Revisión del proyecto — 7 de octubre de 2026
 
-## Estado comprobado en producción
+## Cambios aplicados
 
-- La página pública y el panel coinciden con los archivos actuales. El catálogo de Supabase publica 16 productos; las 52 imágenes asociadas responden y son imágenes válidas.
-- El Excel antiguo contiene 10 códigos, y los 10 existen en el panel con las mismas cantidades. Los dos precios numéricos coinciden; los restantes aparecen como “Consultar”. No contiene productos que falten en el panel.
-- El repositorio de GitHub es público y el archivo Excel se podía descargar desde su ruta directa. Por eso se retiró de la versión actual del repositorio, se añadió a `.gitignore` y se envió a la Papelera local. Las versiones ya guardadas en commits anteriores siguen en el historial público; no se reescribió el historial.
-- Se desactivó la automatización antigua de investigación basada en Excel. El flujo de investigación del panel en Supabase permanece intacto; la generación de páginas estáticas y galerías continúa cuando cambian `catalogo/` o `servicios/`.
-- Las pruebas de inventario ahora generan hojas de prueba desechables; no necesitan copiar el archivo real del negocio. Pasaron `pnpm test:inventario`, `pnpm test:fuentes` y `pnpm test:pagina`.
-- La eliminación no cambió productos, precios, cantidades ni fotos en Supabase, y no alteró la página pública.
+- Supabase: versión por producto. Una edición atrasada del panel o del bot no puede sobrescribir cambios de otra computadora. Pruebas SQL de concurrencia, privacidad y galerías ejecutadas con `rollback`, sin alterar existencias, precios ni fotos.
+- Editor protegido: seis espacios para fotos propias/autorizadas del local y seis por servicio, con vista previa, borrador y retirada individual. Las galerías vacías siguen ocultas; no se generan trabajos ficticios.
+- Inventario único del panel: 16 fichas públicas con enlaces permanentes, respaldo de columnas públicas y metadatos sociales. Los ocho enlaces heredados redirigen a la ficha vigente. Sincronización al publicar y ciclo de respaldo cada 30 minutos, sujeto a demoras de GitHub.
+- Promociones: fondo blanco, producto completo y formatos de publicación e historia. Las apps disponibles dependen del teléfono y navegador; el escritorio permite descargar y copiar, no publicar directamente en Instagram.
+- Hallazgo visual: la única foto de DCPR7E muestra BKR5E-11. El original se conserva, pero se excluye del catálogo y las promociones de DCPR7E. El producto no cambia de código, cantidad o precio. Hace falta una foto real del código correcto.
+- Publicaciones: registro privado de consultas, conversaciones, ventas e importes, separado de clics; preparación de texto verificable para difusión orgánica. No se enviaron mensajes ni publicaciones externas.
+- Limpieza: retirados el importador/investigador del Excel, sus pruebas, controles antiguos y dependencias `exceljs` y `xlsx`. Se conservan originales, fuentes y registros históricos. El Excel anterior está en la Papelera local y los commits previos permiten recuperarlo; su historial público no fue reescrito.
+- La función existente `activar-investigacion` también solicita la sincronización de fichas al publicar. Se actualizó sin ampliar permisos ni consultar su secreto de GitHub.
 
-## Pendientes recomendados antes de ampliar la promoción
+## Comprobaciones y límites
 
-1. Confirmar y mantener vigente la protección de inicio de sesión (incluida la protección contra contraseñas filtradas en Supabase).
-2. Añadir control de concurrencia para que dos computadoras o el bot no sobrescriban una edición más nueva.
-3. Generar metadatos y enlaces sociales individuales para los 16 productos; ahora las fichas dinámicas del panel pueden no producir una vista previa personalizada en algunas redes.
-4. Reunir fotos reales autorizadas de los servicios y del local. Las galerías vacías no deben llenarse con imágenes que aparenten ser trabajos del taller.
-5. Medir consultas, conversaciones y ventas por separado. Las métricas del sitio son clics, no ventas ni clientes únicos.
-6. Para promoción sin costo: mantener actualizado el Perfil de Empresa de Google, publicar productos disponibles en estados de WhatsApp y grupos locales que permitan avisos, y pedir reseñas honestas a clientes reales sin ofrecer recompensas.
+- `pnpm test:pagina`: seis pruebas de formato, contactos, galerías y correspondencia con SQL.
+- `pnpm test:fuentes`: dieciséis pruebas, incluida la edición durante una investigación; no consumen IA de pago.
+- `pnpm test:publicacion`: tres pruebas de respaldo público, aislamiento de foto incorrecta y metadatos/imagenes sociales blancas.
+- Pruebas visuales en un servidor aislado en memoria, sin introducir clientes ni productos ficticios en producción.
+- `pnpm test:live`: diagnóstico de solo lectura de página, panel, catálogo, privacidad y disponibilidad de los 52 objetos originales. Que un archivo responda no demuestra que su referencia sea correcta; por eso también se hizo revisión visual de las portadas.
+- Contraseñas filtradas: Supabase limita esa protección a planes Pro o superiores. No se cambió el plan gratuito. Permanecen autenticación, permisos exclusivos y confirmación de contraseña del editor. Esto no equivale a MFA.
+- Cada fuente debe respaldar la afirmación y la versión del vehículo, no solamente contener un código. Las búsquedas fallidas dejan una propuesta para revisión; no se certifica ajuste por similitud.
+- Botones y formatos se probaron en navegador; la hoja nativa de compartir de cada teléfono y las cachés de Facebook/Instagram dependen de esas plataformas.
 
-La prueba `pnpm test:live` consulta producción sin modificar datos. No sustituye una prueba autenticada de alta, investigación y publicación en el panel.
+## Antes de promocionar
 
-## Historial de revisión — 1 de octubre de 2026
+1. Subir una foto correcta de DCPR7E desde Productos → Editar producto; retirar la asociación errónea, guardar y publicar tras revisar.
+2. Cuando existan, subir fotos reales autorizadas del local y servicios en 🔒 Página web → Fotos reales del local y servicios.
+3. Confirmar precios, existencias y horarios; mantener vigente el token de GitHub de 90 días. No se cambió su vencimiento.
+4. Revisar el Perfil de Empresa en Google y preparar una promoción de un producto disponible. Pedir reseñas honestas sin incentivos. Registrar consultas reales para medir qué genera ventas.
 
-Las siguientes notas se conservan como historial. Los conteos de productos, pendientes y estado del bot que aparecen en esa revisión son una fotografía anterior, no el estado actual.
-
-### Actualización comprobada — 1 de octubre de 2026
-
-Esta actualización sustituye los pendientes antiguos que ya se resolvieron; las notas del 21 de septiembre se conservan debajo como historial, no como estado actual.
-
-### Comprobaciones actuales
-
-- Producción y copia local coinciden en página principal, panel, catálogo y promociones.
-- El catálogo público devuelve 10 productos. Los 33 archivos de imagen, incluidas todas las portadas, responden correctamente. Se comprobaron acceso y tipo de archivo, no una inspección visual píxel por píxel de las 33 imágenes.
-- Como visitante se puede leer el catálogo, pero no `resultado_bot`, `error_investigacion`, los eventos de interés ni la agenda. Se verificó con la clave pública de la página, sin usar claves privilegiadas.
-- La función `activar-investigacion` está ACTIVE, versión 3, con verificación JWT. La API pública de GitHub confirma ejecuciones programadas exitosas. No se disparó una investigación nueva ni se accedió a su token; el estado ACTIVE por sí solo no prueba el recorrido autenticado completo.
-- Galería y cierre de ficha: pruebas con servicios simulados en 360×640, 390×844, 844×390 y 1440×900. Promociones para publicación e historia, buscador del panel, eliminación individual de fotos y agenda: correctos.
-- Las pruebas del importador y de preservación de datos revisados pasan. Las 15 pruebas de fuentes recordadas pasan sin usar consultas de IA de pago.
-- Fuentes: 13 enlaces aprobados para 10 códigos, asociados a marca y categoría. En la prueba de acceso 10 fichas se pudieron leer automáticamente; tres no sirven como evidencia automática en esa ejecución por bloqueo de acceso o ausencia de código en el texto entregado. Se registran las limitaciones y no se aprueba información por el mero hecho de guardar un enlace.
-- Fotos existentes: ya se pueden ver y retirar individualmente en el editor. No se aplicó limpieza masiva ni se modificó inventario o fotos durante esta revisión.
-
-### Qué sigue pendiente
-
-1. **Decidir publicación de dos fichas ya preparadas.** Con permiso del taller se corrigieron AFE-15017 → AFE-1507 y AFT-7864 → AF7864 en el Excel y catálogo anterior. Se verificaron las seis fotos y las fichas directas de distribuidores; se conservaron cantidades, precios y originales. Quedan en Revisar / Publicar No en Excel. En Supabase ambas fichas están aprobadas, con textos, fuentes y sus tres fotos originales en orden, sin publicar ni alterar las diez anteriores. Se comprobaron los seis objetos JPEG y tamaños; el bucket sigue privado. El registro es `inventario/investigacion/preparacion-panel-2026-10-01.json`. Las aplicaciones conservan los límites de sus fuentes; identificar el código no confirma ajuste en toda versión de vehículo.
-2. **Edición desde dos computadoras.** Sigue pendiente control de versiones para evitar que un guardado o bot atrasado sobrescriba cambios más nuevos. Mientras tanto, no editar el mismo producto a la vez en dos equipos.
-3. **Páginas específicas para todos los productos del panel.** El catálogo dinámico incluye 10 productos; las páginas estáticas generadas cubren el inventario anterior. Los enlaces con `?producto=` abren la ficha, pero no garantizan una vista previa social individual. Las imágenes descargables de promoción resuelven otra necesidad; no sustituyen esos metadatos.
-4. **Prueba autenticada de punta a punta.** Alta real, publicación, disparo inmediato y actualización del bot deben comprobarse en una operación legítima del taller. No se introdujo un producto ficticio ni se ejecutó una consulta de pago para fingir esa prueba. Mantener vigente el token de GitHub de 90 días; no se consultó su valor ni se cambió su vencimiento.
-5. **Evidencia por afirmación.** La fuente debe respaldar cada aplicación, no solo contener el código. Actualmente se comprueba el código y se instruye al investigador para asociar los datos y respetar marca/alcance; una prueba de código no es una certificación de compatibilidad.
-6. **Material comercial real.** Las seis galerías de servicios del catálogo están vacías. Hacen falta fotos autorizadas de trabajos reales, sin placas, rostros ni datos personales identificables, además de confirmar precios de las piezas mostradas como Consultar.
-7. **Medición de resultados.** En la consulta del 1 de octubre había una apertura de ficha y un clic en compartir registrados en los últimos siete días, sin clics a WhatsApp registrados. Es insuficiente para identificar los productos más demandados. Los eventos no son personas únicas, conversaciones, publicaciones efectivas ni ventas; pueden incluir pruebas del taller.
-
-Para repetir el diagnóstico de producción sin cambiar datos: `pnpm test:live`. Comprueba archivos publicados, catálogo, acceso privado y disponibilidad de fotos; no reproduce todo el comportamiento visual ni la sesión autenticada.
-
-Propuesta de primer lanzamiento: `LANZAMIENTO.md`. Es un borrador orgánico para revisión, no publicaciones enviadas ni anuncios pagados.
-
-## Correcciones aplicadas
-
-- Acceso público limitado a las columnas del catálogo. Los resultados internos, notas y borradores de productos publicados ya no pueden consultarse anónimamente. Aplicado y comprobado también en Supabase.
-- Las fotos de tarjetas y galerías tienen un contenedor con dimensiones independientes de la imagen; se conserva el producto completo incluso al girar el teléfono.
-- El catálogo puede cargar los productos del panel aunque falle el archivo del catálogo anterior, y avisa cuando la carga es parcial.
-- El panel actualiza el progreso cada 15 segundos mientras se consulta el inventario, sin reemplazar formularios abiertos.
-- Los productos nuevos entran a investigación después de terminar la subida de fotos; un doble clic no duplica el guardado.
-- Una nueva investigación conserva un borrador existente. Las búsquedas fallidas quedan para revisión en vez de repetirse indefinidamente cada ciclo.
-- Se puede solicitar otra investigación de un producto que requiere revisión, además de los publicados.
-- Renovación de sesiones expiradas y cierre de sesión remoto. Las sesiones anteriores necesitan ingresar nuevamente para obtener un token de renovación.
-- Corrección de controles bloqueados al cancelar el procesamiento local de fotos y de las etiquetas para cambiar entre original y foto limpia.
-- Caché limitada a los archivos del panel; ya no almacena indefinidamente consultas con parámetros de fecha ni borra cachés ajenas.
-- Formularios adaptados a pantallas pequeñas y videos detenidos al cerrar los detalles.
-
-## Comprobaciones
-
-- Prueba de navegador con datos locales y servicios externos simulados: 360×640, 390×844, 844×390 y 1440×900. Galería dentro de su contenedor, imagen completa, botón de consulta, cierre y restauración del desplazamiento.
-- Pruebas existentes del importador: alta válida, sustitución de fotos y bloqueo de duplicados.
-- Validación de sintaxis de los scripts modificados.
-- Consulta real como visitante en Supabase y comprobación de privilegios: catálogo accesible, resultado_bot privado.
-- Asesor de seguridad de Supabase: solo advierte que la protección de contraseñas filtradas está desactivada. No se cambió el plan contratado.
-
-## Pendientes y mejoras recomendadas
-
-1. **Activación inmediata del bot:** la lista real de funciones de Supabase está vacía. El código activar-investigacion existe en el repositorio pero falta desplegarlo y configurar GITHUB_WORKFLOW_TOKEN. Actualmente queda el ciclo programado de GitHub, sin garantía de inicio inmediato. No se creó ninguna credencial.
-2. **Ficha única por producto:** las páginas estáticas antiguas y el panel son dos fuentes de datos. Conviene unificar la ficha y generar metadatos para redes sociales de los productos nuevos. Compartir una imagen con un enlace no garantiza que Facebook cree una vista previa específica del producto.
-3. **Información pegada:** el organizador actual usa reglas de texto, no un modelo de IA. Puede perder secciones de un formato diferente. Recomendado reemplazarlo por extracción estructurada, conservando el texto original y la aprobación humana.
-4. **Verificación técnica:** encontrar el código exacto en una página no demuestra cada afirmación sobre compatibilidad, garantía o material. Recomendado guardar evidencia por afirmación y separar datos del empaque de equivalencias técnicas.
-5. **Concurrencia:** incorporar control de versiones en guardado/publicación y en el bot para impedir sobrescrituras si dos dispositivos editan simultáneamente.
-6. **Fotos:** permitir ordenar y retirar fotos existentes; conservar originales y limpiar archivos huérfanos solo después de comprobar que no se usan. Una subida interrumpida puede dejar archivos sin producto asociado.
-7. **Pruebas de producción:** no se subieron productos ficticios ni se ejecutó una investigación pagada. Las pruebas autenticadas completas de alta, publicación e investigación siguen pendientes; la prueba de navegador automatizada usa servicios simulados.
-
-## Repetir las pruebas
-
-`pnpm test:inventario`
-
-`node tests/web-audit.mjs` requiere Playwright y Edge instalado. Puede usarse PLAYWRIGHT_MODULE con la ruta del paquete y BROWSER_CHANNEL para otro navegador compatible.
-
-La operación diaria se realiza en admin-estado.html. El Excel permanece como catálogo anterior/respaldo; no se sincroniza automáticamente con los productos del panel.
+Guías: `EDITOR-PAGINA.md`, `LANZAMIENTO.md`, `BOT_INVESTIGACION.md`. Las revisiones anteriores se conservan en el historial Git; no son instrucciones vigentes de importación.

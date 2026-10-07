@@ -14,6 +14,14 @@ test('imágenes: solo archivos del sitio o referencias privadas seguras', () => 
   for (const value of ['javascript:alert(1)', 'data:image/svg+xml,a', 'https://externo.com/foto.jpg', 'assets/../secret.png', 'media:../../x.jpg', 'assets/a.svg']) assert.throws(() => model.validate(content({ logo: value })));
   for (const value of ['assets/marca/logo/logo.png', 'media:12345678-1234-1234-1234-123456789012.webp', '']) assert.doesNotThrow(() => model.validate(content({ logo: value })));
 });
+
+test('galerías opcionales: seis fotos del local y seis por servicio, sin imágenes inventadas', () => {
+  assert.equal(model.fields.filter(field => /^localFoto/.test(field.key)).length, 6);
+  assert.equal(model.fields.filter(field => /^servicio\dFoto/.test(field.key)).length, 30);
+  assert.doesNotThrow(() => model.validate(content({localFoto0:'',servicio0Foto0:'media:12345678-1234-1234-1234-123456789012.jpg'})));
+  assert.throws(() => model.validate(content({localFoto6:'assets/foto.jpg'})));
+  assert.throws(() => model.validate(content({localFoto0:'https://externo.test/foto.jpg'})));
+});
 test('validación de contactos, coordenadas, horarios y colores', () => {
   for (const fields of [{ whatsapp: '098 938' }, { facebook: 'https://facebook.com.evil.com/' }, { facebook: 'https://u:p@facebook.com/' }, { latitud: '91' }, { longitud: 'NaN' }, { semanaAbre: '25:00' }, { semanaAbre: '17:00', semanaCierra: '08:00' }, { sabadoAbierto: 'yes' }, { colorRojo: 'red;display:none' }]) assert.throws(() => model.validate(content(fields)));
   assert.doesNotThrow(() => model.validate(content({ whatsapp: '593989381059', facebook: 'https://www.facebook.com/profile.php?id=123', latitud: '-0.9', longitud: '-77.8', semanaAbre: '09:00', colorRojo: '#123456' })));

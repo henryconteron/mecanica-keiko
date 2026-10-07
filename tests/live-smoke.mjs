@@ -26,7 +26,7 @@ const response = await get(`${config.supabaseUrl}/rest/v1/productos_admin?revisi
 assert.equal(response.status, 200, "Catálogo anónimo inaccesible");
 const products = await response.json();
 assert.ok(products.length > 0, "El catálogo público está vacío");
-for (const path of ["productos_admin?select=resultado_bot&limit=1", "productos_admin?select=error_investigacion&limit=1", "catalogo_eventos?select=*&limit=1", "plan_publicaciones?select=*&limit=1"]) {
+for (const path of ["productos_admin?select=resultado_bot&limit=1", "productos_admin?select=error_investigacion&limit=1", "catalogo_eventos?select=*&limit=1", "plan_publicaciones?select=*&limit=1", "consultas_taller?select=*&limit=1"]) {
   const privateResponse = await get(`${config.supabaseUrl}/rest/v1/${path}`, { headers });
   assert.ok([401, 403].includes(privateResponse.status), `Datos internos accesibles anónimamente: ${path}`);
   await privateResponse.body?.cancel();

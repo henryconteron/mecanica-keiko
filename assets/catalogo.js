@@ -42,10 +42,8 @@
 
   const productUrl = (product) => {
     if (product.origen === "panel") {
-      const url = new URL("./", document.baseURI);
-      url.searchParams.set("producto", product.id);
-      url.hash = "repuestos";
-      return url.toString();
+      if (!product.paginaLista) return new URL(`./?producto=${encodeURIComponent(product.id)}#repuestos`, document.baseURI).toString();
+      return new URL(`productos/panel-${product.id}/`, document.baseURI).toString();
     }
     return new URL(`productos/${product.id}/`, document.baseURI).toString();
   };
@@ -309,6 +307,7 @@
   };
 
   const shareProduct = async (product) => {
+    if (product.avisoFoto && !product.medios?.length) { showToast('Sube una foto del código correcto antes de preparar esta promoción.'); return; }
     registerCatalogClick(product, "compartir");
     if (window.KEIKO_PROMOTION) return window.KEIKO_PROMOTION.open({name:product.nombre,code:product.codigo,price:priceText(product),url:productUrl(product),text:promotionText(product),photos:(product.medios||[]).filter(m=>m.tipo==='imagen'),resolvePhoto:async index=>(product.medios||[]).filter(m=>m.tipo==='imagen')[index]?.src});
     const shareData = { title: productLabel(product), text: promotionText(product), url: productUrl(product) };
@@ -531,7 +530,8 @@
 
   const loadPanelProducts = async () => {
     const config = window.KEIKO_CONFIG || {};
-    if (!/^https:\/\//.test(config.supabaseUrl || "") || !config.supabaseAnonKey) return [];
+    const localTest = ['localhost','127.0.0.1'].includes(location.hostname) && config.supabaseUrl?.startsWith(location.origin + '/mock');
+    if ((!/^https:\/\//.test(config.supabaseUrl || "") && !localTest) || !config.supabaseAnonKey) return [];
     const response = await fetch(`${config.supabaseUrl}/rest/v1/productos_admin?revision=eq.publicado&select=id,codigo,nombre,cantidad,precio,marca,categoria,descripcion_corta,descripcion,compatibilidad,referencias,fotos&order=actualizado.desc`, {
       headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}` }
     });
@@ -557,7 +557,8 @@
       destacado: false,
       publicado: true,
       origen: "panel",
-      medios: await remoteMedia(row.fotos)
+      avisoFoto: window.KEIKO_PHOTOS?.notice(row.fotos || []) || '',
+      medios: await remoteMedia(window.KEIKO_PHOTOS?.approved(row.fotos || []) || row.fotos)
     })));
   };
 
@@ -625,7 +626,7 @@
   });
 
   Promise.allSettled([
-    fetch(`data/catalogo.json?v=${Date.now()}`).then((response) => {
+    fetch(`data/catalogo-panel.json?v=${Date.now()}`).then((response) => {
       if (!response.ok) throw new Error("No se pudo cargar el catálogo");
       return response.json();
     }),
@@ -636,16 +637,18 @@
       if (staticResult.status === "rejected" && panelResult.status === "rejected") throw new Error("Catálogo no disponible");
       const data = staticResult.status === "fulfilled" ? staticResult.value : { productos: [] };
       const panelProducts = panelResult.status === "fulfilled" ? panelResult.value : [];
+      panelProducts.forEach(product => product.paginaLista = (data.productos || []).some(snapshot => snapshot.panelId === product.id));
       const staticProducts = (data.productos || [])
         .filter((product) => product.publicado !== false && !panelProducts.some((panelProduct) => String(panelProduct.codigo || "").trim().toUpperCase() === String(product.codigo || "").trim().toUpperCase()))
         .sort((a, b) => Number(Boolean(b.destacado)) - Number(Boolean(a.destacado)) || (a.orden || 99) - (b.orden || 99));
-      products = [...panelProducts, ...staticProducts];
+      // Si Supabase responde, manda exclusivamente el panel; no resucitar retirados desde el respaldo.
+      products = panelResult.status === 'fulfilled' ? panelProducts : staticProducts;
       renderFilters();
       renderProducts();
       if (staticResult.status === "rejected" || panelResult.status === "rejected") status.textContent += " · No se pudo cargar parte del catálogo. Actualiza para reintentar.";
 
       const requestedId = new URLSearchParams(window.location.search).get("producto");
-      const requested = requestedId && productById(requestedId);
+      const requested = requestedId && (productById(requestedId) || products.find(product => product.panelId === requestedId));
       if (requested) {
         requestAnimationFrame(() => {
           const card = document.querySelector(`#producto-${CSS.escape(requested.id)}`);

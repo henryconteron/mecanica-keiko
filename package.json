@@ -4,14 +4,14 @@
   "type": "module",
   "scripts": {
     "test:pagina": "node --test tests/pagina-web.test.mjs",
+    "test:publicacion": "node --test tests/publicacion.test.mjs",
     "panel:investigar": "node scripts/investigar-supabase.mjs",
     "catalogo:generar": "node scripts/generar-catalogo.mjs",
-    "test:inventario": "node tests/importar-inventario.test.mjs && node tests/verificacion-manual-inventario.test.mjs && node tests/correcciones-codigos.test.mjs",
+    "publicacion:sincronizar": "node scripts/sincronizar-publicacion.mjs",
     "test:fuentes": "node --test tests/fuentes-recordadas.test.mjs tests/bot-fuentes-recordadas.test.mjs",
     "test:live": "node tests/live-smoke.mjs"
   },
   "dependencies": {
-    "exceljs": "^4.4.0",
-    "xlsx": "0.18.5"
+    "sharp": "^0.35.5"
   }
 }

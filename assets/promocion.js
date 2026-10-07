@@ -5,9 +5,11 @@
   const loadImage = src => new Promise((resolve,reject) => {const image=new Image();image.crossOrigin='anonymous';image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('No se pudo cargar esta foto. Elige otra.'));image.src=src;});
   const wrap = (ctx,text,x,y,width,size,max=3) => {
     ctx.font=`800 ${size}px Arial`;let line='',lines=[];
-    for(const word of String(text).split(/\s+/)){const next=line?`${line} ${word}`:word;if(ctx.measureText(next).width>width&&line){lines.push(line);line=word;}else line=next;}lines.push(line);
+    const words=String(text).split(/\s+/).flatMap(word=>{const parts=[];while(ctx.measureText(word).width>width&&word.length>1){let n=word.length-1;while(n>1&&ctx.measureText(word.slice(0,n)).width>width)n--;parts.push(word.slice(0,n));word=word.slice(n);}return [...parts,word];});
+    for(const word of words){const next=line?`${line} ${word}`:word;if(ctx.measureText(next).width>width&&line){lines.push(line);line=word;}else line=next;}lines.push(line);
     if(lines.length>max){lines=lines.slice(0,max);let last=lines[max-1];while(ctx.measureText(last+'…').width>width)last=last.slice(0,-1);lines[max-1]=last+'…';}
     lines.forEach((l,i)=>ctx.fillText(l,x,y+i*size*1.18));
+    return lines.length;
   };
   const makeFile = async (product,src,story) => {
     const image=await loadImage(src),canvas=document.createElement('canvas');canvas.width=1080;canvas.height=story?1920:1350;
@@ -17,16 +19,18 @@
     c.fillStyle='#e9a927';c.fillRect(0,top+120,1080,8);
     const y=top+160,boxH=story?820:600;
     // Recorta únicamente márgenes transparentes, nunca el producto.
-    const scan=document.createElement('canvas');scan.width=image.naturalWidth;scan.height=image.naturalHeight;
-    const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(image,0,0);
+    const scan=document.createElement('canvas'),ratio=Math.min(1,1600/Math.max(image.naturalWidth,image.naturalHeight));scan.width=Math.max(1,Math.round(image.naturalWidth*ratio));scan.height=Math.max(1,Math.round(image.naturalHeight*ratio));
+    const sc=scan.getContext('2d',{willReadFrequently:true});sc.drawImage(image,0,0,scan.width,scan.height);
     const pixels=sc.getImageData(0,0,scan.width,scan.height).data;let l=scan.width,t=scan.height,r=-1,b=-1;
-    for(let yy=0;yy<scan.height;yy++)for(let xx=0;xx<scan.width;xx++)if(pixels[(yy*scan.width+xx)*4+3]>32){l=Math.min(l,xx);r=Math.max(r,xx);t=Math.min(t,yy);b=Math.max(b,yy);}
+    for(let yy=0;yy<scan.height;yy++)for(let xx=0;xx<scan.width;xx++)if(pixels[(yy*scan.width+xx)*4+3]>0){l=Math.min(l,xx);r=Math.max(r,xx);t=Math.min(t,yy);b=Math.max(b,yy);}
     if(r<0)throw new Error('La foto está vacía. Elige otra fotografía.');
-    const w=r-l+1,ih=b-t+1,scale=Math.min(940/w,boxH/ih);
+    l=Math.max(0,l-2)/ratio;t=Math.max(0,t-2)/ratio;r=Math.min(scan.width,r+3)/ratio;b=Math.min(scan.height,b+3)/ratio;
+    const w=Math.min(image.naturalWidth,r)-l,ih=Math.min(image.naturalHeight,b)-t,scale=Math.min(940/w,boxH/ih);
     c.drawImage(image,l,t,w,ih,(1080-w*scale)/2,y+(boxH-ih*scale)/2,w*scale,ih*scale);
-    const textY=y+boxH+65;c.fillStyle='#171717';wrap(c,product.name.toUpperCase(),54,textY,972,48,3);
-    c.fillStyle='#c8272c';c.font='800 32px Arial';c.fillText(`CÓDIGO: ${product.code}`,54,textY+185);
-    c.textAlign='right';c.fillStyle='#171717';c.fillText(product.price,1026,textY+185);c.textAlign='left';
+    const textY=y+boxH+65;c.fillStyle='#171717';const nameLines=wrap(c,product.name.toUpperCase(),54,textY,972,48,3);
+    const codeY=textY+Math.max(100,nameLines*57+25);
+    c.fillStyle='#c8272c';wrap(c,`CÓDIGO: ${product.code}`,54,codeY,640,30,1);
+    c.textAlign='right';c.fillStyle='#171717';c.font='800 32px Arial';c.fillText(product.price,1026,codeY,280);c.textAlign='left';
     const footer=story?h-350:h-190;c.fillStyle='#f4f1eb';c.fillRect(0,footer,1080,story?200:190);
     c.fillStyle='#171717';c.font='800 30px Arial';c.fillText('CONSULTA Y RESERVA TU REPUESTO',54,footer+55);
     c.fillStyle='#158044';c.font='800 29px Arial';c.fillText('WhatsApp +' + (window.KEIKO_PAGE_MODEL?.contact(window.KEIKO_PAGE_CONTENT).whatsapp || '593989381059'),54,footer+102);

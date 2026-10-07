@@ -20,10 +20,11 @@
       if (index >= 0) {
         service.nombre = content?.fields[`servicio${index}Nombre`] ?? service.nombre;
         service.descripcion = content?.fields[`servicio${index}Texto`] ?? service.descripcion;
-        const image = content?.fields[`servicio${index}Imagen`];
-        if (image) {
-          try { service.medios = [{ tipo: 'imagen', src: media[image] || await window.KEIKO_PAGE_IMAGE(image) }, ...service.medios]; } catch { /* Conserva la galería original. */ }
-        }
+        const images = [content?.fields[`servicio${index}Imagen`], ...Array.from({ length: 5 }, (_, j) => content?.fields[`servicio${index}Foto${j}`])].filter(Boolean);
+        const uploaded = await Promise.all([...new Set(images)].map(async image => {
+          try { return { tipo: 'imagen', src: media[image] || await window.KEIKO_PAGE_IMAGE(image) }; } catch { return null; }
+        }));
+        service.medios = [...uploaded.filter(Boolean), ...service.medios];
       }
       return service;
     }));
@@ -89,7 +90,7 @@
           <span class="service-number">${escapeHtml(service.numero)}</span>
           <h3>${escapeHtml(service.nombre)}</h3>
           <p>${escapeHtml(service.descripcion)}</p>
-          ${cover ? `<button class="service-gallery-link" type="button" data-open-service="${escapeHtml(service.id)}">Ver trabajo realizado <span aria-hidden="true">→</span></button>` : ""}
+          ${cover ? `<button class="service-gallery-link" type="button" data-open-service="${escapeHtml(service.id)}">Ver fotos del servicio <span aria-hidden="true">→</span></button>` : ""}
         </div>
       </article>
     `;

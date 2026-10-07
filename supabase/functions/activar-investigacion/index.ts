@@ -27,7 +27,10 @@ Deno.serve(async (request) => {
   const user = userResponse.ok ? await userResponse.json() : null;
   if (user?.id !== "60712cc3-ee1b-4ad5-9226-4f97d80a13d8") return respond(request, 403, { error: "No tienes permiso para iniciar la investigación." });
 
-  const githubResponse = await fetch("https://api.github.com/repos/henryconteron/mecanica-keiko/actions/workflows/investigar-panel.yml/dispatches", {
+  const payload = await request.json().catch(() => ({}));
+  const publication = payload?.tarea === 'publicacion';
+  const workflow = publication ? 'actualizar-catalogo.yml' : 'investigar-panel.yml';
+  const githubResponse = await fetch(`https://api.github.com/repos/henryconteron/mecanica-keiko/actions/workflows/${workflow}/dispatches`, {
     method: "POST",
     headers: {
       Accept: "application/vnd.github+json",
@@ -41,5 +44,5 @@ Deno.serve(async (request) => {
     console.error("GitHub no aceptó el inicio:", githubResponse.status, await githubResponse.text());
     return respond(request, 502, { error: "No se pudo iniciar el bot automáticamente." });
   }
-  return respond(request, 202, { iniciado: true, mensaje: "El bot empezó a revisar los productos pendientes." });
+  return respond(request, 202, { iniciado: true, mensaje: publication ? 'Sincronización de fichas y redes solicitada.' : 'El bot empezó a revisar los productos pendientes.' });
 });
