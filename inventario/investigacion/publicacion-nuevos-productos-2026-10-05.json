@@ -1,0 +1,796 @@
+{
+  "fecha": "2026-10-05",
+  "estado": "publicado_y_verificado",
+  "autorizacion_usuario": "Publicar ahora las cuatro fichas corregidas; no crear automatización recurrente.",
+  "antes": {
+    "others": "7a4d720038e7be83a5041091d5505ab6",
+    "products": [
+      {
+        "id": "45235a30-a8d8-453e-a26e-e46768a536c3",
+        "fotos": [
+          "aa-1109/1790895024202-01.png",
+          "aa-1109/1790895027235-02.png",
+          "aa-1109/1790895029604-03.jpg",
+          "aa-1109/1790895030679-04.jpg"
+        ],
+        "marca": "ADVANCE Filters",
+        "codigo": "AA-1109",
+        "creado": "2026-10-01T22:50:32.240863+00:00",
+        "nombre": "Filtro de aire Advance AA-1109",
+        "precio": null,
+        "fuentes": [
+          {
+            "url": "https://distriparteslm.ec/producto/otr-aa-1109/",
+            "tipo": "Distribuidor",
+            "titulo": "Distripartes LM: Advance AA-1109 / Great Wall M4 2015",
+            "alcance": "Coinciden código, marca y aplicación M4 2015."
+          },
+          {
+            "url": "https://disproauto.com.ec/producto/filtro-de-aire-advance-aa-1109-para-great-wall-m4-2015-y-voleex-c30-2019-1109101xs16xb/",
+            "tipo": "Distribuidor",
+            "titulo": "Disproauto: Advance AA-1109 / M4 2015 y Voleex C30 2019",
+            "alcance": "Respalda la referencia 1109101XS16XB. C30 2019 solo tiene esta fuente; las unidades de medidas publicadas requieren comprobación."
+          }
+        ],
+        "cantidad": 5,
+        "revision": "revisar",
+        "categoria": "Filtros de aire",
+        "confianza": "Media",
+        "actualizado": "2026-10-01T23:17:33.707647+00:00",
+        "descripcion": "Filtro de aire Advance AA-1109. Dos distribuidores lo catalogan para Great Wall M4 2015; Disproauto lo relaciona con la referencia 1109101XS16XB. Antes de comprar se compara esa referencia, la forma y las medidas con el filtro instalado. La aplicación Voleex C30 2019 aparece en una sola fuente y requiere comprobación adicional; no se extiende la compatibilidad a todos los años o motores.",
+        "referencias": [
+          "1109101XS16XB: referencia de aplicación indicada por Disproauto; confirmar con la pieza instalada."
+        ],
+        "observaciones": "",
+        "resultado_bot": {
+          "vision": {
+            "confianza": "Alta",
+            "tipo_visible": "Air Filter",
+            "marca_visible": "ADVANCE Filters",
+            "otros_codigos": [],
+            "codigo_visible": "AA-1109",
+            "aplicaciones_impresas": []
+          },
+          "investigacion": {
+            "marca": "ADVANCE Filters",
+            "origen": "revision_manual_asistida",
+            "fuentes": [
+              {
+                "url": "https://distriparteslm.ec/producto/otr-aa-1109/",
+                "tipo": "Distribuidor",
+                "titulo": "Distripartes LM: Advance AA-1109 / Great Wall M4 2015",
+                "alcance": "Coinciden código, marca y aplicación M4 2015."
+              },
+              {
+                "url": "https://disproauto.com.ec/producto/filtro-de-aire-advance-aa-1109-para-great-wall-m4-2015-y-voleex-c30-2019-1109101xs16xb/",
+                "tipo": "Distribuidor",
+                "titulo": "Disproauto: Advance AA-1109 / M4 2015 y Voleex C30 2019",
+                "alcance": "Respalda la referencia 1109101XS16XB. C30 2019 solo tiene esta fuente; las unidades de medidas publicadas requieren comprobación."
+              }
+            ],
+            "categoria": "Filtros de aire",
+            "confianza": "Media",
+            "descripcion": "Filtro de aire Advance AA-1109. Dos distribuidores lo catalogan para Great Wall M4 2015; Disproauto lo relaciona con la referencia 1109101XS16XB. Antes de comprar se compara esa referencia, la forma y las medidas con el filtro instalado. La aplicación Voleex C30 2019 aparece en una sola fuente y requiere comprobación adicional; no se extiende la compatibilidad a todos los años o motores.",
+            "referencias": [
+              "1109101XS16XB: referencia de aplicación indicada por Disproauto; confirmar con la pieza instalada."
+            ],
+            "observaciones": "Pendiente de revisión del taller. M4 2015 aparece en dos distribuidores; Voleex C30 2019 aparece solo en Disproauto y queda por confirmar. No se copiaron las medidas 244 × 115 × 45 cm porque la unidad parece errónea; tampoco se convirtieron automáticamente a mm. No hay confirmación OEM independiente de la referencia 1109101XS16XB.",
+            "compatibilidad": [
+              "Great Wall M4 2015: aplicación publicada por Distripartes LM y Disproauto; confirmar referencia, forma y medidas del filtro instalado."
+            ],
+            "codigo_coincide": true,
+            "nombre_sugerido": "Filtro de aire Advance AA-1109",
+            "descripcion_corta": "Filtro de aire Advance AA-1109, catalogado para Great Wall M4 2015. Confirmamos referencia y forma del filtro antes de entregar.",
+            "producto_coincide": true,
+            "listo_para_revisar": true
+          },
+          "codigo_consultado": "AA-1109",
+          "fuentes_recordadas": [],
+          "ultima_verificacion": "2026-10-01T23:17:33.707647+00:00",
+          "verificacion_manual": {
+            "fecha": "2026-10-01T23:17:33.707647+00:00",
+            "metodo": "Revisión humana asistida: etiqueta, catálogos del fabricante y fichas de distribuidores.",
+            "fuentes": [
+              {
+                "url": "https://distriparteslm.ec/producto/otr-aa-1109/",
+                "tipo": "Distribuidor",
+                "titulo": "Distripartes LM: Advance AA-1109 / Great Wall M4 2015",
+                "alcance": "Coinciden código, marca y aplicación M4 2015."
+              },
+              {
+                "url": "https://disproauto.com.ec/producto/filtro-de-aire-advance-aa-1109-para-great-wall-m4-2015-y-voleex-c30-2019-1109101xs16xb/",
+                "tipo": "Distribuidor",
+                "titulo": "Disproauto: Advance AA-1109 / M4 2015 y Voleex C30 2019",
+                "alcance": "Respalda la referencia 1109101XS16XB. C30 2019 solo tiene esta fuente; las unidades de medidas publicadas requieren comprobación."
+              }
+            ],
+            "pendientes": [
+              "Medir el filtro y comprobar referencia 1109101XS16XB.",
+              "Verificar Voleex C30 2019 antes de añadirlo a compatibilidad confirmada."
+            ],
+            "limitaciones": "Pendiente de revisión del taller. M4 2015 aparece en dos distribuidores; Voleex C30 2019 aparece solo en Disproauto y queda por confirmar. No se copiaron las medidas 244 × 115 × 45 cm porque la unidad parece errónea; tampoco se convirtieron automáticamente a mm. No hay confirmación OEM independiente de la referencia 1109101XS16XB.",
+            "publicacion_autorizada": false,
+            "requiere_revision_taller": true
+          },
+          "estado_investigacion": "verificada_manualmente",
+          "investigacion_manual": "Pendiente de revisión del taller. M4 2015 aparece en dos distribuidores; Voleex C30 2019 aparece solo en Disproauto y queda por confirmar. No se copiaron las medidas 244 × 115 × 45 cm porque la unidad parece errónea; tampoco se convirtieron automáticamente a mm. No hay confirmación OEM independiente de la referencia 1109101XS16XB.",
+          "verificacion_fuentes": [],
+          "verificacion_solicitada": false,
+          "investigacion_solicitada_en": "2026-10-01T22:50:22.460Z",
+          "variante_ceramica_verificada_por_empaque": false
+        },
+        "compatibilidad": [
+          "Great Wall M4 2015: aplicación publicada por Distripartes LM y Disproauto; confirmar referencia, forma y medidas del filtro instalado."
+        ],
+        "descripcion_corta": "Filtro de aire Advance AA-1109, catalogado para Great Wall M4 2015. Confirmamos referencia y forma del filtro antes de entregar.",
+        "error_investigacion": ""
+      },
+      {
+        "id": "430b582b-c9f5-46eb-a14d-f3f5e9e7b129",
+        "fotos": [
+          "afp-4102/1790895268528-01.jpg",
+          "afp-4102/1790895270255-02.jpg",
+          "afp-4102/1790895271517-03.jpg"
+        ],
+        "marca": "ADVANCE Filters",
+        "codigo": "AFP-4102",
+        "creado": "2026-10-01T22:54:33.235994+00:00",
+        "nombre": "Filtro de combustible Advance AFP-4102",
+        "precio": null,
+        "fuentes": [
+          {
+            "url": "https://tirecenter.ec/products/advance-afp-4102-combustible-fp586-fc5704-f",
+            "tipo": "Distribuidor",
+            "titulo": "Tire Center: Advance AFP-4102 / FP586 / FC5704",
+            "alcance": "Coinciden marca y código; no especifica vehículo/motor."
+          },
+          {
+            "url": "https://jic.com.ec/product/advance-afp-4102-lff-3521-fc-5704-ford-cargo-81/",
+            "tipo": "Distribuidor",
+            "titulo": "JIC: Advance AFP-4102 / CJX40 / LFF3521 / FC5704",
+            "alcance": "Publica Ford Cargo 815/1721 5.9 L, 815S 3.9 L y VW Worker 17.220; requieren verificación técnica de la aplicación."
+          }
+        ],
+        "cantidad": 5,
+        "revision": "revisar",
+        "categoria": "Filtros de combustible",
+        "confianza": "Media",
+        "actualizado": "2026-10-01T23:17:33.707647+00:00",
+        "descripcion": "Filtro de combustible Advance AFP-4102. Tire Center lo relaciona con FP586 y FC5704, y JIC también indica CJX40 y LFF3521. Estas son referencias para comparación, no nombres de vehículos. JIC lista determinadas aplicaciones Ford Cargo y Volkswagen Worker, que deben confirmarse por motor, referencia y conexión del filtro instalado. No se atribuyen prestaciones de alta eficiencia ni garantías sin documentación específica.",
+        "referencias": [
+          "FP586 y FC5704: referencias equivalentes indicadas por Tire Center; comparar antes de instalar.",
+          "CJX40, LFF3521 y FC-5704: referencias equivalentes indicadas por JIC; no trasladar prestaciones de otra marca."
+        ],
+        "observaciones": "",
+        "resultado_bot": {
+          "vision": {
+            "confianza": "Alta",
+            "tipo_visible": "Fuel Filter / Filtro de Combustible / Filtre à Essence",
+            "marca_visible": "ADVANCE Filters",
+            "otros_codigos": [],
+            "codigo_visible": "AFP-4102",
+            "aplicaciones_impresas": []
+          },
+          "investigacion": {
+            "marca": "ADVANCE Filters",
+            "origen": "revision_manual_asistida",
+            "fuentes": [
+              {
+                "url": "https://tirecenter.ec/products/advance-afp-4102-combustible-fp586-fc5704-f",
+                "tipo": "Distribuidor",
+                "titulo": "Tire Center: Advance AFP-4102 / FP586 / FC5704",
+                "alcance": "Coinciden marca y código; no especifica vehículo/motor."
+              },
+              {
+                "url": "https://jic.com.ec/product/advance-afp-4102-lff-3521-fc-5704-ford-cargo-81/",
+                "tipo": "Distribuidor",
+                "titulo": "JIC: Advance AFP-4102 / CJX40 / LFF3521 / FC5704",
+                "alcance": "Publica Ford Cargo 815/1721 5.9 L, 815S 3.9 L y VW Worker 17.220; requieren verificación técnica de la aplicación."
+              }
+            ],
+            "categoria": "Filtros de combustible",
+            "confianza": "Media",
+            "descripcion": "Filtro de combustible Advance AFP-4102. Tire Center lo relaciona con FP586 y FC5704, y JIC también indica CJX40 y LFF3521. Estas son referencias para comparación, no nombres de vehículos. JIC lista determinadas aplicaciones Ford Cargo y Volkswagen Worker, que deben confirmarse por motor, referencia y conexión del filtro instalado. No se atribuyen prestaciones de alta eficiencia ni garantías sin documentación específica.",
+            "referencias": [
+              "FP586 y FC5704: referencias equivalentes indicadas por Tire Center; comparar antes de instalar.",
+              "CJX40, LFF3521 y FC-5704: referencias equivalentes indicadas por JIC; no trasladar prestaciones de otra marca."
+            ],
+            "observaciones": "Pendiente de revisión del taller. Código y marca contrastados en dos distribuidores. FP586/FC5704 pasan de compatibilidad a referencias. JIC menciona Ford Cargo 815/1721 5.9 L, 815S 3.9 L y VW Worker 17.220, pero no hay verificación técnica independiente suficiente para afirmarlos como ajuste confirmado. Su categoría «gasolina» no demuestra combustible de la aplicación; no se traslada. Se retiraron promesas de alta eficiencia y rendimiento garantizado.",
+            "compatibilidad": [
+              "Aplicación exacta pendiente de comprobación por motor y referencia del filtro instalado. Las menciones Ford Cargo y Volkswagen Worker de JIC son pistas comerciales, no compatibilidad universal confirmada."
+            ],
+            "codigo_coincide": true,
+            "nombre_sugerido": "Filtro de combustible Advance AFP-4102",
+            "descripcion_corta": "Filtro de combustible Advance AFP-4102. Consulta por motor y referencia; la aplicación exacta se confirma con el filtro instalado.",
+            "producto_coincide": true,
+            "listo_para_revisar": true
+          },
+          "codigo_consultado": "AFP-4102",
+          "fuentes_recordadas": [],
+          "ultima_verificacion": "2026-10-01T23:17:33.707647+00:00",
+          "verificacion_manual": {
+            "fecha": "2026-10-01T23:17:33.707647+00:00",
+            "metodo": "Revisión humana asistida: etiqueta, catálogos del fabricante y fichas de distribuidores.",
+            "fuentes": [
+              {
+                "url": "https://tirecenter.ec/products/advance-afp-4102-combustible-fp586-fc5704-f",
+                "tipo": "Distribuidor",
+                "titulo": "Tire Center: Advance AFP-4102 / FP586 / FC5704",
+                "alcance": "Coinciden marca y código; no especifica vehículo/motor."
+              },
+              {
+                "url": "https://jic.com.ec/product/advance-afp-4102-lff-3521-fc-5704-ford-cargo-81/",
+                "tipo": "Distribuidor",
+                "titulo": "JIC: Advance AFP-4102 / CJX40 / LFF3521 / FC5704",
+                "alcance": "Publica Ford Cargo 815/1721 5.9 L, 815S 3.9 L y VW Worker 17.220; requieren verificación técnica de la aplicación."
+              }
+            ],
+            "pendientes": [
+              "Confirmar motor, tipo de combustible, referencia y conexión antes de aprobar compatibilidades Ford/VW.",
+              "No confundir equivalencia de catálogo con garantía de ajuste o prestaciones."
+            ],
+            "limitaciones": "Pendiente de revisión del taller. Código y marca contrastados en dos distribuidores. FP586/FC5704 pasan de compatibilidad a referencias. JIC menciona Ford Cargo 815/1721 5.9 L, 815S 3.9 L y VW Worker 17.220, pero no hay verificación técnica independiente suficiente para afirmarlos como ajuste confirmado. Su categoría «gasolina» no demuestra combustible de la aplicación; no se traslada. Se retiraron promesas de alta eficiencia y rendimiento garantizado.",
+            "publicacion_autorizada": false,
+            "requiere_revision_taller": true
+          },
+          "estado_investigacion": "verificada_manualmente",
+          "investigacion_manual": "Pendiente de revisión del taller. Código y marca contrastados en dos distribuidores. FP586/FC5704 pasan de compatibilidad a referencias. JIC menciona Ford Cargo 815/1721 5.9 L, 815S 3.9 L y VW Worker 17.220, pero no hay verificación técnica independiente suficiente para afirmarlos como ajuste confirmado. Su categoría «gasolina» no demuestra combustible de la aplicación; no se traslada. Se retiraron promesas de alta eficiencia y rendimiento garantizado.",
+          "verificacion_fuentes": [
+            {
+              "ok": true,
+              "source": {
+                "url": "https://tirecenter.ec/products/advance-afp-4102-combustible-fp586-fc5704-f",
+                "tipo": "Distribuidor",
+                "titulo": "ADVANCE AFP-4102 COMBUSTIBLE FP586 FC5704 F – Tire Center",
+                "dominio": "tirecenter.ec",
+                "codigo_consultado": "AFP-4102",
+                "codigo_verificado": true,
+                "fuente_tecnica_reconocida": false
+              }
+            },
+            {
+              "ok": true,
+              "source": {
+                "url": "https://jic.com.ec/product/advance-afp-4102-lff-3521-fc-5704-ford-cargo-81/",
+                "tipo": "Distribuidor",
+                "titulo": "ADVANCE AFP-4102 (CJX40) LFF 3521 (FC-5704) FORD – Johns Import Company",
+                "dominio": "jic.com.ec",
+                "codigo_consultado": "AFP-4102",
+                "codigo_verificado": true,
+                "fuente_tecnica_reconocida": false
+              }
+            }
+          ],
+          "verificacion_solicitada": false,
+          "investigacion_solicitada_en": "2026-10-01T22:54:27.343Z",
+          "variante_ceramica_verificada_por_empaque": false
+        },
+        "compatibilidad": [
+          "Aplicación exacta pendiente de comprobación por motor y referencia del filtro instalado. Las menciones Ford Cargo y Volkswagen Worker de JIC son pistas comerciales, no compatibilidad universal confirmada."
+        ],
+        "descripcion_corta": "Filtro de combustible Advance AFP-4102. Consulta por motor y referencia; la aplicación exacta se confirma con el filtro instalado.",
+        "error_investigacion": ""
+      },
+      {
+        "id": "ff2b15cb-4eb8-4155-994a-f5ca8e079842",
+        "fotos": [
+          "wv48b-76-5/1790894349276-01.png",
+          "wv48b-76-5/1790894352473-02.png",
+          "wv48b-76-5/1790894354686-03.png"
+        ],
+        "marca": "TAMA ENTERPRISES CO., LTD",
+        "codigo": "WV48B-76.5",
+        "creado": "2026-10-01T22:39:17.026132+00:00",
+        "nombre": "Termostato TAMA WV48B-76.5",
+        "precio": null,
+        "fuentes": [
+          {
+            "url": "https://www.tama-e.co.jp/search/en/products/view/3975",
+            "tipo": "Fabricante",
+            "titulo": "TAMA: WV48B-76.5, Sunny/Lucino B14 GA13DE y OE 21200-77A61",
+            "alcance": "Aplicación concreta; no acredita Corolla ni todos los Sentra."
+          },
+          {
+            "url": "https://www.tama-e.co.jp/search/en/products/index/page:86/sort:name/direction:asc/reference_number:/name:/engine_name:/maker_id:/car_id:/engine_id:",
+            "tipo": "Fabricante",
+            "titulo": "TAMA: tabla de aplicaciones WV48B-76.5",
+            "alcance": "Seleccionar la fila del motor y referencia exactos, no otros termostatos de la tabla."
+          },
+          {
+            "url": "https://www.tama-e.co.jp/omrop2020/top.html",
+            "tipo": "Catálogo técnico",
+            "titulo": "TAMA: catálogo técnico 2020–2022, página 13",
+            "alcance": "Familia WV48B: diámetro principal 48 mm; variantes de temperatura distintas."
+          },
+          {
+            "url": "https://www.maxcarsumegacentro.com/products/termostato-sentra-1600-21200-77a00-wv48b76-5",
+            "tipo": "Distribuidor",
+            "titulo": "MAXCAR: TAMA WV48B76.5 / Sentra 1.6 / 21200-77A00",
+            "alcance": "Publica apertura de 77 °C; no respalda Toyota Corolla."
+          }
+        ],
+        "cantidad": 5,
+        "revision": "revisar",
+        "categoria": "Termostatos",
+        "confianza": "Media",
+        "actualizado": "2026-10-01T23:17:33.707647+00:00",
+        "descripcion": "Termostato TAMA WV48B-76.5 para el sistema de refrigeración, variante nominal 76.5 °C y diámetro principal de 48 mm. TAMA lo cataloga para aplicaciones Nissan con motores GA13, GA15 y GA16 según versión; MAXCAR lo identifica para Sentra 1.6. Antes de instalar se comparan motor, referencia OE, carcasa y sellado. No se ofrece como compatible con cualquier Sentra ni como aplicación confirmada para Toyota Corolla.",
+        "referencias": [
+          "Nissan 21200-77A61 y 21200-77A63: referencias OE asociadas por TAMA al WV48B-76.5 según aplicación.",
+          "Nissan 21200-77A00: referencia indicada por MAXCAR; comprobar contra la pieza retirada."
+        ],
+        "observaciones": "",
+        "resultado_bot": {
+          "vision": {
+            "confianza": "Alta",
+            "tipo_visible": null,
+            "marca_visible": null,
+            "otros_codigos": [
+              "0057",
+              "SP0808",
+              "4580281450733"
+            ],
+            "codigo_visible": "WV48B-76.5",
+            "aplicaciones_impresas": [
+              "TOYOTA COROLLA",
+              "NISSAN SENTRA",
+              "GASOLINA"
+            ]
+          },
+          "investigacion": {
+            "marca": "TAMA ENTERPRISES CO., LTD",
+            "origen": "revision_manual_asistida",
+            "fuentes": [
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/view/3975",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: WV48B-76.5, Sunny/Lucino B14 GA13DE y OE 21200-77A61",
+                "alcance": "Aplicación concreta; no acredita Corolla ni todos los Sentra."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/index/page:86/sort:name/direction:asc/reference_number:/name:/engine_name:/maker_id:/car_id:/engine_id:",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: tabla de aplicaciones WV48B-76.5",
+                "alcance": "Seleccionar la fila del motor y referencia exactos, no otros termostatos de la tabla."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/omrop2020/top.html",
+                "tipo": "Catálogo técnico",
+                "titulo": "TAMA: catálogo técnico 2020–2022, página 13",
+                "alcance": "Familia WV48B: diámetro principal 48 mm; variantes de temperatura distintas."
+              },
+              {
+                "url": "https://www.maxcarsumegacentro.com/products/termostato-sentra-1600-21200-77a00-wv48b76-5",
+                "tipo": "Distribuidor",
+                "titulo": "MAXCAR: TAMA WV48B76.5 / Sentra 1.6 / 21200-77A00",
+                "alcance": "Publica apertura de 77 °C; no respalda Toyota Corolla."
+              }
+            ],
+            "categoria": "Termostatos",
+            "confianza": "Media",
+            "descripcion": "Termostato TAMA WV48B-76.5 para el sistema de refrigeración, variante nominal 76.5 °C y diámetro principal de 48 mm. TAMA lo cataloga para aplicaciones Nissan con motores GA13, GA15 y GA16 según versión; MAXCAR lo identifica para Sentra 1.6. Antes de instalar se comparan motor, referencia OE, carcasa y sellado. No se ofrece como compatible con cualquier Sentra ni como aplicación confirmada para Toyota Corolla.",
+            "referencias": [
+              "Nissan 21200-77A61 y 21200-77A63: referencias OE asociadas por TAMA al WV48B-76.5 según aplicación.",
+              "Nissan 21200-77A00: referencia indicada por MAXCAR; comprobar contra la pieza retirada."
+            ],
+            "observaciones": "Pendiente de revisión del taller. Se corrigió el espacio del código según el empaque. No se confirmó Toyota Corolla ni compatibilidad universal Sentra B13/B14. MAXCAR publica 77 °C frente a la variante 76.5 del código: comprobar el grabado de la pieza antes de cerrar la ficha. Un campo de junta vacío no significa que no requiera sellado.",
+            "compatibilidad": [
+              "Nissan Sunny B13: GA16DE, GA13DS o GA15DS en las aplicaciones que TAMA relaciona con WV48B-76.5; confirmar referencia OE y versión.",
+              "Nissan Sunny/Lucino B14: GA13DE, GA15DE o GA16DE en las aplicaciones catalogadas por TAMA; no todos los motores B14.",
+              "Nissan Sentra 1.6: aplicación comercial indicada por MAXCAR para WV48B-76.5 / 21200-77A00; confirmar motor y referencia del vehículo."
+            ],
+            "codigo_coincide": true,
+            "nombre_sugerido": "Termostato TAMA WV48B-76.5",
+            "descripcion_corta": "Termostato TAMA WV48B-76.5, catalogado para aplicaciones Nissan específicas. Confirmamos motor, referencia y temperatura antes de instalar.",
+            "producto_coincide": true,
+            "listo_para_revisar": true
+          },
+          "codigo_consultado": "WV48B-76.5",
+          "fuentes_recordadas": [],
+          "ultima_verificacion": "2026-10-01T23:17:33.707647+00:00",
+          "verificacion_manual": {
+            "fecha": "2026-10-01T23:17:33.707647+00:00",
+            "metodo": "Revisión humana asistida: etiqueta, catálogos del fabricante y fichas de distribuidores.",
+            "fuentes": [
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/view/3975",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: WV48B-76.5, Sunny/Lucino B14 GA13DE y OE 21200-77A61",
+                "alcance": "Aplicación concreta; no acredita Corolla ni todos los Sentra."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/index/page:86/sort:name/direction:asc/reference_number:/name:/engine_name:/maker_id:/car_id:/engine_id:",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: tabla de aplicaciones WV48B-76.5",
+                "alcance": "Seleccionar la fila del motor y referencia exactos, no otros termostatos de la tabla."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/omrop2020/top.html",
+                "tipo": "Catálogo técnico",
+                "titulo": "TAMA: catálogo técnico 2020–2022, página 13",
+                "alcance": "Familia WV48B: diámetro principal 48 mm; variantes de temperatura distintas."
+              },
+              {
+                "url": "https://www.maxcarsumegacentro.com/products/termostato-sentra-1600-21200-77a00-wv48b76-5",
+                "tipo": "Distribuidor",
+                "titulo": "MAXCAR: TAMA WV48B76.5 / Sentra 1.6 / 21200-77A00",
+                "alcance": "Publica apertura de 77 °C; no respalda Toyota Corolla."
+              }
+            ],
+            "pendientes": [
+              "Comprobar el grabado de temperatura en la pieza (variante 76.5 / dato comercial 77 °C).",
+              "Confirmar motor, OE y sellado para cada vehículo; no añadir Corolla sin evidencia específica."
+            ],
+            "limitaciones": "Pendiente de revisión del taller. Se corrigió el espacio del código según el empaque. No se confirmó Toyota Corolla ni compatibilidad universal Sentra B13/B14. MAXCAR publica 77 °C frente a la variante 76.5 del código: comprobar el grabado de la pieza antes de cerrar la ficha. Un campo de junta vacío no significa que no requiera sellado.",
+            "publicacion_autorizada": false,
+            "requiere_revision_taller": true
+          },
+          "estado_investigacion": "verificada_manualmente",
+          "investigacion_manual": "Pendiente de revisión del taller. Se corrigió el espacio del código según el empaque. No se confirmó Toyota Corolla ni compatibilidad universal Sentra B13/B14. MAXCAR publica 77 °C frente a la variante 76.5 del código: comprobar el grabado de la pieza antes de cerrar la ficha. Un campo de junta vacío no significa que no requiera sellado.",
+          "verificacion_fuentes": [
+            {
+              "ok": true,
+              "source": {
+                "url": "https://www.tama-e.co.jp/search/en/products/view/3975",
+                "tipo": "Fabricante",
+                "titulo": "TAMA Product Detail – WV48B‑76.5",
+                "dominio": "www.tama-e.co.jp",
+                "codigo_consultado": "WV48B-76. 5",
+                "codigo_verificado": true,
+                "fuente_tecnica_reconocida": false
+              }
+            },
+            {
+              "ok": false,
+              "reason": "No se pudo abrir la fuente (403).",
+              "source": {
+                "url": "https://size.name/en/products/wv48b-765",
+                "tipo": "Catálogo técnico",
+                "titulo": "Thermostat WV48B‑76.5 (TAMA) – Size & Compatibility"
+              }
+            }
+          ],
+          "verificacion_solicitada": false,
+          "investigacion_solicitada_en": "2026-10-01T22:39:07.158Z",
+          "variante_ceramica_verificada_por_empaque": false
+        },
+        "compatibilidad": [
+          "Nissan Sunny B13: GA16DE, GA13DS o GA15DS en las aplicaciones que TAMA relaciona con WV48B-76.5; confirmar referencia OE y versión.",
+          "Nissan Sunny/Lucino B14: GA13DE, GA15DE o GA16DE en las aplicaciones catalogadas por TAMA; no todos los motores B14.",
+          "Nissan Sentra 1.6: aplicación comercial indicada por MAXCAR para WV48B-76.5 / 21200-77A00; confirmar motor y referencia del vehículo."
+        ],
+        "descripcion_corta": "Termostato TAMA WV48B-76.5, catalogado para aplicaciones Nissan específicas. Confirmamos motor, referencia y temperatura antes de instalar.",
+        "error_investigacion": ""
+      },
+      {
+        "id": "d49e0da9-68e5-4e0a-83d9-db5281ba717c",
+        "fotos": [
+          "wv54i-82/1790894609720-01.png",
+          "wv54i-82/1790894612722-02.png",
+          "wv54i-82/1790894614872-03.png"
+        ],
+        "marca": "TAMA ENTERPRISES CO., LTD.",
+        "codigo": "WV54I-82",
+        "creado": "2026-10-01T22:43:36.751809+00:00",
+        "nombre": "Termostato TAMA WV54I-82",
+        "precio": null,
+        "fuentes": [
+          {
+            "url": "https://www.tama-e.co.jp/search/en/products/view/10716",
+            "tipo": "Fabricante",
+            "titulo": "TAMA: WV54I-82 / ELF NKR 4JG2",
+            "alcance": "Aplicación y OE concretos; incluye referencia de junta 8-97216-156-0, sin afirmar que venga incluida."
+          },
+          {
+            "url": "https://www.tama-e.co.jp/search/en/products/index/page:5/sort:end_month/direction:asc/reference_number:/name:/engine_name:/maker_id:/car_id:/engine_id:",
+            "tipo": "Fabricante",
+            "titulo": "TAMA: aplicaciones Isuzu NHR/NKR, Bighorn y Mu",
+            "alcance": "La tabla también incluye WV54IA-82 y otros códigos; no mezclar sus filas."
+          },
+          {
+            "url": "https://www.tama-e.co.jp/omrop2020/top.html",
+            "tipo": "Catálogo técnico",
+            "titulo": "TAMA: catálogo técnico 2020–2022, página 16",
+            "alcance": "WV54I: diámetro principal 54 mm y bypass inferior; distinto del WV54IA."
+          },
+          {
+            "url": "https://www.maxcarsumegacentro.com/products/termostato-wv54i-82-luv-dmax",
+            "tipo": "Distribuidor",
+            "titulo": "MAXCAR: WV54I82 / LUV, D-Max y NHR",
+            "alcance": "Aplicaciones comerciales por contrastar con OE; no incorpora todos los modelos a la compatibilidad confirmada."
+          }
+        ],
+        "cantidad": 5,
+        "revision": "revisar",
+        "categoria": "Termostatos",
+        "confianza": "Media",
+        "actualizado": "2026-10-01T23:17:33.707647+00:00",
+        "descripcion": "Termostato TAMA WV54I-82 para refrigeración, variante nominal 82 °C, diámetro principal 54 mm y válvula de bypass inferior. TAMA lo relaciona con aplicaciones Isuzu NHR/NKR de motores 4JA1, 4JB1 y 4JG2 según versión. Antes de instalar se comprueban referencia OE, carcasa y sellado. No es un reemplazo universal para todos los ELF o D-Max y no debe confundirse con el WV54IA-82.",
+        "referencias": [
+          "Isuzu 8-97089-891-0: referencia OE asociada por TAMA a determinadas aplicaciones 4JG2.",
+          "Isuzu 8-97361-770-0: referencia OE asociada por TAMA a otras aplicaciones WV54I-82; confirmar según vehículo."
+        ],
+        "observaciones": "",
+        "resultado_bot": {
+          "vision": {
+            "confianza": "Alta",
+            "tipo_visible": null,
+            "marca_visible": null,
+            "otros_codigos": [
+              "0095",
+              "SP0808",
+              "4580281451136"
+            ],
+            "codigo_visible": "WV54I-82",
+            "aplicaciones_impresas": [
+              "chevrolet D-max",
+              "luv D max diesel"
+            ]
+          },
+          "investigacion": {
+            "marca": "TAMA ENTERPRISES CO., LTD.",
+            "origen": "revision_manual_asistida",
+            "fuentes": [
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/view/10716",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: WV54I-82 / ELF NKR 4JG2",
+                "alcance": "Aplicación y OE concretos; incluye referencia de junta 8-97216-156-0, sin afirmar que venga incluida."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/index/page:5/sort:end_month/direction:asc/reference_number:/name:/engine_name:/maker_id:/car_id:/engine_id:",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: aplicaciones Isuzu NHR/NKR, Bighorn y Mu",
+                "alcance": "La tabla también incluye WV54IA-82 y otros códigos; no mezclar sus filas."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/omrop2020/top.html",
+                "tipo": "Catálogo técnico",
+                "titulo": "TAMA: catálogo técnico 2020–2022, página 16",
+                "alcance": "WV54I: diámetro principal 54 mm y bypass inferior; distinto del WV54IA."
+              },
+              {
+                "url": "https://www.maxcarsumegacentro.com/products/termostato-wv54i-82-luv-dmax",
+                "tipo": "Distribuidor",
+                "titulo": "MAXCAR: WV54I82 / LUV, D-Max y NHR",
+                "alcance": "Aplicaciones comerciales por contrastar con OE; no incorpora todos los modelos a la compatibilidad confirmada."
+              }
+            ],
+            "categoria": "Termostatos",
+            "confianza": "Media",
+            "descripcion": "Termostato TAMA WV54I-82 para refrigeración, variante nominal 82 °C, diámetro principal 54 mm y válvula de bypass inferior. TAMA lo relaciona con aplicaciones Isuzu NHR/NKR de motores 4JA1, 4JB1 y 4JG2 según versión. Antes de instalar se comprueban referencia OE, carcasa y sellado. No es un reemplazo universal para todos los ELF o D-Max y no debe confundirse con el WV54IA-82.",
+            "referencias": [
+              "Isuzu 8-97089-891-0: referencia OE asociada por TAMA a determinadas aplicaciones 4JG2.",
+              "Isuzu 8-97361-770-0: referencia OE asociada por TAMA a otras aplicaciones WV54I-82; confirmar según vehículo."
+            ],
+            "observaciones": "Pendiente de revisión del taller. TAMA confirma aplicaciones por motor y referencia, no todos los ELF/NKR. MAXCAR indica LUV 4JA1/4JB1 y D-Max 4JH1; quedan como pistas comerciales para verificar OE antes de añadirlas como compatibilidad confirmada. Se excluye WFR 4ZC1: en la tabla TAMA consultada corresponde al W54E-82B. No usar 49526549 como OE: MAXCAR lo presenta como código interno/referencia comercial. No se afirma que incluya junta ni que sea pieza original Isuzu.",
+            "compatibilidad": [
+              "Isuzu ELF 150 NHR: aplicaciones 4JA1 y 4JB1 catalogadas por TAMA para WV54I-82 / OE 8-97361-770-0; confirmar versión.",
+              "Isuzu ELF NKR: aplicaciones 4JB1 o 4JG2 catalogadas por TAMA para WV54I-82; comprobar la referencia OE de la versión.",
+              "Isuzu Bighorn UBS y Mu UCS con 4JG2: aplicaciones del catálogo TAMA / OE 8-97089-891-0; confirmar versión."
+            ],
+            "codigo_coincide": true,
+            "nombre_sugerido": "Termostato TAMA WV54I-82",
+            "descripcion_corta": "Termostato TAMA WV54I-82, variante 82 °C y diámetro principal de 54 mm, para aplicaciones Isuzu específicas según motor y referencia.",
+            "producto_coincide": true,
+            "listo_para_revisar": true
+          },
+          "codigo_consultado": "WV54I-82",
+          "fuentes_recordadas": [],
+          "ultima_verificacion": "2026-10-01T23:17:33.707647+00:00",
+          "verificacion_manual": {
+            "fecha": "2026-10-01T23:17:33.707647+00:00",
+            "metodo": "Revisión humana asistida: etiqueta, catálogos del fabricante y fichas de distribuidores.",
+            "fuentes": [
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/view/10716",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: WV54I-82 / ELF NKR 4JG2",
+                "alcance": "Aplicación y OE concretos; incluye referencia de junta 8-97216-156-0, sin afirmar que venga incluida."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/search/en/products/index/page:5/sort:end_month/direction:asc/reference_number:/name:/engine_name:/maker_id:/car_id:/engine_id:",
+                "tipo": "Fabricante",
+                "titulo": "TAMA: aplicaciones Isuzu NHR/NKR, Bighorn y Mu",
+                "alcance": "La tabla también incluye WV54IA-82 y otros códigos; no mezclar sus filas."
+              },
+              {
+                "url": "https://www.tama-e.co.jp/omrop2020/top.html",
+                "tipo": "Catálogo técnico",
+                "titulo": "TAMA: catálogo técnico 2020–2022, página 16",
+                "alcance": "WV54I: diámetro principal 54 mm y bypass inferior; distinto del WV54IA."
+              },
+              {
+                "url": "https://www.maxcarsumegacentro.com/products/termostato-wv54i-82-luv-dmax",
+                "tipo": "Distribuidor",
+                "titulo": "MAXCAR: WV54I82 / LUV, D-Max y NHR",
+                "alcance": "Aplicaciones comerciales por contrastar con OE; no incorpora todos los modelos a la compatibilidad confirmada."
+              }
+            ],
+            "pendientes": [
+              "Para ofrecerlo en Chevrolet LUV o D-Max, comprobar OE, motor y carcasa contra la pieza retirada.",
+              "Verificar el sellado requerido y si la junta se vende separada; WV54I-82 y WV54IA-82 no se intercambian por compartir temperatura."
+            ],
+            "limitaciones": "Pendiente de revisión del taller. TAMA confirma aplicaciones por motor y referencia, no todos los ELF/NKR. MAXCAR indica LUV 4JA1/4JB1 y D-Max 4JH1; quedan como pistas comerciales para verificar OE antes de añadirlas como compatibilidad confirmada. Se excluye WFR 4ZC1: en la tabla TAMA consultada corresponde al W54E-82B. No usar 49526549 como OE: MAXCAR lo presenta como código interno/referencia comercial. No se afirma que incluya junta ni que sea pieza original Isuzu.",
+            "publicacion_autorizada": false,
+            "requiere_revision_taller": true
+          },
+          "estado_investigacion": "verificada_manualmente",
+          "investigacion_manual": "Pendiente de revisión del taller. TAMA confirma aplicaciones por motor y referencia, no todos los ELF/NKR. MAXCAR indica LUV 4JA1/4JB1 y D-Max 4JH1; quedan como pistas comerciales para verificar OE antes de añadirlas como compatibilidad confirmada. Se excluye WFR 4ZC1: en la tabla TAMA consultada corresponde al W54E-82B. No usar 49526549 como OE: MAXCAR lo presenta como código interno/referencia comercial. No se afirma que incluya junta ni que sea pieza original Isuzu.",
+          "verificacion_fuentes": [
+            {
+              "ok": true,
+              "source": {
+                "url": "https://www.tama-e.co.jp/search/en/products/view/10716",
+                "tipo": "Fabricante",
+                "titulo": "TAMA Product Detail – WV54I-82",
+                "dominio": "www.tama-e.co.jp",
+                "codigo_consultado": "WV54I-82",
+                "codigo_verificado": true,
+                "fuente_tecnica_reconocida": false
+              }
+            }
+          ],
+          "verificacion_solicitada": false,
+          "investigacion_solicitada_en": "2026-10-01T22:43:28.321Z",
+          "variante_ceramica_verificada_por_empaque": false
+        },
+        "compatibilidad": [
+          "Isuzu ELF 150 NHR: aplicaciones 4JA1 y 4JB1 catalogadas por TAMA para WV54I-82 / OE 8-97361-770-0; confirmar versión.",
+          "Isuzu ELF NKR: aplicaciones 4JB1 o 4JG2 catalogadas por TAMA para WV54I-82; comprobar la referencia OE de la versión.",
+          "Isuzu Bighorn UBS y Mu UCS con 4JG2: aplicaciones del catálogo TAMA / OE 8-97089-891-0; confirmar versión."
+        ],
+        "descripcion_corta": "Termostato TAMA WV54I-82, variante 82 °C y diámetro principal de 54 mm, para aplicaciones Isuzu específicas según motor y referencia.",
+        "error_investigacion": ""
+      }
+    ],
+    "photo_count": 13
+  },
+  "limitaciones_conservadas": true,
+  "verificacion": {
+    "verified": true,
+    "checks": [
+      {
+        "codigo": "AA-1109",
+        "publicado": true,
+        "contenido_sin_cambios": true,
+        "autorizacion": true
+      },
+      {
+        "codigo": "AFP-4102",
+        "publicado": true,
+        "contenido_sin_cambios": true,
+        "autorizacion": true
+      },
+      {
+        "codigo": "WV48B-76.5",
+        "publicado": true,
+        "contenido_sin_cambios": true,
+        "autorizacion": true
+      },
+      {
+        "codigo": "WV54I-82",
+        "publicado": true,
+        "contenido_sin_cambios": true,
+        "autorizacion": true
+      }
+    ],
+    "otras_fichas_sin_cambios": true
+  },
+  "verificacion_publica": {
+    "fichas_publicas": [
+      "WV48B-76.5",
+      "AA-1109",
+      "AFP-4102",
+      "WV54I-82"
+    ],
+    "total_publicado": 14,
+    "fotos": [
+      {
+        "codigo": "WV48B-76.5",
+        "archivo": "1790894349276-01.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      },
+      {
+        "codigo": "WV48B-76.5",
+        "archivo": "1790894352473-02.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      },
+      {
+        "codigo": "WV48B-76.5",
+        "archivo": "1790894354686-03.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      },
+      {
+        "codigo": "AA-1109",
+        "archivo": "1790895024202-01.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      },
+      {
+        "codigo": "AA-1109",
+        "archivo": "1790895027235-02.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      },
+      {
+        "codigo": "AA-1109",
+        "archivo": "1790895029604-03.jpg",
+        "status": 200,
+        "tipo": [
+          "image/jpeg"
+        ]
+      },
+      {
+        "codigo": "AA-1109",
+        "archivo": "1790895030679-04.jpg",
+        "status": 200,
+        "tipo": [
+          "image/jpeg"
+        ]
+      },
+      {
+        "codigo": "AFP-4102",
+        "archivo": "1790895268528-01.jpg",
+        "status": 200,
+        "tipo": [
+          "image/jpeg"
+        ]
+      },
+      {
+        "codigo": "AFP-4102",
+        "archivo": "1790895270255-02.jpg",
+        "status": 200,
+        "tipo": [
+          "image/jpeg"
+        ]
+      },
+      {
+        "codigo": "AFP-4102",
+        "archivo": "1790895271517-03.jpg",
+        "status": 200,
+        "tipo": [
+          "image/jpeg"
+        ]
+      },
+      {
+        "codigo": "WV54I-82",
+        "archivo": "1790894609720-01.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      },
+      {
+        "codigo": "WV54I-82",
+        "archivo": "1790894612722-02.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      },
+      {
+        "codigo": "WV54I-82",
+        "archivo": "1790894614872-03.png",
+        "status": 200,
+        "tipo": [
+          "image/png"
+        ]
+      }
+    ]
+  },
+  "nota": "Publicación única autorizada por el usuario. No se configura publicación automática para productos futuros. Se mantienen las limitaciones técnicas y los datos originales; no se certifican aplicaciones pendientes."
+}
