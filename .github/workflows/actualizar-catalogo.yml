@@ -37,11 +37,15 @@ jobs:
       - name: Preparar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.13.1
+          node-version: 22
+
+      - name: Preparar pnpm con version fija
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
 
       - name: Generar páginas estáticas y galerías de servicios
         run: |
-          corepack enable
           pnpm install --frozen-lockfile
           node scripts/generar-catalogo.mjs --servicios
           node scripts/sincronizar-publicacion.mjs

@@ -10,6 +10,7 @@
 - Publicaciones: registro privado de consultas, conversaciones, ventas e importes, separado de clics; preparación de texto verificable para difusión orgánica. No se enviaron mensajes ni publicaciones externas.
 - Limpieza: retirados el importador/investigador del Excel, sus pruebas, controles antiguos y dependencias `exceljs` y `xlsx`. Se conservan originales, fuentes y registros históricos. El Excel anterior está en la Papelera local y los commits previos permiten recuperarlo; su historial público no fue reescrito.
 - La función existente `activar-investigacion` también solicita la sincronización de fichas al publicar. Se actualizó sin ampliar permisos ni consultar su secreto de GitHub.
+- El asesor de seguridad marca las dos funciones privadas de guardado/publicación como `SECURITY DEFINER`. Es deliberado: no hay escritura directa en esas tablas; ambas comprueban la cuenta propietaria y fijan un `search_path` vacío, y publicar exige contraseña reciente. Las pruebas niegan acceso a otros usuarios. No se eliminó esa protección para ocultar el aviso. [Explicación del asesor](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable).
 
 ## Comprobaciones y límites
 

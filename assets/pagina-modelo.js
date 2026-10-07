@@ -40,7 +40,7 @@
     add('servicios', `servicio${i}Nombre`, `${serviceNames[i]}: nombre`, `[data-service-id="${id}"] h3`, { max: 70, required: true });
     add('servicios', `servicio${i}Texto`, `${serviceNames[i]}: explicación`, `[data-service-id="${id}"] .service-body p`, { max: 500, multiline: true });
     add('fotos', `servicio${i}Imagen`, `${serviceNames[i]}: foto 1 / portada`, '', { type: 'image', default: '', help: 'Opcional. Una foto real autorizada. Vacío no añade ninguna imagen.' });
-    for (let j = 0; j < 5; j++) add('fotos', `servicio${i}Foto${j}`, `${serviceNames[i]}: foto ${j + 2}`, '', { type: 'image', default: '', help: 'Opcional. La foto de portada se administra en Servicios. Quitar solo retira esta foto de la galería; conserva el archivo original.' });
+    for (let j = 0; j < 5; j++) add('fotos', `servicio${i}Foto${j}`, `${serviceNames[i]}: foto ${j + 2}`, '', { type: 'image', default: '', help: 'Opcional. La foto 1 de este grupo es la portada. Quitar solo retira esta foto de la galería; conserva el archivo original.' });
   });
   for (let i = 0; i < 6; i++) add('fotos', `localFoto${i}`, `Local: foto ${i + 1}`, '', { type: 'image', default: '', help: 'Foto real autorizada del local. Los espacios vacíos no aparecen en la web.' });
   add('repuestos', 'buscador', 'Ayuda dentro del buscador', '#catalog-search', { attribute: 'placeholder', max: 100 });
