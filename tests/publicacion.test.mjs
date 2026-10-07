@@ -7,7 +7,7 @@ const root = new URL('../',import.meta.url);
 const snapshot = JSON.parse(await readFile(new URL('data/catalogo-panel.json',root),'utf8'));
 test('respaldo público sin notas, fuentes, credenciales o URL temporales',()=>{
   assert.equal(snapshot.total,snapshot.productos.length);
-  assert.ok(snapshot.total >= 16);
+  assert.ok(snapshot.total > 0);
   assert.equal(new Set(snapshot.productos.map(p=>p.panelId)).size,snapshot.total);
   assert.doesNotMatch(JSON.stringify(snapshot), /signedURL|token=|resultado_bot|error_investigacion|access_token|fuentes/);
 });

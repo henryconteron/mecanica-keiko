@@ -49,6 +49,7 @@ jobs:
           pnpm install --frozen-lockfile
           node scripts/generar-catalogo.mjs --servicios
           node scripts/sincronizar-publicacion.mjs
+          pnpm test:publicacion
 
       - name: Guardar contenido actualizado
         run: |

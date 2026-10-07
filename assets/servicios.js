@@ -125,7 +125,7 @@
             <p class="eyebrow">Servicio ${escapeHtml(service.numero)}</p>
             <h2 id="service-dialog-title">${escapeHtml(service.nombre)}</h2>
             <p>${escapeHtml(service.descripcion)}</p>
-            <p class="service-dialog-note">Fotos y videos reales de trabajos realizados en el taller.</p>
+            <p class="service-dialog-note">Fotografías autorizadas del servicio, compartidas por el taller.</p>
             <div class="dialog-buttons">
             <a class="button button-red" href="tel:+${phone()}">Llamar al mecánico</a>
             </div>

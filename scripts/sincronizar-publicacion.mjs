@@ -95,13 +95,13 @@ for(const [key, pattern] of [
   ['descripcionSeo', /(<meta name="description" content=")[^"]*(")/],
   ['tituloSocial', /(<meta property="og:title" content=")[^"]*(")/],
   ['descripcionSocial', /(<meta property="og:description" content=")[^"]*(")/]
-])if(content.fields[key])html=html.replace(pattern,(_,a,b)=>a+esc(content.fields[key])+b);
+])if(key in content.fields)html=html.replace(pattern,(_,a,b)=>a+esc(content.fields[key])+b);
 if(content.fields.imagenSocial?.startsWith('media:')){
   const source=await photo('pagina-media',content.fields.imagenSocial.slice(6));
   await mkdir(path.join(root,'assets/social'),{recursive:true});
   await writeFile(path.join(root,'assets/social/pagina.jpg'),await sharp(source).rotate().resize(1200,630,{fit:'contain',background:'#ffffff'}).flatten({background:'#ffffff'}).jpeg({quality:88}).toBuffer());
   html=html.replace(/(<meta property="og:image" content=")[^"]*(")/,(_,a,b)=>a+base+'assets/social/pagina.jpg'+b);
-}else if(content.fields.imagenSocial)html=html.replace(/(<meta property="og:image" content=")[^"]*(")/,(_,a,b)=>a+base+content.fields.imagenSocial+b);
+}else if('imagenSocial' in content.fields)html=html.replace(/(<meta property="og:image" content=")[^"]*(")/,(_,a,b)=>a+(content.fields.imagenSocial?base+content.fields.imagenSocial:'')+b);
 await writeFile(path.join(root,'index.html'),html);
 await writeFile(path.join(root,'sitemap.xml'),`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${base}</loc></url>${products.map(product=>'<url><loc>'+base+'productos/'+product.id+'/</loc></url>').join('')}</urlset>\n`);
 console.log('Sincronización: ' + products.length + ' fichas publicadas, imágenes blancas y metadatos permanentes.');
