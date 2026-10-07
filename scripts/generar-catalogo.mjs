@@ -158,6 +158,9 @@ const renderProductPage = (product) => {
   </div></main>
   <footer class="footer"><div class="wrap">Tecnicentro Automotriz Keiko · Archidona, Napo · WhatsApp 098 938 1059</div></footer>
   <script>document.querySelector('#share').addEventListener('click',async()=>{const data={title:${JSON.stringify(productLabel(product))},text:${JSON.stringify(promotionText(product))},url:location.href};try{if(navigator.share){await navigator.share(data)}else{await navigator.clipboard.writeText(data.text+'\\n'+location.href);alert('Texto promocional y enlace copiados')}}catch(error){if(error.name!=='AbortError')alert('No se pudo compartir')}});</script>
+  <script src="../../assets/config.js" defer></script>
+  <script src="../../assets/pagina-modelo.js?v=20261007" defer></script>
+  <script src="../../assets/pagina-contacto.js?v=20261007" defer></script>
 </body>
 </html>
 `;

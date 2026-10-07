@@ -9,7 +9,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-Y7SVZ77D0V');
+  if (new URL(location.href).searchParams.get('vista-pagina') !== '1') gtag('config', 'G-Y7SVZ77D0V');
 </script>
 
 <meta charset="UTF-8">
@@ -753,7 +753,7 @@
             </div>
           </div>
           <div class="hero-visual is-empty" aria-label="Espacio para la mascota de Mecánica Keiko">
-            <img src="assets/marca/mascota/mascota.png" alt="Mascota de Mecánica Automotriz Keiko" onload="this.parentElement.classList.remove('is-empty')" onerror="this.remove()">
+            <img src="assets/marca/mascota/mascota.png" alt="Mascota de Mecánica Automotriz Keiko" onload="this.hidden=false;this.parentElement.classList.remove('is-empty')" onerror="this.hidden=true">
             <span class="hero-scene-tool" aria-hidden="true">⚙</span>
             <span class="hero-scene-car" aria-hidden="true"></span>
             <article class="workshop-status hero-workshop-status" id="workshop-status" data-state="closed" aria-live="polite">
@@ -913,9 +913,12 @@
   </dialog>
   <div class="toast" id="catalog-toast" role="status" aria-live="polite"></div>
   <script src="assets/config.js?v=20260913-2" defer></script>
-  <script src="assets/servicios.js" defer></script>
+  <script src="assets/pagina-modelo.js?v=20261007" defer></script>
+  <script src="assets/pagina-publica.js?v=20261007" defer></script>
+  <script src="assets/servicios.js?v=20261007" defer></script>
   <script src="assets/promocion.js?v=20260923" defer></script>
-  <script src="assets/catalogo.js?v=20260929" defer></script>
-  <script src="assets/estado-taller.js?v=20260912-3" defer></script>
+  <script src="assets/catalogo.js?v=20261007" defer></script>
+  <script src="assets/estado-taller.js?v=20261007" defer></script>
+  <style>.button-red,.nav-cta{color:var(--red-text,#fff)}.fact{white-space:normal}h1,h2,h3,.brand-copy,.fact,.section-head,.hero-copy{overflow-wrap:anywhere;min-width:0}.brand-copy strong{white-space:normal}.hero-lead,.service-body p,.compat-copy > p{overflow-wrap:anywhere;white-space:pre-line}</style>
 </body>
 </html>

@@ -132,7 +132,7 @@
       <button class="login-button" type="submit">Ingresar</button>
     </form>
     <div id="admin-panel" hidden>
-      <nav class="app-nav"><button class="is-current" data-screen="workshop" type="button">Estado del taller</button><button data-screen="inventory" type="button">Productos</button><button data-screen="marketing" type="button">Publicaciones</button></nav>
+      <nav class="app-nav"><button class="is-current" data-screen="workshop" type="button">Estado del taller</button><button data-screen="inventory" type="button">Productos</button><button data-screen="marketing" type="button">Publicaciones</button><button data-screen="website" type="button">🔒 Página web</button></nav>
       <section class="screen" id="screen-workshop">
         <p class="current">Estado publicado: <strong id="admin-current">cargando…</strong></p>
         <label>Mensaje opcional<textarea id="admin-message" maxlength="180" placeholder="Ej.: Tenemos espacio desde las 15:30"></textarea></label>
@@ -208,13 +208,33 @@
           </form>
         </section>
       </section>
-      <div class="panel-footer" style="padding:0 26px 24px"><a href="./" target="_blank">Ver página pública</a><button id="admin-logout" type="button">Cerrar sesión</button></div>
+      <section class="screen" id="screen-website" hidden>
+        <div class="screen-head"><div><h2>Página web</h2><p>Edita el contenido sin tocar código.</p></div></div>
+        <details id="website-guide" class="website-help" open><summary>Cómo usarlo y qué está protegido</summary><p>1. Desbloquea con tu contraseña. 2. Cambia los campos de una sección. 3. Guarda el borrador y revisa la vista previa. 4. Publica cuando estés conforme.</p><p>Solo la cuenta propietaria tiene acceso. Productos, stock, precios y estado manual del taller siguen en sus pestañas. El código, los permisos, las claves y la estructura adaptable no se pueden modificar aquí.</p></details>
+        <form id="website-unlock" style="padding:0"><label>Confirma tu contraseña del panel<input id="website-password" type="password" autocomplete="current-password" required></label><button class="primary" type="submit">Desbloquear editor</button></form>
+        <p id="website-status" role="status" aria-live="polite"></p>
+        <div id="website-editor" hidden>
+          <div class="website-toolbar"><button id="website-save" class="secondary" type="button">Guardar borrador</button><button id="website-preview" class="secondary" type="button">Vista previa</button><button id="website-publish" class="primary" type="button">Publicar página</button><button id="website-lock" class="secondary" type="button">Bloquear</button></div>
+          <p id="website-changes" class="website-help"></p>
+          <label>Buscar un campo<input id="website-search" type="search" placeholder="Ej.: título, teléfono, frenos"></label>
+          <nav id="website-sections" class="website-sections" aria-label="Secciones editables"></nav>
+          <form id="website-fields" style="padding:0"></form>
+          <details class="website-recovery"><summary>Recuperar una versión o volver al contenido original</summary><p>Esto solo prepara un borrador; no cambia la página hasta que publiques.</p><label>Versiones anteriores<select id="website-history"><option value="">Selecciona una versión</option></select></label><button id="website-restore" class="secondary" type="button">Preparar esta versión</button><button id="website-reset" class="secondary" type="button">Preparar contenido original</button></details>
+        </div>
+        <dialog id="website-preview-dialog"><div class="website-toolbar"><strong>Vista previa privada</strong><button id="website-preview-mobile" type="button">Celular / computadora</button><button id="website-preview-close" type="button">Cerrar</button></div><p>No está publicada. Las consultas y los enlaces están desactivados en esta vista.</p><iframe id="website-preview-frame" title="Vista previa de la página" sandbox="allow-scripts allow-same-origin"></iframe></dialog>
+        <dialog id="website-publish-dialog"><form id="website-confirm"><h2>Publicar página</h2><p id="website-publish-summary"></p><p>Se actualizará para todos los visitantes y ambas computadoras. Conservaremos la versión anterior para poder recuperarla.</p><label>Confirma tu contraseña<input id="website-publish-password" type="password" autocomplete="current-password" required></label><p id="website-confirm-error" role="alert"></p><div class="website-toolbar"><button id="website-publish-cancel" class="secondary" type="button">Cancelar</button><button class="primary" type="submit">Confirmar y publicar</button></div></form></dialog>
+      </section>
+      <div class="panel-footer" style="padding:0 26px 24px"><a href="./" target="_blank" rel="noopener">Ver página pública</a><button id="admin-logout" type="button">Cerrar sesión</button></div>
     </div>
     <p class="notice" id="admin-notice" hidden></p>
   </main>
   <script src="assets/config.js"></script>
   <script src="assets/promocion.js?v=20260923"></script>
-  <script src="assets/admin-estado.js?v=20260930"></script>
+  <link rel="stylesheet" href="assets/pagina-editor.css?v=20261007">
+  <script src="assets/pagina-modelo.js?v=20261007"></script>
+  <script src="assets/pagina-contacto.js?v=20261007"></script>
+  <script src="assets/admin-estado.js?v=20261007"></script>
+  <script src="assets/pagina-editor.js?v=20261007"></script>
   <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js");</script>
 </body>
 </html>

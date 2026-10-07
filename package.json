@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:pagina": "node --test tests/pagina-web.test.mjs",
     "inventario:validar": "node scripts/importar-inventario.mjs --validar",
     "inventario:importar": "node scripts/importar-inventario.mjs",
     "inventario:investigar": "node scripts/investigar-inventario.mjs",

@@ -1,0 +1,35 @@
+name: Validar editor protegido
+on:
+  push:
+    paths:
+      - 'assets/pagina-*.js'
+      - 'assets/pagina-editor.css'
+      - 'assets/admin-estado.js'
+      - 'admin-estado.html'
+      - 'index.html'
+      - 'supabase/pagina-web*.sql'
+      - 'tests/pagina-web*'
+      - '.github/workflows/validar-editor.yml'
+  pull_request:
+    paths:
+      - 'assets/**'
+      - 'tests/**'
+      - 'supabase/pagina-web*.sql'
+      - '*.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/pagina-web.test.mjs
+      - name: Comprobar JavaScript
+        run: |
+          for file in assets/pagina-*.js assets/admin-estado.js assets/servicios.js assets/catalogo.js assets/estado-taller.js; do
+            node --check "$file"
+          done

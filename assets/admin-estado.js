@@ -619,6 +619,7 @@
   const showPanel = async () => {
     login.hidden = true;
     panel.hidden = false;
+    window.dispatchEvent(new Event("keiko:admin-ready"));
     try { await loadState(); } catch (error) { showNotice(error.message, "error"); }
   };
 
@@ -727,6 +728,7 @@
     document.querySelector("#screen-workshop").hidden = button.dataset.screen !== "workshop";
     document.querySelector("#screen-inventory").hidden = button.dataset.screen !== "inventory";
     document.querySelector("#screen-marketing").hidden = button.dataset.screen !== "marketing";
+    document.querySelector("#screen-website").hidden = button.dataset.screen !== "website";
     if (button.dataset.screen === "inventory") {
       try { await loadProducts(); } catch (error) { showNotice(error.message, "error"); }
     }
@@ -1153,6 +1155,17 @@
     location.reload();
   });
 
+  window.KEIKO_ADMIN_API = {
+    request,
+    async confirmPassword(password) {
+      await refreshSession();
+      const user = await request("/auth/v1/user");
+      if (user.id !== "60712cc3-ee1b-4ad5-9226-4f97d80a13d8") throw new Error("Solo la cuenta propietaria puede editar la página.");
+      const session = await request("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email: user.email, password }) });
+      if (session.user?.id !== user.id) throw new Error("No se pudo confirmar la cuenta.");
+      saveSession(session);
+    }
+  };
   if (!configured) showNotice("Panel preparado. Falta conectar Supabase; consulta la guía.", "error");
   if (token && configured) showPanel();
 })();

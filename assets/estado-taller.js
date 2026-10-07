@@ -54,6 +54,7 @@
 
   const isOpen = () => {
     const { weekday, minutes } = localTime();
+    if (window.KEIKO_PAGE_MODEL) return window.KEIKO_PAGE_MODEL.isOpen(window.KEIKO_PAGE_CONTENT, weekday, minutes);
     if (["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday)) return minutes >= 480 && minutes < 1020;
     if (weekday === "Sat") return minutes >= 480 && minutes < 780;
     return false;
@@ -99,6 +100,7 @@
   };
 
   render();
+  window.addEventListener('keiko:pagina', render);
   loadConfiguration();
   window.setInterval(loadConfiguration, 45000);
 })();

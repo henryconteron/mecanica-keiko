@@ -1,5 +1,5 @@
 (() => {
-  const WHATSAPP = "593989381059";
+  const whatsapp = () => window.KEIKO_PAGE_MODEL?.contact(window.KEIKO_PAGE_CONTENT).whatsapp || "593989381059";
   const grid = document.querySelector("#catalog-grid");
   const status = document.querySelector("#catalog-status");
   const search = document.querySelector("#catalog-search");
@@ -23,6 +23,7 @@
 
   // Solo se envían el código y el tipo de clic: sin cookies, IP propia ni datos de clientes.
   const registerCatalogClick = (product, eventType) => {
+    if (new URL(location.href).searchParams.get('vista-pagina') === '1') return;
     const config = window.KEIKO_CONFIG || {};
     if (!product?.codigo || !config.supabaseUrl || !config.supabaseAnonKey) return;
     fetch(`${config.supabaseUrl}/rest/v1/catalogo_eventos`, {
@@ -140,13 +141,13 @@
       `Enlace: ${productUrl(product)}`,
       "Mi vehículo es:"
     ].join(" ");
-    return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/${whatsapp()}?text=${encodeURIComponent(message)}`;
   };
 
   const promotionText = (product) => {
     const compatibility = (product.compatibilidad || []).slice(0, 2).join(" · ");
     return [
-      "🔧 REPUESTO DISPONIBLE | MECÁNICA KEIKO",
+      `🔧 REPUESTO DISPONIBLE | ${(window.KEIKO_PAGE_MODEL?.contact(window.KEIKO_PAGE_CONTENT).name || 'Mecánica Keiko').toUpperCase()}`,
       `✅ ${product.nombre}`,
       `Código: ${product.codigo}`,
       `Precio: ${priceText(product)}`,
@@ -630,7 +631,8 @@
     }),
     loadPanelProducts()
   ])
-    .then(([staticResult, panelResult]) => {
+    .then(async ([staticResult, panelResult]) => {
+      await window.KEIKO_PAGE_READY;
       if (staticResult.status === "rejected" && panelResult.status === "rejected") throw new Error("Catálogo no disponible");
       const data = staticResult.status === "fulfilled" ? staticResult.value : { productos: [] };
       const panelProducts = panelResult.status === "fulfilled" ? panelResult.value : [];

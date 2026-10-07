@@ -1,5 +1,5 @@
 (() => {
-  const PHONE = "593939876118";
+  const phone = () => window.KEIKO_PAGE_MODEL?.contact(window.KEIKO_PAGE_CONTENT).phone || "593939876118";
   const grid = document.querySelector("#services-grid");
   const dialog = document.querySelector("#service-dialog");
   const dialogContent = document.querySelector("#service-dialog-content");
@@ -8,6 +8,31 @@
   if (!grid || !dialog || !dialogContent) return;
 
   let services = [];
+  let originalServices = [];
+  let renderGeneration = 0;
+  const renderServices = async (media = {}) => {
+    const epoch = ++renderGeneration;
+    const content = window.KEIKO_PAGE_CONTENT;
+    const model = window.KEIKO_PAGE_MODEL;
+    const next = await Promise.all(originalServices.map(async original => {
+      const service = { ...original, medios: [...original.medios || []] };
+      const index = model?.serviceIds.indexOf(service.id) ?? -1;
+      if (index >= 0) {
+        service.nombre = content?.fields[`servicio${index}Nombre`] ?? service.nombre;
+        service.descripcion = content?.fields[`servicio${index}Texto`] ?? service.descripcion;
+        const image = content?.fields[`servicio${index}Imagen`];
+        if (image) {
+          try { service.medios = [{ tipo: 'imagen', src: media[image] || await window.KEIKO_PAGE_IMAGE(image) }, ...service.medios]; } catch { /* Conserva la galería original. */ }
+        }
+      }
+      return service;
+    }));
+    if (epoch !== renderGeneration) return;
+    services = next;
+    if (services.length) grid.innerHTML = services.map(cardTemplate).join("");
+    window.dispatchEvent(new Event('keiko:servicios-listos'));
+  };
+  window.addEventListener('keiko:pagina', event => { if (originalServices.length) renderServices(event.detail.media); });
   let savedScrollY = 0;
   let pageScrollLocked = false;
 
@@ -101,10 +126,10 @@
             <p>${escapeHtml(service.descripcion)}</p>
             <p class="service-dialog-note">Fotos y videos reales de trabajos realizados en el taller.</p>
             <div class="dialog-buttons">
-            <a class="button button-red" href="tel:+${PHONE}">Llamar al mecánico</a>
+            <a class="button button-red" href="tel:+${phone()}">Llamar al mecánico</a>
             </div>
           </div>
-          <div class="dialog-primary-action"><a class="button button-whatsapp" href="https://wa.me/${PHONE}?text=${message}" target="_blank" rel="noopener">Consultar este servicio</a></div>
+          <div class="dialog-primary-action"><a class="button button-whatsapp" href="https://wa.me/${phone()}?text=${message}" target="_blank" rel="noopener">Consultar este servicio</a></div>
         </div>
       </div>
     `;
@@ -139,11 +164,12 @@
       if (!response.ok) throw new Error("No se pudieron cargar los servicios");
       return response.json();
     })
-    .then((data) => {
-      services = (data.servicios || [])
+    .then(async (data) => {
+      await window.KEIKO_PAGE_READY;
+      originalServices = (data.servicios || [])
         .filter((service) => service.publicado !== false)
         .sort((a, b) => (a.orden || 99) - (b.orden || 99));
-      if (services.length) grid.innerHTML = services.map(cardTemplate).join("");
+      await renderServices();
     })
     .catch(() => {
       // El contenido estático del HTML queda visible si el archivo aún no se ha generado.

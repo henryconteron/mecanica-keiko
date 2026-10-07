@@ -13,7 +13,7 @@
     const image=await loadImage(src),canvas=document.createElement('canvas');canvas.width=1080;canvas.height=story?1920:1350;
     const c=canvas.getContext('2d'),h=canvas.height,top=story?180:0;
     c.fillStyle='#fff';c.fillRect(0,0,1080,h);
-    c.fillStyle='#c8272c';c.fillRect(0,top,1080,120);c.fillStyle='#fff';c.font='800 44px Arial';c.fillText('MECÁNICA KEIKO',54,top+75);
+    c.fillStyle='#c8272c';c.fillRect(0,top,1080,120);c.fillStyle='#fff';c.font='800 44px Arial';wrap(c,(window.KEIKO_PAGE_MODEL?.contact(window.KEIKO_PAGE_CONTENT).name || 'Mecánica Keiko').toUpperCase(),54,top+75,972,44,1);
     c.fillStyle='#e9a927';c.fillRect(0,top+120,1080,8);
     const y=top+160,boxH=story?820:600;
     // Recorta únicamente márgenes transparentes, nunca el producto.
@@ -29,7 +29,7 @@
     c.textAlign='right';c.fillStyle='#171717';c.fillText(product.price,1026,textY+185);c.textAlign='left';
     const footer=story?h-350:h-190;c.fillStyle='#f4f1eb';c.fillRect(0,footer,1080,story?200:190);
     c.fillStyle='#171717';c.font='800 30px Arial';c.fillText('CONSULTA Y RESERVA TU REPUESTO',54,footer+55);
-    c.fillStyle='#158044';c.font='800 29px Arial';c.fillText('WhatsApp 098 938 1059',54,footer+102);
+    c.fillStyle='#158044';c.font='800 29px Arial';c.fillText('WhatsApp +' + (window.KEIKO_PAGE_MODEL?.contact(window.KEIKO_PAGE_CONTENT).whatsapp || '593989381059'),54,footer+102);
     c.fillStyle='#555';c.font='24px Arial';c.fillText('Archidona, Napo · Confirma compatibilidad',54,footer+146);
     const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.93));
     if(!blob)throw new Error('No se pudo preparar la imagen.');
