@@ -4,9 +4,11 @@ Esta carpeta contiene la página completa lista para GitHub Pages.
 
 ## Operación actual — octubre de 2026
 
-El trabajo diario se hace en `admin-estado.html`: productos, fotos, existencias, precios, revisión y publicación. La pestaña Publicaciones muestra clics del catálogo y una agenda de ideas; la agenda no envía publicaciones automáticamente a las redes.
+El trabajo diario se hace en `admin-estado.html`: productos, fotos, existencias, precios, revisión, publicación e investigación. El panel en Supabase es la fuente compartida entre computadoras. La pestaña Publicaciones muestra clics del catálogo y una agenda de ideas; la agenda no envía publicaciones automáticamente a las redes.
 
-El Excel conserva el inventario anterior y sirve para captura masiva: no refleja automáticamente lo editado en el panel. No editar el mismo producto simultáneamente desde dos computadoras. No volver a importar fotos originales solo para actualizar un precio; la importación habitual conserva las fotos actuales.
+El archivo Excel antiguo fue retirado: ya no es la fuente del inventario ni se comparte en el repositorio. Los productos se administran desde el panel. La investigación periódica vigente consulta Supabase; la importación y la investigación basadas en Excel quedaron desactivadas. El generador de páginas estáticas sigue disponible para cambios en `catalogo/` y `servicios/`.
+
+No editar el mismo producto simultáneamente desde dos computadoras; el control de concurrencia entre sesiones sigue siendo una mejora pendiente.
 
 Para los pasos pendientes y comprobaciones vigentes, consultar `REVISION-PROYECTO.md`. Los textos de la primera prueba comercial están en `LANZAMIENTO.md`, como borradores para revisar, no anuncios ya publicados.
 
@@ -26,8 +28,8 @@ Mantén GitHub Pages publicado desde la rama `main` y la carpeta `/ (root)`.
 
 ## Trabajo habitual
 
-- Para registrar muchos repuestos, usa `inventario/Inventario_Keiko.xlsx` y coloca las fotos en `inventario/fotos`.
-- La automatización valida la hoja, crea o actualiza las fichas y luego regenera la página.
+- Para registrar o actualizar repuestos, entra en `admin-estado.html`. Guarda el producto y revisa la información antes de publicarla.
+- No vuelvas a subir el Excel antiguo al repositorio: el panel es la fuente compartida y el archivo contenía existencias y precios de operación.
 - Para añadir fotos o videos a un repuesto existente, entra en su carpeta dentro de `catalogo` y súbelos allí.
 - Para añadir fotos o videos de un trabajo, entra en la carpeta correspondiente dentro de `servicios` y súbelos allí.
 - La foto principal debe llamarse `portada.jpg`, `portada.png` o `portada.webp`.

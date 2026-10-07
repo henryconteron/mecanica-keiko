@@ -1,6 +1,30 @@
-# Revisión del proyecto — 21 de septiembre de 2026
+# Revisión del proyecto — 7 de octubre de 2026
 
-## Actualización comprobada — 1 de octubre de 2026
+## Estado comprobado en producción
+
+- La página pública y el panel coinciden con los archivos actuales. El catálogo de Supabase publica 16 productos; las 52 imágenes asociadas responden y son imágenes válidas.
+- El Excel antiguo contiene 10 códigos, y los 10 existen en el panel con las mismas cantidades. Los dos precios numéricos coinciden; los restantes aparecen como “Consultar”. No contiene productos que falten en el panel.
+- El repositorio de GitHub es público y el archivo Excel se podía descargar desde su ruta directa. Por eso se retiró de la versión actual del repositorio, se añadió a `.gitignore` y se envió a la Papelera local. Las versiones ya guardadas en commits anteriores siguen en el historial público; no se reescribió el historial.
+- Se desactivó la automatización antigua de investigación basada en Excel. El flujo de investigación del panel en Supabase permanece intacto; la generación de páginas estáticas y galerías continúa cuando cambian `catalogo/` o `servicios/`.
+- Las pruebas de inventario ahora generan hojas de prueba desechables; no necesitan copiar el archivo real del negocio. Pasaron `pnpm test:inventario`, `pnpm test:fuentes` y `pnpm test:pagina`.
+- La eliminación no cambió productos, precios, cantidades ni fotos en Supabase, y no alteró la página pública.
+
+## Pendientes recomendados antes de ampliar la promoción
+
+1. Confirmar y mantener vigente la protección de inicio de sesión (incluida la protección contra contraseñas filtradas en Supabase).
+2. Añadir control de concurrencia para que dos computadoras o el bot no sobrescriban una edición más nueva.
+3. Generar metadatos y enlaces sociales individuales para los 16 productos; ahora las fichas dinámicas del panel pueden no producir una vista previa personalizada en algunas redes.
+4. Reunir fotos reales autorizadas de los servicios y del local. Las galerías vacías no deben llenarse con imágenes que aparenten ser trabajos del taller.
+5. Medir consultas, conversaciones y ventas por separado. Las métricas del sitio son clics, no ventas ni clientes únicos.
+6. Para promoción sin costo: mantener actualizado el Perfil de Empresa de Google, publicar productos disponibles en estados de WhatsApp y grupos locales que permitan avisos, y pedir reseñas honestas a clientes reales sin ofrecer recompensas.
+
+La prueba `pnpm test:live` consulta producción sin modificar datos. No sustituye una prueba autenticada de alta, investigación y publicación en el panel.
+
+## Historial de revisión — 1 de octubre de 2026
+
+Las siguientes notas se conservan como historial. Los conteos de productos, pendientes y estado del bot que aparecen en esa revisión son una fotografía anterior, no el estado actual.
+
+### Actualización comprobada — 1 de octubre de 2026
 
 Esta actualización sustituye los pendientes antiguos que ya se resolvieron; las notas del 21 de septiembre se conservan debajo como historial, no como estado actual.
 

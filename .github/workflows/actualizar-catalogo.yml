@@ -5,22 +5,10 @@ on:
     paths:
       - ".github/workflows/actualizar-catalogo.yml"
       - "catalogo/**"
-      - "inventario/**"
       - "servicios/**"
       - "assets/marca/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "scripts/importar-inventario.mjs"
-      - "scripts/verificacion-manual-inventario.mjs"
-      - "scripts/correcciones-codigos.mjs"
-      - "scripts/investigar-inventario.mjs"
       - "scripts/generar-catalogo.mjs"
   workflow_dispatch:
-    inputs:
-      importar_fotos:
-        description: "Reemplazar fotos del catálogo con las de inventario/fotos"
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -39,39 +27,17 @@ jobs:
         with:
           node-version: 22.13.1
 
-      - name: Preparar pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.19.0
-
-      - name: Instalar lector de Excel
-        run: pnpm install --frozen-lockfile
-
-      - name: Validar e importar inventario
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          BEFORE_SHA: ${{ github.event.before }}
-          IMPORT_PHOTOS: ${{ inputs.importar_fotos || false }}
-        run: |
-          args=(--conservar-fotos)
-          if [ "$EVENT_NAME" = "push" ] && [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
-            changed_photos="$(git diff --name-only "$BEFORE_SHA" HEAD -- inventario/fotos/)"
-            if [ -n "$changed_photos" ]; then args=(); fi
-          fi
-          if [ "$IMPORT_PHOTOS" = "true" ]; then args=(); fi
-          node scripts/importar-inventario.mjs "${args[@]}"
-
-      - name: Generar productos y galerías de servicios
+      - name: Generar páginas estáticas y galerías de servicios
         run: node scripts/generar-catalogo.mjs
 
       - name: Guardar contenido actualizado
         run: |
-          if git diff --quiet catalogo/ inventario/reporte-validacion.json inventario/pendientes-investigacion.csv data/catalogo.json data/servicios.json productos/; then
+          if git diff --quiet data/catalogo.json data/servicios.json productos/; then
             echo "No hay cambios generados"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add catalogo/ inventario/reporte-validacion.json inventario/pendientes-investigacion.csv data/catalogo.json data/servicios.json productos/
+          git add data/catalogo.json data/servicios.json productos/
           git commit -m "Actualizar catálogo y servicios [skip ci]"
           git push

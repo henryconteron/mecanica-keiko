@@ -6,7 +6,7 @@ Borrador del 1 de octubre de 2026 para revisar con el taller. No se ha publicado
 
 Probar primero el catálogo aprobado con publicaciones orgánicas y consultas por WhatsApp. La selección siguiente se basa en existencias registradas, variedad y evidencia técnica disponible; **no** es una lista de los productos más vendidos o más buscados. Aún no hay datos suficientes para saberlo.
 
-La web tiene 10 productos publicados y 33 fotos accesibles. Usar el panel como fuente del inventario diario. Comprobar existencias y precio justo antes de compartir: la disponibilidad de esta tabla es una fotografía de la consulta, no una reserva.
+La web tiene 16 productos publicados y 52 fotos accesibles. Usar el panel como fuente del inventario diario. Comprobar existencias y precio justo antes de compartir: la disponibilidad de esta tabla es una fotografía de la consulta, no una reserva.
 
 | Pieza para la prueba | Existencias registradas | Precio registrado | Qué confirmar antes de compartir |
 | --- | ---: | --- | --- |

@@ -13,8 +13,14 @@ try {
   await cp(path.join(projectRoot, "catalogo"), path.join(tempRoot, "catalogo"), { recursive: true });
   await cp(path.join(projectRoot, "inventario"), path.join(tempRoot, "inventario"), { recursive: true });
   const workbookPath = path.join(tempRoot, "inventario", "Inventario_Keiko.xlsx");
-  const workbook = XLSX.read(await readFile(workbookPath), { type: "buffer" });
-  const sheet = workbook.Sheets.Inventario;
+  const workbook = XLSX.utils.book_new();
+  const sheet = XLSX.utils.aoa_to_sheet([
+    [], [], [], [], [],
+    ["ID interno", "Código", "Nombre", "Marca", "Categoría", "Cantidad", "Precio", "Estado", "Ubicación", "Descripción corta", "Descripción", "Compatibilidad", "Referencias", "Fuentes", "Confianza", "Revisión", "Publicar", "Destacado", "Orden", "Fotos", "Observaciones"],
+    [1, "SP1502", "Pastillas de freno delanteras Hi-Q", "Hi-Q / Sangsin", "Pastillas de freno", 1, 20, "Nuevo, antiguo stock", "", "Juego delantero de 4 pastillas para Toyota Corolla E12, según versión.", "Juego completo de 4 pastillas de freno delanteras Hi-Q, fabricadas por Sangsin Brake. Se confirma compatibilidad antes de la entrega.", "Toyota Corolla E12, 2001–2007, según versión", "SDB1714 | FMSI D1215-8335", "", "", "Aprobado", "Sí", "No", 99, "", ""]
+  ]);
+  XLSX.utils.book_append_sheet(workbook, sheet, "Inventario");
+  await writeFile(workbookPath, XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }));
   const validRow = [8, "TEST-001", "Filtro de prueba", "Marca prueba", "Filtros", 3, 12.5, "Nuevo", "B-01", "Descripción corta verificada.", "Descripción completa verificada para la prueba.", "Vehículo de prueba, según versión", "REF-001", "https://example.com/catalogo/test-001", "Alta", "Aprobado", "Sí", "No", 99, "TEST-001__01.jpg", "Prueba automática"];
   const basicRow = [9, "BASIC-001", "Producto pendiente", "", "", 2, "Consultar", "Nuevo", "", "", "", "", "", "", "", "Investigar", "No", "No", 99, "", "Captura básica"];
   XLSX.utils.sheet_add_aoa(sheet, [validRow, basicRow], { origin: "A14" });

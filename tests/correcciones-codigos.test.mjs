@@ -29,7 +29,15 @@ try {
   await cp(path.join(root, "catalogo"), path.join(tempRoot, "catalogo"), { recursive: true });
   await cp(path.join(root, "inventario"), path.join(tempRoot, "inventario"), { recursive: true });
   const bookPath = path.join(tempRoot, "inventario/Inventario_Keiko.xlsx");
-  const workbook = XLSX.read(await readFile(bookPath), { type: "buffer" });
+  const workbook = XLSX.utils.book_new();
+  const sheet = XLSX.utils.aoa_to_sheet([
+    [], [], [], [], [],
+    ["ID interno", "Código", "Nombre", "Marca", "Categoría", "Cantidad", "Precio", "Estado", "Ubicación", "Descripción corta", "Descripción", "Compatibilidad", "Referencias", "Fuentes", "Confianza", "Revisión", "Publicar", "Destacado", "Orden", "Fotos", "Observaciones"],
+    [9, "AFE-1507", "Filtro de combustible Advance AFE-1507", "Advance Filters", "Filtros", 5, "Consultar", "Nuevo", "", "Filtro de combustible Advance AFE-1507.", "Ficha de prueba.", "", "", "", "", "Revisar", "No", "No", 99, "", ""],
+    [10, "AF7864", "Filtro de aire Shogun AF7864", "SHOGUN", "Filtros", 5, "Consultar", "Nuevo", "", "Filtro Shogun AF7864.", "Ficha de prueba.", "", "", "", "", "Revisar", "No", "No", 99, "", ""]
+  ]);
+  XLSX.utils.book_append_sheet(workbook, sheet, "Inventario");
+  await writeFile(bookPath, XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }));
   // Test the migration from its actual legacy IDs, including missing AFE media.
   for (const [id, code] of [["afe-15017", "AFE-15017"], ["aft-7864", "AFT-7864"]]) {
     const file = path.join(tempRoot, "catalogo", id, "producto.json");
@@ -73,12 +81,12 @@ try {
     const next = JSON.parse(await readFile(path.join(tempRoot, "catalogo", id, "producto.json"), "utf8"));
     assert.deepEqual(next, product, `${id}: la corrección no debe alterar productos publicados`);
   }
-  workbook.Sheets.Inventario.B15.v = "AFE-15017";
+  workbook.Sheets.Inventario.B7.v = "AFE-15017";
   await writeFile(bookPath, XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }));
   result = run();
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /código anterior/);
-  workbook.Sheets.Inventario.B15.v = "AFE-1507";
+  workbook.Sheets.Inventario.B7.v = "AFE-1507";
   await writeFile(bookPath, XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }));
   const affectedPath = path.join(tempRoot, "catalogo/afe-15017/producto.json");
   const affected = JSON.parse(await readFile(affectedPath, "utf8"));

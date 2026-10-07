@@ -4,9 +4,6 @@
   "type": "module",
   "scripts": {
     "test:pagina": "node --test tests/pagina-web.test.mjs",
-    "inventario:validar": "node scripts/importar-inventario.mjs --validar",
-    "inventario:importar": "node scripts/importar-inventario.mjs",
-    "inventario:investigar": "node scripts/investigar-inventario.mjs",
     "panel:investigar": "node scripts/investigar-supabase.mjs",
     "catalogo:generar": "node scripts/generar-catalogo.mjs",
     "test:inventario": "node tests/importar-inventario.test.mjs && node tests/verificacion-manual-inventario.test.mjs && node tests/correcciones-codigos.test.mjs",
