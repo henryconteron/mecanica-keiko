@@ -1,4 +1,10 @@
-# Cómo añadir fotos, videos y productos
+# Respaldo histórico del catálogo anterior
+
+Esta carpeta no es un segundo inventario activo. El catálogo vigente se obtiene de los productos publicados en Supabase. Para crear un repuesto, cambiar existencias/precio o sustituir sus fotos, usa **Productos** en `admin-estado.html`.
+
+No añadas productos aquí para publicarlos: no aparecerán en el panel ni en el catálogo actual. Los archivos se conservan como originales recuperables y para mantener enlaces antiguos.
+
+Las instrucciones siguientes describen la estructura histórica, no el procedimiento diario.
 
 ## Añadir fotos o videos a un producto existente
 

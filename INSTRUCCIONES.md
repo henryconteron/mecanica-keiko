@@ -6,9 +6,9 @@ Esta carpeta contiene la página completa lista para GitHub Pages.
 
 El trabajo diario se hace en `admin-estado.html`: productos, fotos, existencias, precios, revisión, publicación e investigación. El panel en Supabase es la fuente compartida entre computadoras. La pestaña Publicaciones muestra clics del catálogo y una agenda de ideas; la agenda no envía publicaciones automáticamente a las redes.
 
-El archivo Excel antiguo fue retirado: ya no es la fuente del inventario ni se comparte en el repositorio. Los productos se administran desde el panel. La investigación periódica vigente consulta Supabase; la importación y la investigación basadas en Excel quedaron desactivadas. El generador de páginas estáticas sigue disponible para cambios en `catalogo/` y `servicios/`.
+El archivo Excel antiguo fue retirado: ya no es la fuente del inventario. Los productos se administran desde el panel. La investigación periódica vigente consulta Supabase; la importación y la investigación basadas en Excel quedaron desactivadas. `catalogo/` se conserva como respaldo histórico, no como otro inventario activo. El generador sincroniza los productos publicados de Supabase y las galerías de `servicios/`.
 
-No editar el mismo producto simultáneamente desde dos computadoras; el control de concurrencia entre sesiones sigue siendo una mejora pendiente.
+Las computadoras comparten los mismos datos. Si otra sesión o el bot modifica un producto mientras lo editas, el control de versión rechaza la sobreescritura: conserva tu propuesta y recarga antes de volver a guardarla.
 
 Para los pasos pendientes y comprobaciones vigentes, consultar `REVISION-PROYECTO.md`. Los textos de la primera prueba comercial están en `LANZAMIENTO.md`, como borradores para revisar, no anuncios ya publicados.
 
@@ -30,41 +30,32 @@ Mantén GitHub Pages publicado desde la rama `main` y la carpeta `/ (root)`.
 
 - Para registrar o actualizar repuestos, entra en `admin-estado.html`. Guarda el producto y revisa la información antes de publicarla.
 - No vuelvas a subir el Excel antiguo al repositorio: el panel es la fuente compartida y el archivo contenía existencias y precios de operación.
-- Para añadir fotos o videos a un repuesto existente, entra en su carpeta dentro de `catalogo` y súbelos allí.
-- Para añadir fotos o videos de un trabajo, entra en la carpeta correspondiente dentro de `servicios` y súbelos allí.
-- La foto principal debe llamarse `portada.jpg`, `portada.png` o `portada.webp`.
-- El catálogo admite imágenes JPG, PNG, WebP y GIF; y videos MP4 o WebM.
-- GitHub actualizará automáticamente el catálogo y las galerías de servicios después del cambio.
+- Para añadir, sustituir o retirar una foto de un repuesto, usa **Productos → Editar producto**. Quitar una foto no debe afectar a las demás.
+- Para fotos propias/autorizadas del local o servicios, usa **🔒 Página web → Fotos reales del local y servicios**. Guarda el borrador, revisa y publica.
+- No añadas repuestos nuevos en `catalogo/`: no se incorporan al inventario vigente del panel.
+- El catálogo admite fotos JPG, PNG y WebP. Las galerías de servicios conservan soporte técnico para videos MP4/WebM desde `servicios/`; la carga sin código del editor es de fotografías.
+- Al publicar, se solicita la sincronización de fichas y metadatos. El ciclo programado es un respaldo, no una garantía de ejecución puntual de GitHub.
 - No es necesario editar `index.html` cada vez.
 
 ## Añadir un producto nuevo
 
-Copia la estructura de `catalogo/_PLANTILLA`, ponle como nombre de carpeta un código corto sin espacios y completa `producto.json`. Luego sube las fotos o videos a esa misma carpeta.
+Entra en **Productos → + Nuevo**, captura código exacto, nombre, marca, cantidad, precio si está confirmado y fotos legibles. Guarda para investigar. Revisa la descripción, compatibilidades, referencias y fuentes antes de publicar. Una propuesta del bot no acredita por sí sola la aplicación al vehículo.
 
-Los campos esenciales son:
-
-- `codigo`
-- `nombre`
-- `categoria`
-- `precio`
-- `stock`
-- `descripcion`
-- `compatibilidad`
-- `publicado`
-
-Usa `publicado: false` mientras los datos no estén confirmados. Cámbialo a `true` cuando el producto esté listo para mostrarse.
+Si una búsqueda requiere atención, corrige desde **Editar producto** con información comprobada; no cambies el código para hacerlo coincidir con un resultado parecido. Los cambios de un producto publicado quedan pendientes hasta que pulses **Publicar cambios**.
 
 ## Compartir un repuesto
 
 En la web o en el panel, abre el producto y pulsa **Compartir promoción**. Puedes preparar una imagen para publicación o historia y descargarla; en dispositivos compatibles también se abre el menú para compartir del sistema. Las aplicaciones que aparezcan dependen del dispositivo, navegador y apps instaladas: la web no puede obligar a que Facebook o Instagram aparezcan ni elegir por ellas publicación, historia o mensaje.
 
-Cada ficha tiene un enlace: las del panel usan `?producto=` y las del inventario anterior tienen páginas en `productos/`. Un enlace dinámico no garantiza una vista previa personalizada en Facebook. Para usar exactamente la promoción preparada, subir la imagen descargada y acompañarla con el texto/enlace que entrega el panel. Revisar la foto y precio antes de publicar.
+Cada producto publicado tiene una ficha permanente en `productos/panel-UUID/`, con vista previa social. Un producto recién publicado puede usar temporalmente `?producto=` mientras se genera su ficha. Para usar exactamente la promoción preparada, sube la imagen descargada y acompáñala con el texto/enlace del panel. Revisa foto, precio y existencias antes de publicar; una imagen ya descargada no se actualiza después de una venta.
 
 La carpeta `productos` es generada automáticamente. No la edites manualmente.
 
 ## Fotos y videos de los servicios
 
-Usa estas carpetas ya creadas:
+Para cargar fotos sin código, usa preferentemente el editor protegido. Cada servicio tiene seis espacios y el local otros seis; los grupos vacíos no se muestran.
+
+Para mantenimiento técnico de videos y material anterior se conservan estas carpetas:
 
 - `servicios/mecanica-general`
 - `servicios/mecanica-rapida`
@@ -79,7 +70,7 @@ La tarjeta mostrará la portada y, al abrirla, aparecerá una galería con todas
 
 ## Cambiar el logo
 
-Reemplaza `assets/marca/logo/logo.png` por el nuevo logo, conservando exactamente ese nombre. El logo actual ya está incluido.
+Usa **🔒 Página web → Identidad** para cambiar el logo, guarda el borrador, revisa y publica. El archivo `assets/marca/logo/logo.png` es el valor original de respaldo, no hace falta sustituirlo para el trabajo habitual.
 
 ## Añadir la mascota
 
@@ -92,3 +83,14 @@ La página ya tiene reservado el espacio a la derecha de la portada. Puede ser s
 ## Si GitHub no deja subir carpetas
 
 GitHub en el navegador puede resultar incómodo para subir una estructura completa. Abre el repositorio con GitHub Desktop, copia dentro todos los archivos y carpetas de este paquete, y después usa **Commit to main** y **Push origin**. Para cambios pequeños también puedes entrar en una carpeta desde GitHub y usar **Add file → Upload files**.
+
+## Comprobación técnica antes de publicar código
+
+Usa Node.js 22 o superior y pnpm 11.19.0, la versión fijada en `package.json` y CI. Instala con `pnpm install --frozen-lockfile`; no regeneres el lockfile con otro gestor. `pnpm-workspace.yaml` rechaza scripts de dependencias no revisados. Sharp usa los binarios opcionales del lockfile sin ejecutar su script de compilación.
+
+- `pnpm test`: pruebas aisladas de formato, fuentes, bot y publicación; no consultan IA de pago ni escriben a producción.
+- `pnpm audit --audit-level=high`: avisos conocidos de dependencias; no equivale a una garantía de seguridad.
+- `pnpm test:browser:editor` y `pnpm test:browser:frontend`: navegador aislado con Supabase simulado. Requieren una instalación existente de Playwright (`KEIKO_PLAYWRIGHT_PATH`) y, opcionalmente, `KEIKO_BROWSER_CHANNEL=msedge`. No usan sesiones personales.
+- `pnpm test:live`: diagnóstico externo de solo lectura. Compara el código local con lo publicado; puede fallar intencionalmente mientras haya cambios locales aún sin desplegar.
+
+No subas `.env`, tokens ni claves privadas. El código contiene únicamente la clave publicable; los permisos reales se aplican en Supabase. Las modificaciones de acceso, MFA o credenciales se revisan por separado con el dueño.

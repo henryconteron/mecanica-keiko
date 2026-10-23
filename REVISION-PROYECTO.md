@@ -1,5 +1,7 @@
 # Revisión del proyecto — 7 de octubre de 2026
 
+Revisión posterior y próximos pasos: [Auditoría del 23 de octubre de 2026](AUDITORIA-2026-10-23.md). Este documento conserva la comprobación anterior; no confirma que cambios posteriores ya estén desplegados.
+
 ## Cambios aplicados
 
 - Supabase: versión por producto. Una edición atrasada del panel o del bot no puede sobrescribir cambios de otra computadora. Pruebas SQL de concurrencia, privacidad y galerías ejecutadas con `rollback`, sin alterar existencias, precios ni fotos.
