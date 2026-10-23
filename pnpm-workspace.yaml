@@ -1,0 +1,4 @@
+# Instalación reproducible: ningún script nuevo de dependencias se ejecuta sin revisión.
+strictDepBuilds: true
+allowBuilds:
+  sharp: false

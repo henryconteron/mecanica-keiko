@@ -11,7 +11,8 @@ const server = http.createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
     const target = path.resolve(root, '.' + (pathname.endsWith('/') ? pathname + 'index.html' : pathname));
-    if (!target.startsWith(root + path.sep) || pathname.includes('/.')) { response.writeHead(403).end(); return; }
+    const relative = path.relative(root, target);
+    if (relative.startsWith('..') || path.isAbsolute(relative) || pathname.includes('/.')) { response.writeHead(403).end(); return; }
     response.setHeader('Content-Type', mime[path.extname(target)] || 'application/octet-stream'); response.end(await readFile(target));
   } catch { response.writeHead(404).end(); }
 });
@@ -72,10 +73,10 @@ try {
   await page.waitForFunction(() => document.querySelector('#website-status').textContent.startsWith('Página publicada.'));
   assert.equal(published.fields.portadaTitulo, title); assert.equal(history.length, 1);
   await mkdir(path.join(root, '.codex-local/outputs'), { recursive: true });
-  await page.screenshot({ path: path.join(root, '.codex-local/outputs/pagina-editor-desktop-2026-10-07.png') });
+  await page.screenshot({ path: path.join(root, '.codex-local/outputs/pagina-editor-desktop.png') });
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-  await page.screenshot({ path: path.join(root, '.codex-local/outputs/pagina-editor-mobile-2026-10-07.png') });
+  await page.screenshot({ path: path.join(root, '.codex-local/outputs/pagina-editor-mobile.png') });
   // Conflicto de edición: conserva la propuesta local sin sobrescribir al otro equipo.
   revision++;
   await page.locator('#page-field-portadaTitulo').fill('No debe sobrescribir otro equipo');

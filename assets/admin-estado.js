@@ -331,6 +331,10 @@
   };
 
   const sharePromotion = async (product) => {
+    if (product.revision !== 'publicado' || Number(product.cantidad) <= 0) {
+      showNotice('Solo se pueden promocionar productos publicados con stock disponible.', 'error');
+      return;
+    }
     const approved = window.KEIKO_PHOTOS?.approved(product.fotos || []) || product.fotos || [];
     const photoNotice = window.KEIKO_PHOTOS?.notice(product.fotos || []);
     if (photoNotice && !approved.length) { showNotice(photoNotice, 'error'); return; }
@@ -408,7 +412,7 @@
         ${product.revision === "aprobado" ? '<button class="primary" data-review-action="publicar" type="button">Publicar producto</button>' : ""}
         ${product.revision === "publicado" && hasDraft ? '<button class="primary" data-review-action="publicar-cambios" type="button">Publicar cambios</button>' : ""}
         ${product.revision !== "investigar" && !verificationRequested(product) ? '<button class="secondary" data-review-action="verificar" type="button">Verificar información de nuevo</button>' : ""}
-        ${product.revision === "publicado" && !hasDraft ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
+        ${product.revision === "publicado" && Number(product.cantidad) > 0 && !hasDraft ? '<button class="share-promotion" data-review-action="compartir" type="button">Compartir promoción</button>' : ""}
         <button class="secondary" data-review-action="cerrar" type="button">Cerrar</button>
       </div>`;
     productReview.dataset.productId = product.id;
@@ -614,8 +618,9 @@
       : '<p>Aún no hay clics registrados. Los datos empezarán al publicar esta actualización.</p>';
     const productSelect = document.querySelector("#publication-product");
     const selected = productSelect.value;
-    productSelect.innerHTML = '<option value="">Sin producto concreto</option>' + productsCache.map((item) => {
-      const product = displayedProduct(item);
+    const availableProducts = productsCache.filter(product => product.revision === 'publicado' && Number(product.cantidad) > 0);
+    // La agenda comparte la ficha pública; nunca adelanta textos, precios ni fotos del borrador.
+    productSelect.innerHTML = '<option value="">Sin producto concreto</option>' + availableProducts.map((product) => {
       return `<option value="${escapeHtml(product.codigo)}">${escapeHtml(product.codigo)} · ${escapeHtml(product.nombre)}</option>`;
     }).join("");
     productSelect.value = selected;
@@ -624,7 +629,7 @@
       <div class="plan-item"><strong>${escapeHtml(plan.titulo)}</strong>
       <small>${escapeHtml(new Date(plan.programado).toLocaleString("es-EC", { dateStyle: "medium", timeStyle: "short" }))} · ${escapeHtml(plan.canal)} · ${escapeHtml(plan.formato)}${plan.codigo_producto ? ` · ${escapeHtml(plan.codigo_producto)}` : ""}</small>
       ${plan.nota ? `<p>${escapeHtml(plan.nota)}</p>` : ""}
-      ${plan.codigo_producto && productsCache.some((item) => item.revision === "publicado" && displayedProduct(item).codigo === plan.codigo_producto) ? `<button class="secondary" type="button" data-plan-share="${escapeHtml(plan.codigo_producto)}">Preparar promoción</button>` : ""}
+      ${plan.codigo_producto && availableProducts.some(product => product.codigo === plan.codigo_producto) ? `<button class="secondary" type="button" data-plan-share="${escapeHtml(plan.codigo_producto)}">Preparar promoción</button>` : ""}
       ${plan.estado === "publicado" ? '<span class="badge">Publicado</span>' : `<button class="secondary" type="button" data-plan-done="${escapeHtml(plan.id)}">Marcar publicada</button>`}
       <button type="button" data-plan-delete="${escapeHtml(plan.id)}" aria-label="Quitar de agenda">Quitar</button></div>`).join("") : '<p>No hay publicaciones planeadas.</p>';
   };
@@ -658,8 +663,8 @@
   document.querySelector("#publication-list").addEventListener("click", async (event) => {
     const share = event.target.closest("[data-plan-share]");
     if (share) {
-      const product = productsCache.find((item) => item.revision === "publicado" && displayedProduct(item).codigo === share.dataset.planShare);
-      if (product) await sharePromotion(displayedProduct(product));
+      const product = productsCache.find(item => item.revision === "publicado" && item.codigo === share.dataset.planShare);
+      if (product) await sharePromotion(product);
       return;
     }
     const done = event.target.closest("[data-plan-done]");

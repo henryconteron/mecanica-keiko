@@ -1,21 +1,29 @@
-name: Validar editor protegido
+name: Validar proyecto
 on:
   push:
     paths:
-      - 'assets/pagina-*.js'
-      - 'assets/pagina-editor.css'
-      - 'assets/admin-estado.js'
-      - 'admin-estado.html'
-      - 'index.html'
-      - 'supabase/pagina-web*.sql'
-      - 'tests/pagina-web*'
-      - '.github/workflows/validar-editor.yml'
+      - 'assets/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'supabase/**'
+      - '*.html'
+      - 'service-worker.js'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/**'
   pull_request:
     paths:
       - 'assets/**'
       - 'tests/**'
-      - 'supabase/pagina-web*.sql'
+      - 'scripts/**'
+      - 'supabase/**'
       - '*.html'
+      - 'service-worker.js'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/**'
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,9 +35,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/pagina-web.test.mjs
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - run: pnpm install --frozen-lockfile
       - name: Comprobar JavaScript
         run: |
-          for file in assets/pagina-*.js assets/admin-estado.js assets/servicios.js assets/catalogo.js assets/estado-taller.js; do
+          for file in assets/*.js scripts/*.mjs tests/*.mjs service-worker.js; do
             node --check "$file"
           done
+      - name: Pruebas aisladas, sin secretos ni escrituras a producción
+        run: pnpm test
+      - name: Dependencias sin vulnerabilidades altas conocidas
+        run: pnpm audit --audit-level=high

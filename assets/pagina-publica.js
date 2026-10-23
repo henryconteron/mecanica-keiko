@@ -24,7 +24,7 @@
   const contrast = color => {
     const channels = color.slice(1).match(/../g).map(hex => parseInt(hex, 16) / 255).map(c => c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4);
     const luminance = channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
-    return luminance > .179 ? '#171717' : '#ffffff';
+    return luminance > .179 ? '#000000' : '#ffffff';
   };
   async function apply(content, media = {}) {
     current = model.validate(content);
@@ -37,7 +37,11 @@
       if (!node) continue;
       const value = combined.fields[field.key];
       if (field.type === 'image') {
-        if (!value) continue;
+        if (!value) {
+          if (node.tagName === 'IMG') { node.removeAttribute(field.attribute); node.hidden = true; }
+          else node.setAttribute(field.attribute, '');
+          continue;
+        }
         try {
           const url = media[value] || await imageUrl(value);
           if (epoch !== generation) return;
@@ -48,6 +52,7 @@
             if (epoch !== generation) return;
           }
           node.setAttribute(field.attribute, url);
+          if (node.tagName === 'IMG') node.hidden = false;
         } catch { /* Conserva la imagen original si falla la nueva. */ }
       } else if (field.attribute) node.setAttribute(field.attribute, value);
       else if (field.type === 'prefix') {

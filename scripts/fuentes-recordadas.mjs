@@ -1,7 +1,41 @@
 import { readFile } from "node:fs/promises";
+import dns from "node:dns/promises";
+import { BlockList, isIP } from "node:net";
 
 const text = (value) => String(value ?? "").trim();
 const key = (value) => text(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const reservedAddresses = new BlockList();
+for (const [address, prefix] of [["0.0.0.0", 8], ["10.0.0.0", 8], ["100.64.0.0", 10],
+  ["127.0.0.0", 8], ["169.254.0.0", 16], ["172.16.0.0", 12], ["192.0.0.0", 24],
+  ["192.0.2.0", 24], ["192.88.99.0", 24], ["192.168.0.0", 16], ["198.18.0.0", 15],
+  ["198.51.100.0", 24], ["203.0.113.0", 24], ["224.0.0.0", 4], ["240.0.0.0", 4]]) {
+  reservedAddresses.addSubnet(address, prefix, "ipv4");
+}
+for (const [address, prefix] of [["2001::", 23], ["2001:db8::", 32], ["2002::", 16], ["3fff::", 20]]) {
+  reservedAddresses.addSubnet(address, prefix, "ipv6");
+}
+const globalIPv6 = new BlockList();
+globalIPv6.addSubnet("2000::", 3, "ipv6");
+const publicAddress = (address) => {
+  const family = isIP(address);
+  if (family === 4) return !reservedAddresses.check(address, "ipv4");
+  return family === 6 && globalIPv6.check(address, "ipv6") && !reservedAddresses.check(address, "ipv6");
+};
+
+async function comprobarDnsPublico(url, lookupImpl, signal) {
+  signal.throwIfAborted();
+  let abort;
+  try {
+    const records = await Promise.race([
+      lookupImpl(url.hostname, { all: true, verbatim: true }),
+      new Promise((_, reject) => { abort = () => reject(signal.reason); signal.addEventListener("abort", abort, { once: true }); })
+    ]);
+    if (!Array.isArray(records) || !records.length || records.some((record) => !publicAddress(record?.address))) {
+      throw new Error("El DNS de la fuente devuelve una dirección privada, reservada o no válida.");
+    }
+  } finally { if (abort) signal.removeEventListener("abort", abort); }
+}
 
 export async function cargarBibliotecaFuentes() {
   const library = JSON.parse(await readFile(new URL("../inventario/fuentes-verificadas.json", import.meta.url), "utf8"));
@@ -77,7 +111,8 @@ async function leerPaginaAcotada(response, maxBytes = 1_500_000) {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-export async function comprobarFuenteRecordada(source, sourceCode, { fetchImpl = fetch, timeoutMs = 20000 } = {}) {
+export async function comprobarFuenteRecordada(source, sourceCode, { fetchImpl = fetch,
+  lookupImpl = (...args) => dns.lookup(...args), timeoutMs = 20000 } = {}) {
   const initial = urlFuentePublica(source.url);
   const fail = (reason) => ({ source, ok: false, reason });
   if (!initial) return fail("La fuente no es una URL HTTPS pública válida.");
@@ -86,6 +121,9 @@ export async function comprobarFuenteRecordada(source, sourceCode, { fetchImpl =
   const signal = AbortSignal.timeout(timeoutMs);
   try {
     for (let redirects = 0; redirects <= 3; redirects++) {
+      // Se comprueban todos los A/AAAA, también tras cada redirección. fetch vuelve a
+      // resolver: esto reduce SSRF, pero no elimina DNS rebinding sin fijar la IP de conexión.
+      await comprobarDnsPublico(current, lookupImpl, signal);
       const response = await fetchImpl(current.href, { redirect: "manual", signal,
         headers: { "User-Agent": "MecanicaKeikoCatalogBot/1.0 (+https://henryconteron.github.io/mecanica-keiko/)" } });
       if ([301, 302, 303, 307, 308].includes(response.status)) {

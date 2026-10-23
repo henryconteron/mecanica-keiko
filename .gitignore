@@ -1,4 +1,11 @@
 node_modules/
 .pnpm-store/
 .codex-local/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+playwright-report/
+test-results/
 inventario/Inventario_Keiko.xlsx

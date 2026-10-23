@@ -48,7 +48,10 @@ const knownTechnicalDomains = [
 const sourceUrl = urlFuentePublica;
 
 const isBlockedSource = (hostname) => blockedSourceDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`) || hostname.includes(domain));
-const isKnownTechnicalSource = (hostname) => knownTechnicalDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+const technicalRoot = (hostname) => knownTechnicalDomains
+  .filter((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+  .sort((left, right) => left.length - right.length)[0] || "";
+const isKnownTechnicalSource = (hostname) => Boolean(technicalRoot(hostname));
 
 const parseJson = (value) => {
   const raw = text(value).replace(/^```json\s*/i, "").replace(/\s*```$/, "");
@@ -63,6 +66,7 @@ const parseJson = (value) => {
 const api = async (path, options = {}) => {
   const response = await fetch(`${supabase}${path}`, {
     ...options,
+    signal: AbortSignal.timeout(20000),
     headers: serviceHeaders({ "Content-Type": "application/json", ...options.headers })
   });
   const body = response.status === 204 ? null : await response.json().catch(() => null);
@@ -93,7 +97,7 @@ const groq = async (payload, attempts = 3) => {
 
 const inspectPhoto = async (product) => {
   if (!product.fotos?.[0]) return { codigo_visible: "", confianza: "Baja", error: "No hay fotografía." };
-  const response = await fetch(`${supabase}/storage/v1/object/inventario/${product.fotos[0]}`, { headers: serviceHeaders() });
+  const response = await fetch(`${supabase}/storage/v1/object/inventario/${product.fotos[0]}`, { headers: serviceHeaders(), signal: AbortSignal.timeout(20000) });
   if (!response.ok) throw new Error("No se pudo descargar la fotografía principal.");
   const mime = response.headers.get("content-type") || "image/jpeg";
   const base64 = Buffer.from(await response.arrayBuffer()).toString("base64");
@@ -133,6 +137,7 @@ const verifySource = async (source, product, sourceCode = product.codigo) => {
   const parsed = sourceUrl(source?.url);
   if (!parsed) return { source, ok: false, reason: "La fuente no tiene una URL HTTPS pública y directa." };
   if (isBlockedSource(parsed.hostname)) return { source, ok: false, reason: `La fuente ${parsed.hostname} no es aceptable para información técnica.` };
+  if (!isKnownTechnicalSource(parsed.hostname)) return { source, ok: false, reason: `La fuente técnica ${parsed.hostname} no está reconocida ni revisada por el taller.` };
   try {
     const checked = await comprobarFuenteRecordada(source, sourceCode);
     if (!checked.ok) return checked;
@@ -155,6 +160,15 @@ const verifySource = async (source, product, sourceCode = product.codigo) => {
 };
 
 const sourceLibrary = await cargarBibliotecaFuentes();
+// La biblioteca revisada por el taller también acredita dominios técnicos legítimos;
+// una URL inventada por el modelo no puede acreditarse a sí misma.
+for (const entry of sourceLibrary.productos) {
+  for (const source of entry.fuentes || []) {
+    const url = sourceUrl(source.url);
+    const hostname = url?.hostname.replace(/^www\./, "");
+    if (hostname && !knownTechnicalDomains.includes(hostname)) knownTechnicalDomains.push(hostname);
+  }
+}
 const patchProduct = async (product, update) => {
   if (!Number.isSafeInteger(product.version)) throw new Error('Producto sin versión: instala mejoras-lanzamiento.sql.');
   const rows = await api(`/rest/v1/productos_admin?id=eq.${product.id}&version=eq.${product.version}`, {
@@ -184,16 +198,22 @@ for (const product of pending) {
     console.log(`${product.codigo}: ${rememberedSources.filter((check) => check.ok).length}/${rememberedSources.length} fuentes recordadas comprobadas.`);
     const result = await research(product, vision, sourceCode, rememberedSources);
     const sourceChecks = await Promise.all((result.fuentes || []).slice(0, 5).map((source) => verifySource(source, product, sourceCode)));
-    const sources = [...new Map(sourceChecks.filter((check) => check.ok).map((check) => [check.source.dominio, check.source])).values()];
+    const sources = [...new Map(sourceChecks.filter((check) => check.ok).map((check) => [technicalRoot(check.source.dominio), check.source])).values()];
     const sourceProblems = sourceChecks.filter((check) => !check.ok).map((check) => check.reason);
-    const independentDomains = new Set(sources.map((source) => source.dominio)).size;
+    // www/catálogo de una misma raíz acreditada son una sola fuente. Dos raíces
+    // distintas tampoco prueban independencia empresarial: se mantiene revisión humana.
+    const independentDomains = sources.length;
     const reasons = [];
     if (vision.error) reasons.push(vision.error);
+    if (!text(vision.codigo_visible)) reasons.push("No se pudo leer un código legible en la fotografía de la etiqueta.");
     if (vision.codigo_visible && codeKey(vision.codigo_visible) !== codeKey(product.codigo)) reasons.push(`El código visible ${vision.codigo_visible} no coincide con ${product.codigo}.`);
+    if (!["alta", "media"].includes(text(vision.confianza).toLowerCase())) reasons.push("La confianza de la lectura fotográfica es insuficiente; revisa la etiqueta.");
     if (result.codigo_coincide !== true) reasons.push(`La investigación no confirmó el código de referencia ${sourceCode}.`);
     if (result.producto_coincide !== true) reasons.push("La investigación no confirmó que la descripción corresponde al mismo producto.");
     if (!sources.length) reasons.push(`No se obtuvo una fuente directa donde aparezca el código exacto ${sourceCode}.`);
+    if (sources.some((source) => !source.fuente_tecnica_reconocida)) reasons.push("La investigación incluye una fuente técnica no reconocida ni revisada por el taller.");
     if (!result.compatibilidad?.length) reasons.push("No se obtuvo compatibilidad verificable.");
+    if (!["alta", "media"].includes(text(result.confianza).toLowerCase())) reasons.push("La confianza de la investigación es insuficiente; requiere comprobación manual.");
     if (text(result.confianza).toLowerCase() === "alta" && independentDomains < 2) reasons.push("La confianza Alta exige dos fuentes verificadas de dominios distintos.");
     const ready = !reasons.length && result.listo_para_revisar === true;
     const proposal = {
