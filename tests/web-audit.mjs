@@ -2,33 +2,48 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+import { pathToFileURL } from 'node:url';
+const { chromium } = await import(process.env.KEIKO_PLAYWRIGHT_PATH ? pathToFileURL(process.env.KEIKO_PLAYWRIGHT_PATH).href : 'playwright');
 const root = process.cwd();
+const snapshot = JSON.parse(await readFile(path.join(root, 'data/catalogo-panel.json'), 'utf8'));
+const imagePath = snapshot.productos.find(product => product.medios?.some(media => media.tipo === 'imagen')).medios.find(media => media.tipo === 'imagen').src;
+const image = await readFile(path.join(root, imagePath));
+const productFixture = {
+  id:'test', version:1, codigo:'TEST-1', nombre:'Filtro prueba', marca:'Marca de prueba', categoria:'Filtros', cantidad:2, precio:7,
+  descripcion_corta:'Resumen para una prueba local.', descripcion:'Descripción de prueba, pendiente de confirmar referencia y medidas.',
+  compatibilidad:[], referencias:[], revision:'publicado', fotos:['one.jpg','two.jpg'], actualizado:new Date().toISOString(),
+  resultado_bot:{estado_investigacion:'verificada_manualmente',verificacion_manual:{limitaciones:'Confirmar referencia y medidas.'}}
+};
+const photoResponse = route => route.fulfill({contentType:'image/jpeg', headers:{'Access-Control-Allow-Origin':'*'}, body:image});
+const signedPhotoResponse = route => route.request().method() === 'POST'
+  ? route.fulfill({json:{signedURL:'/object/sign/inventario/fixture.jpg?token=test-only'}})
+  : photoResponse(route);
 const server = createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
     const file = path.resolve(root, `.${pathname === '/' ? '/index.html' : pathname}`);
     if (!file.startsWith(root + path.sep)) throw new Error('outside root');
     const content = await readFile(file);
-    const types = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpeg': 'image/jpeg', '.jpg': 'image/jpeg' };
+    const types = { '.html': 'text/html', '.js': 'text/javascript', '.css':'text/css', '.json': 'application/json', '.png': 'image/png', '.jpeg': 'image/jpeg', '.jpg': 'image/jpeg', '.webp':'image/webp', '.svg':'image/svg+xml' };
     res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream' }); res.end(content);
   } catch { res.writeHead(404); res.end(); }
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const browser = await chromium.launch({ headless: true, channel: process.env.BROWSER_CHANNEL || 'msedge' });
+const browser = await chromium.launch({ headless: true, ...(process.env.KEIKO_BROWSER_CHANNEL ? {channel:process.env.KEIKO_BROWSER_CHANNEL} : {}) });
 try {
   for (const [width, height] of [[360,640], [390,844], [844,390], [1440,900]]) {
     const page = await browser.newPage({ viewport: { width, height } });
+    page.setDefaultTimeout(5000);
     const errors = [];
     const tracked = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('https://**/*', route => {
       const url = route.request().url();
-      if (url.includes('/rest/v1/productos_admin')) return route.fulfill({ json: [] });
+      if (url.includes('/rest/v1/productos_admin')) return route.fulfill({ json: [productFixture] });
       if (url.includes('/rest/v1/estado_taller')) return route.fulfill({ json: [{ estado: 'automatico' }] });
       if (url.includes('/rest/v1/catalogo_eventos')) { tracked.push(route.request().postDataJSON()); return route.fulfill({status:204,body:''}); }
+      if (url.includes('/rest/v1/pagina_publica')) return route.fulfill({json:[{contenido:{version:1,fields:{}}}]});
+      if (url.includes('/storage/v1/object/sign/')) return signedPhotoResponse(route);
       return route.abort();
     });
     await page.goto(`http://127.0.0.1:${server.address().port}`);
@@ -67,28 +82,34 @@ try {
     await page.close();
   }
   const admin = await browser.newPage({viewport:{width:390,height:844}});
+  admin.setDefaultTimeout(5000);
   const errors = [];
   let savedPlan;
   admin.on('pageerror', e => errors.push(e.message));
-  await admin.addInitScript(() => sessionStorage.setItem('keikoAdminToken','test-session'));
   await admin.route('https://**/*', route => {
     const url = route.request().url();
-    if (url.includes('/rest/v1/productos_admin')) return route.fulfill({json:[{id:'test',codigo:'TEST-1',nombre:'Filtro prueba',categoria:'Filtros',cantidad:2,revision:'publicado',fotos:['one.jpg','two.jpg'],resultado_bot:{estado_investigacion:'verificada_manualmente',verificacion_manual:{limitaciones:'Confirmar referencia y medidas.'}}}]});
+    if (url.includes('/auth/v1/user')) return route.fulfill({json:{id:'60712cc3-ee1b-4ad5-9226-4f97d80a13d8',email:'fixture@example.test'}});
+    if (url.includes('/auth/v1/token')) return route.fulfill({json:{access_token:'test-only-not-a-token',refresh_token:'test-only-refresh',user:{id:'60712cc3-ee1b-4ad5-9226-4f97d80a13d8'}}});
+    if (url.includes('/rest/v1/productos_admin')) return route.fulfill({json:[productFixture]});
     if (url.includes('/rest/v1/estado_taller')) return route.fulfill({json:[{estado:'automatico'}]});
     if (url.includes('/rest/v1/catalogo_eventos')) return route.fulfill({json:[{codigo:'TEST-1',evento:'ver_ficha'},{codigo:'TEST-1',evento:'whatsapp'}]});
     if (url.includes('/rest/v1/plan_publicaciones')) {
       if (route.request().method()==='POST') { savedPlan=route.request().postDataJSON(); return route.fulfill({status:201,json:{}}); }
       return route.fulfill({json:[]});
     }
-    if (url.includes('/storage/v1/object/sign')) return route.fulfill({json:{signedURL:'/photo.jpg'}});
+    if (url.includes('/rest/v1/consultas_taller')) return route.fulfill({json:[]});
+    if (url.includes('/storage/v1/object/sign/')) return signedPhotoResponse(route);
     return route.abort();
   });
   await admin.goto(`http://127.0.0.1:${server.address().port}/admin-estado.html`);
+  await admin.locator('#admin-login input[name=email]').fill('fixture@example.test');
+  await admin.locator('#admin-login input[name=password]').fill('prueba-local');
+  await admin.locator('#admin-login button').click();
   await admin.locator('[data-screen="inventory"]').click();
   await admin.locator('#inventory-search').fill('TEST-1');
   await admin.locator('[data-product="test"]').click();
   assert(await admin.getByText('Estado de búsqueda: Revisada con fuentes.', {exact:true}).isVisible());
-  assert(await admin.getByText('Confirmar referencia y medidas.', {exact:false}).isVisible());
+  assert.match(await admin.locator('.review-progress').innerText(), /Confirmar referencia y medidas\./);
   assert.equal(await admin.locator('[data-review-action="manual"]').count(),0);
   await admin.locator('[data-review-action="editar"]').click();
   await admin.locator('[data-remove-existing="1"]').click();
