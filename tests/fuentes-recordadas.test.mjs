@@ -7,6 +7,7 @@ import { cargarBibliotecaFuentes, seleccionarFuentesRecordadas, urlFuentePublica
 const library = await cargarBibliotecaFuentes();
 const filter = { codigo: "AFP-523", marca: "ADVANCE Filters", categoria: "Filtros" };
 const source = library.productos.find((entry) => entry.codigo === filter.codigo).fuentes[0];
+const publicLookup = async () => [{ address: "93.184.216.34", family: 4 }];
 const html = (body, status = 200) => new Response(`<html><head><title>Ficha técnica</title></head><body>${body}</body></html>`, {
   status, headers: { "Content-Type": "text/html; charset=utf-8" }
 });
@@ -74,7 +75,7 @@ test("el código debe estar en texto de la ficha, no solo en URL, atributos, tí
 
 test("lee la página actual y devuelve extracto y limitaciones, sin enviar secretos", async () => {
   let calls = 0;
-  const checks = await consultarFuentesRecordadas(filter, library, filter.codigo, { fetchImpl: async (url, options) => {
+  const checks = await consultarFuentesRecordadas(filter, library, filter.codigo, { lookupImpl: publicLookup, fetchImpl: async (url, options) => {
     calls++;
     assert.equal(url, source.url);
     assert.equal(options.redirect, "manual");
@@ -99,7 +100,7 @@ test("lee la página actual y devuelve extracto y limitaciones, sin enviar secre
 test("fuente borrada, código eliminado o documento no HTML: falla sin reutilizar texto antiguo", async () => {
   for (const response of [html("AFP-523", 404), html("AFP-524"), html('<script>"AFP-523"</script>Otra pieza'),
     new Response("AFP-523", { headers: { "Content-Type": "application/pdf" } })]) {
-    const checked = await comprobarFuenteRecordada(source, "AFP-523", { fetchImpl: async () => response });
+    const checked = await comprobarFuenteRecordada(source, "AFP-523", { lookupImpl: publicLookup, fetchImpl: async () => response });
     assert.equal(checked.ok, false);
     assert.equal(checked.extracto, undefined);
     assert.ok(checked.reason);
@@ -109,7 +110,7 @@ test("fuente borrada, código eliminado o documento no HTML: falla sin reutiliza
 test("rechaza redirecciones externas/privadas antes de visitarlas", async () => {
   for (const destination of ["https://127.0.0.1/ficha", "https://otro.keiko.ec/ficha", "http://distriparteslm.ec/ficha"]) {
     let calls = 0;
-    const checked = await comprobarFuenteRecordada(source, "AFP-523", { fetchImpl: async () => {
+    const checked = await comprobarFuenteRecordada(source, "AFP-523", { lookupImpl: publicLookup, fetchImpl: async () => {
       calls++;
       return new Response(null, { status: 302, headers: { location: destination } });
     } });
@@ -120,13 +121,13 @@ test("rechaza redirecciones externas/privadas antes de visitarlas", async () => 
 
 test("permite redirección al mismo dominio y limita bucles de redirección", async () => {
   let calls = 0;
-  const checked = await comprobarFuenteRecordada(source, "AFP-523", { fetchImpl: async () => ++calls === 1
+  const checked = await comprobarFuenteRecordada(source, "AFP-523", { lookupImpl: publicLookup, fetchImpl: async () => ++calls === 1
     ? new Response(null, { status: 301, headers: { location: "https://www.distriparteslm.ec/producto/otr-afp-523/" } })
     : html("AFP-523") });
   assert.equal(checked.ok, true);
   assert.equal(calls, 2);
   calls = 0;
-  const loop = await comprobarFuenteRecordada(source, "AFP-523", { fetchImpl: async () => {
+  const loop = await comprobarFuenteRecordada(source, "AFP-523", { lookupImpl: publicLookup, fetchImpl: async () => {
     calls++;
     return new Response(null, { status: 302, headers: { location: source.url } });
   } });
@@ -136,9 +137,79 @@ test("permite redirección al mismo dominio y limita bucles de redirección", as
 
 test("tamaño excesivo y errores de red no se convierten en evidencia", async () => {
   for (const fetchImpl of [async () => html("AFP-523 " + "x".repeat(1_500_000)), async () => { throw new Error("Tiempo agotado"); }]) {
-    const checked = await comprobarFuenteRecordada(source, "AFP-523", { fetchImpl });
+    const checked = await comprobarFuenteRecordada(source, "AFP-523", { lookupImpl: publicLookup, fetchImpl });
     assert.equal(checked.ok, false);
     assert.equal(checked.extracto, undefined);
   }
   assert.match(contextoFuentesRecordadas([]), /búsqueda nueva/);
+});
+
+test("DNS: rechaza direcciones privadas y reservadas IPv4/IPv6 antes de la petición", async () => {
+  const addresses = ["0.0.0.0", "10.0.0.1", "100.64.0.1", "127.0.0.1", "169.254.169.254",
+    "172.16.0.1", "192.0.0.1", "192.0.2.1", "192.168.0.1", "198.18.0.1", "198.51.100.1",
+    "203.0.113.1", "224.0.0.1", "255.255.255.255", "::", "::1", "::ffff:127.0.0.1",
+    "fc00::1", "fe80::1", "ff02::1", "2001:db8::1", "2002:7f00:1::1", "3fff::1"];
+  for (const address of addresses) {
+    let requests = 0;
+    const checked = await comprobarFuenteRecordada({ url: "https://127.0.0.1.nip.io/ficha" }, "AFP-523", {
+      lookupImpl: async () => [{ address, family: address.includes(":") ? 6 : 4 }],
+      fetchImpl: async () => { requests++; return html("AFP-523"); }
+    });
+    assert.equal(checked.ok, false, address);
+    assert.equal(requests, 0, address);
+    assert.match(checked.reason, /DNS|privada|reservada/i);
+  }
+});
+
+test("DNS: una sola respuesta privada entre A/AAAA públicos invalida la fuente", async () => {
+  let requests = 0;
+  const checked = await comprobarFuenteRecordada(source, "AFP-523", {
+    lookupImpl: async () => [{ address: "93.184.216.34", family: 4 }, { address: "::1", family: 6 }],
+    fetchImpl: async () => { requests++; return html("AFP-523"); }
+  });
+  assert.equal(checked.ok, false);
+  assert.equal(requests, 0);
+});
+
+test("DNS: permite respuestas públicas y comprueba de nuevo cada redirección", async () => {
+  let resolutions = 0;
+  let requests = 0;
+  const checked = await comprobarFuenteRecordada(source, "AFP-523", {
+    lookupImpl: async () => { resolutions++; return [{ address: "93.184.216.34", family: 4 }, { address: "2606:4700:4700::1111", family: 6 }]; },
+    fetchImpl: async () => ++requests === 1 ? new Response(null, { status: 301, headers: { location: "/ficha-final" } }) : html("AFP-523")
+  });
+  assert.equal(checked.ok, true);
+  assert.equal(requests, 2);
+  assert.equal(resolutions, 2);
+});
+
+test("DNS: no abre el destino si cambia a una dirección privada al redirigir", async () => {
+  let resolutions = 0;
+  let requests = 0;
+  const checked = await comprobarFuenteRecordada(source, "AFP-523", {
+    lookupImpl: async () => [{ address: ++resolutions === 1 ? "93.184.216.34" : "127.0.0.1", family: 4 }],
+    fetchImpl: async () => { requests++; return new Response(null, { status: 302, headers: { location: "/ficha-final" } }); }
+  });
+  assert.equal(checked.ok, false);
+  assert.equal(requests, 1);
+});
+
+test("DNS: ausencia de direcciones, registros inválidos y error de resolución no se convierten en evidencia", async () => {
+  for (const lookupImpl of [async () => [], async () => [{ address: "no-es-ip", family: 4 }], async () => { throw new Error("ENOTFOUND"); }]) {
+    let requests = 0;
+    const checked = await comprobarFuenteRecordada(source, "AFP-523", { lookupImpl,
+      fetchImpl: async () => { requests++; return html("AFP-523"); } });
+    assert.equal(checked.ok, false);
+    assert.equal(requests, 0);
+  }
+});
+
+test("DNS: una resolución lenta respeta el límite total y nunca inicia la descarga", async () => {
+  let requests = 0;
+  const checked = await comprobarFuenteRecordada(source, "AFP-523", { timeoutMs: 5,
+    lookupImpl: () => new Promise((resolve) => setTimeout(() => resolve([{ address: "93.184.216.34", family: 4 }]), 30)),
+    fetchImpl: async () => { requests++; return html("AFP-523"); }
+  });
+  assert.equal(checked.ok, false);
+  assert.equal(requests, 0);
 });
