@@ -21,17 +21,7 @@
   let pageScrollLocked = false;
   let toastTimer;
 
-  // Solo se envían el código y el tipo de clic: sin cookies, IP propia ni datos de clientes.
-  const registerCatalogClick = (product, eventType) => {
-    if (new URL(location.href).searchParams.get('vista-pagina') === '1') return;
-    const config = window.KEIKO_CONFIG || {};
-    if (!product?.codigo || !config.supabaseUrl || !config.supabaseAnonKey) return;
-    fetch(`${config.supabaseUrl}/rest/v1/catalogo_eventos`, {
-      method: "POST", keepalive: true,
-      headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ codigo: String(product.codigo).slice(0, 80), evento: eventType })
-    }).catch(() => { /* Las métricas no deben interrumpir la compra ni la navegación. */ });
-  };
+  const registerCatalogClick = (product, eventType) => window.KEIKO_CATALOG_EVENTS?.register(product, eventType);
 
   const escapeHtml = (value = "") => String(value)
     .replaceAll("&", "&amp;")
@@ -307,6 +297,7 @@
   };
 
   const shareProduct = async (product) => {
+    if (typeof product.stock === 'number' && product.stock <= 0) { showToast('Este producto no tiene stock disponible para promocionar.'); return; }
     if (product.avisoFoto && !product.medios?.length) { showToast('Sube una foto del código correcto antes de preparar esta promoción.'); return; }
     registerCatalogClick(product, "compartir");
     if (window.KEIKO_PROMOTION) return window.KEIKO_PROMOTION.open({name:product.nombre,code:product.codigo,price:priceText(product),url:productUrl(product),text:promotionText(product),photos:(product.medios||[]).filter(m=>m.tipo==='imagen'),resolvePhoto:async index=>(product.medios||[]).filter(m=>m.tipo==='imagen')[index]?.src});
@@ -512,14 +503,14 @@
 
   const productById = (id) => products.find((product) => product.id === id);
 
-  const remoteMedia = async (paths = []) => {
+  const remoteMedia = async (paths = [], signal) => {
     const config = window.KEIKO_CONFIG || {};
     if (!config.supabaseUrl || !config.supabaseAnonKey || !paths.length) return [];
     const headers = { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}`, "Content-Type": "application/json" };
     return Promise.all(paths.map(async (path) => {
       try {
         const response = await fetch(`${config.supabaseUrl}/storage/v1/object/sign/inventario/${encodeURIComponent(path).replaceAll("%2F", "/")}`, {
-          method: "POST", headers, body: JSON.stringify({ expiresIn: 604800 })
+          method: "POST", headers, body: JSON.stringify({ expiresIn: 604800 }), signal
         });
         const body = await response.json().catch(() => null);
         if (!response.ok || !body?.signedURL) return null;
@@ -532,8 +523,10 @@
     const config = window.KEIKO_CONFIG || {};
     const localTest = ['localhost','127.0.0.1'].includes(location.hostname) && config.supabaseUrl?.startsWith(location.origin + '/mock');
     if ((!/^https:\/\//.test(config.supabaseUrl || "") && !localTest) || !config.supabaseAnonKey) return [];
+    // Un único presupuesto para datos y firmas; una foto lenta no congela todo el catálogo.
+    const signal = AbortSignal.timeout(8000);
     const response = await fetch(`${config.supabaseUrl}/rest/v1/productos_admin?revision=eq.publicado&select=id,codigo,nombre,cantidad,precio,marca,categoria,descripcion_corta,descripcion,compatibilidad,referencias,fotos&order=actualizado.desc`, {
-      headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}` }
+      headers: { apikey: config.supabaseAnonKey, Authorization: `Bearer ${config.supabaseAnonKey}` }, signal
     });
     if (!response.ok) throw new Error("No se pudo cargar los productos publicados del panel.");
     const rows = await response.json();
@@ -558,7 +551,7 @@
       publicado: true,
       origen: "panel",
       avisoFoto: window.KEIKO_PHOTOS?.notice(row.fotos || []) || '',
-      medios: await remoteMedia(window.KEIKO_PHOTOS?.approved(row.fotos || []) || row.fotos)
+      medios: await remoteMedia(window.KEIKO_PHOTOS?.approved(row.fotos || []) || row.fotos, signal)
     })));
   };
 
@@ -626,7 +619,7 @@
   });
 
   Promise.allSettled([
-    fetch(`data/catalogo-panel.json?v=${Date.now()}`).then((response) => {
+    fetch(`data/catalogo-panel.json?v=${Date.now()}`, { signal: AbortSignal.timeout(8000) }).then((response) => {
       if (!response.ok) throw new Error("No se pudo cargar el catálogo");
       return response.json();
     }),

@@ -1,5 +1,5 @@
 // Solo datos YA publicados y clave pública. Nunca exporta borradores, fuentes internas ni clientes.
-import { readFile, writeFile, mkdir, readdir, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, rm, lstat, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
@@ -16,9 +16,39 @@ const json = async route => {
   return response.json();
 };
 const rows = await json('/rest/v1/productos_admin?revision=eq.publicado&select=id,codigo,nombre,cantidad,precio,marca,categoria,descripcion_corta,descripcion,compatibilidad,referencias,fotos&order=codigo');
-if (!rows.length) throw new Error('Catálogo público vacío: no se reemplazará el contenido de respaldo.');
+if (!Array.isArray(rows)) throw new Error('Respuesta de catálogo inválida: se conserva el respaldo anterior.');
 const page = (await json('/rest/v1/pagina_publica?id=eq.1&select=contenido'))[0]?.contenido || {version:1,fields:{}};
 const content = globalThis.KEIKO_PAGE_MODEL.validate(page), contact = globalThis.KEIKO_PAGE_MODEL.contact(content);
+const parent = path.resolve(root, 'productos');
+await mkdir(parent, { recursive:true });
+if ((await lstat(parent)).isSymbolicLink() || await realpath(parent) !== path.join(await realpath(root), 'productos')) throw new Error('Directorio de productos fuera de la ruta permitida.');
+const entries = await readdir(parent, { withFileTypes:true });
+if (entries.some(entry => /^panel-[a-f0-9-]{36}$/.test(entry.name) && entry.isSymbolicLink())) throw new Error('Un directorio generado es un enlace; no se modificará el catálogo.');
+async function productFolder(id) {
+  const folder = path.resolve(parent, id);
+  if (path.dirname(folder) !== parent) throw new Error('Ruta de producto fuera del directorio permitido.');
+  try { if ((await lstat(folder)).isSymbolicLink()) throw new Error('La ruta del producto es un enlace.'); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+  return folder;
+}
+async function ownedGeneratedFolder(id) {
+  const folder = await productFolder(id), index = path.join(folder, 'index.html');
+  const invalid = () => new Error('No se acredita propiedad del generador para la carpeta ' + id + '; no se retirará el catálogo.');
+  let info;
+  try { info = await lstat(index); } catch { throw invalid(); }
+  if (info.isSymbolicLink()) throw new Error('El index de la ficha es un enlace; no acredita propiedad del generador.');
+  if (!info.isFile() || info.size > 2_000_000 || await realpath(index) !== path.join(await realpath(folder), 'index.html')) throw invalid();
+  const html = await readFile(index, 'utf8');
+  const match = html.match(/<script type="application\/json" id="product-data">([\s\S]*?)<\/script>/);
+  let data;
+  try { data = JSON.parse(match?.[1] || ''); } catch { throw invalid(); }
+  if (data?.id !== id || data?.panelId !== id.slice(6)) throw invalid();
+  return folder;
+}
+// Verificar propiedad ANTES de escribir cualquier ficha o respaldo, no solo la forma del nombre.
+const keep = new Set(rows.map(row => 'panel-' + row?.id));
+const retired = entries.filter(entry => entry.isDirectory() && /^panel-[a-f0-9-]{36}$/.test(entry.name) && !keep.has(entry.name));
+for (const entry of retired) await ownedGeneratedFolder(entry.name);
 const photo = async (bucket, name) => {
   const response = await fetch(config.supabaseUrl + '/storage/v1/object/sign/' + bucket + '/' + encodeURIComponent(name).replaceAll('%2F','/'), { method:'POST', headers:{ ...headers, 'Content-Type':'application/json' }, body:JSON.stringify({expiresIn:120}), signal:AbortSignal.timeout(15000) });
   if (!response.ok) throw new Error('No se pudo firmar una foto publicada.');
@@ -43,7 +73,7 @@ for (const rawRow of rows) {
   const avisoFoto = ctx.window.KEIKO_PHOTOS.notice(rawRow.fotos || []);
   const row = { ...rawRow, fotos:ctx.window.KEIKO_PHOTOS.approved(rawRow.fotos || []) };
   if (!/^[a-f0-9-]{36}$/.test(row.id)) throw new Error('Identificador inesperado.');
-  const id = 'panel-' + row.id, folder = path.join(root, 'productos', id);
+  const id = 'panel-' + row.id, folder = await productFolder(id);
   const price = row.precio === null ? 'Consultar' : 'USD ' + row.precio;
   let primary, social;
   if (row.fotos[0]) {
@@ -63,7 +93,9 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><
   const url = base + 'productos/' + id + '/', description = row.descripcion_corta || row.descripcion;
   const productJson = JSON.stringify({ id:row.id,...product,url }).replaceAll('<','\\u003c');
   const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(row.nombre)} · ${esc(row.codigo)} | ${esc(contact.name)}</title><meta name="description" content="${esc(description)}"><link rel="canonical" href="${url}"><meta property="og:type" content="product"><meta property="og:title" content="${esc(row.nombre + ' · ' + row.codigo)}"><meta property="og:description" content="${esc(price + '. ' + description)}"><meta property="og:url" content="${url}">${social ? '<meta property="og:image" content="' + url + 'social.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="' + esc(row.nombre) + '">' : ''}<meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="../../assets/ficha-publica.css"></head><body><header><a href="../../#repuestos">${esc(contact.name)} · Volver al catálogo</a></header><main><section class="photo"><img id="product-image" src="./photo.jpg" alt="${esc(row.nombre)}"></section><article><p>${esc(row.categoria)}</p><h1 id="product-name">${esc(row.nombre)}</h1><p id="product-short">${esc(description)}</p><p>Código: <strong>${esc(row.codigo)}</strong> · <span id="product-stock">${row.cantidad} unidades registradas</span></p><h2 id="product-price">${esc(price)}</h2><h2>Descripción</h2><p id="product-description">${esc(row.descripcion)}</p><details><summary>Compatibilidad</summary><ul id="product-compatibility">${row.compatibilidad.map(v=>'<li>'+esc(v)+'</li>').join('')}</ul></details><details><summary>Referencias y equivalencias</summary><ul id="product-references">${row.referencias.map(v=>'<li>'+esc(v)+'</li>').join('')}</ul></details><p>Confirma modelo, año, motor y disponibilidad antes de comprar.</p><a class="button" id="product-contact" href="https://wa.me/${contact.whatsapp}?text=${encodeURIComponent('Hola, consulto por ' + row.codigo + '. Mi vehículo es:')}" target="_blank" rel="noopener">Consultar por WhatsApp</a><button id="product-share" type="button">Compartir promoción</button><a id="product-gallery" href="../../?producto=${row.id}#repuestos">Ver todas las fotos y ampliar</a><p id="product-status" role="status"></p></article></main><script type="application/json" id="product-data">${productJson}</script><script src="../../assets/config.js"></script><script src="../../assets/pagina-modelo.js?v=20261007-2"></script><script src="../../assets/pagina-contacto.js?v=20261007-2"></script><script src="../../assets/promocion.js?v=20261007-2"></script><script src="../../assets/ficha-publica.js?v=20261007-2"></script></body></html>`;
-  prepared.push({folder,id,html:primary?html:html.replace('<img id="product-image" src="./photo.jpg"', '<img hidden id="product-image" src="./photo.jpg"').replace('<section class="photo">','<section class="photo"><p>Foto del producto pendiente de corregir.</p>').replace('<button id="product-share" type="button">','<button disabled id="product-share" type="button">'),primary,social}); products.push(product);
+  const eventHtml = html.replace(/ficha-publica\.js\?v=[^"]+/, 'ficha-publica.js?v=20261023-1').replace('<script src="../../assets/ficha-publica.js', '<script src="../../assets/catalogo-eventos.js?v=20261023-1"></script><script src="../../assets/ficha-publica.js');
+  const publicHtml = row.cantidad > 0 ? eventHtml : eventHtml.replace('<button id="product-share" type="button">', '<button disabled id="product-share" type="button">');
+  prepared.push({folder,id,html:primary?publicHtml:publicHtml.replace('<img id="product-image" src="./photo.jpg"', '<img hidden id="product-image" src="./photo.jpg"').replace('<section class="photo">','<section class="photo"><p>Foto del producto pendiente de corregir.</p>').replace('<button id="product-share" type="button">','<button disabled id="product-share" type="button">'),primary,social}); products.push(product);
 }
 for (const item of prepared) {
   await mkdir(item.folder,{recursive:true});
@@ -75,17 +107,16 @@ for (const item of prepared) {
 const legacy = JSON.parse(await readFile(path.join(root,'data/catalogo.json'),'utf8'));
 for (const old of legacy.productos || []) {
   const current=products.find(product=>product.codigo===old.codigo);
-  if(!current || !/^[a-z0-9-]+$/.test(old.id) || old.id.startsWith('panel-'))continue;
-  const folder=path.resolve(root,'productos',old.id);
-  if(path.dirname(folder)!==path.resolve(root,'productos'))throw new Error('Ruta heredada inválida.');
-  const target=base+'productos/'+current.id+'/';
+  if(!/^[a-z0-9-]+$/.test(old.id) || old.id.startsWith('panel-'))continue;
+  const folder=await productFolder(old.id);
+  const target=current?base+'productos/'+current.id+'/':base+'#repuestos';
+  const label=current?`${current.nombre} (${current.codigo})`:'el catálogo vigente de repuestos';
   await mkdir(folder,{recursive:true});
-  await writeFile(path.join(folder,'index.html'),`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(current.nombre)} | ${esc(contact.name)}</title><link rel="canonical" href="${target}"><meta http-equiv="refresh" content="0;url=${target}"></head><body><p>La ficha se actualizó. <a href="${target}">Ver ${esc(current.nombre)} (${esc(current.codigo)})</a></p></body></html>`);
+  await writeFile(path.join(folder,'index.html'),`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(current?.nombre || 'Catálogo de repuestos')} | ${esc(contact.name)}</title><link rel="canonical" href="${target}"><meta http-equiv="refresh" content="0;url=${target}"></head><body><p>La ficha se actualizó. <a href="${target}">Ver ${esc(label)}</a></p></body></html>`);
 }
 // Solo directorios generados panel-UUID dentro de productos; nunca originales del catálogo.
-const keep = new Set(prepared.map(item=>item.id)), parent = path.resolve(root,'productos');
-for(const entry of await readdir(parent,{withFileTypes:true}))if(entry.isDirectory() && /^panel-[a-f0-9-]{36}$/.test(entry.name) && !keep.has(entry.name)){
-  const target=path.resolve(parent,entry.name); if(path.dirname(target)!==parent)throw new Error('Ruta fuera de productos.');
+for(const entry of retired){
+  const target=await ownedGeneratedFolder(entry.name);
   await rm(target,{recursive:true});
 }
 await writeFile(path.join(root,'data/catalogo-panel.json'),JSON.stringify({total:products.length,productos:products},null,2)+'\n');
